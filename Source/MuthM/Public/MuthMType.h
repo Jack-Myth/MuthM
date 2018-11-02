@@ -22,7 +22,8 @@ class MUTHM_API FMDATFile
 		/*File Meta*/
 		//File Address in MDAT
 		uint32 Address;
-		uint32 Length;
+		uint32 CompressedLength;
+		uint32 OriginalLength;
 		/*File Data*/
 		TArray<uint8> Data;
 		bool bLoaded : 1;
@@ -47,6 +48,15 @@ public:
 		return _DeserializeInternal(pData);
 	}
 
+	inline void LoadAllFile()
+	{
+		for (auto it=_Files.CreateIterator();it;++it)
+		{
+			if (!it->Value.bLoaded)
+				_LazyLoad(&it->Value);
+		}
+	}
+
 	//Get File Data By name
 	//If No such file,TArray<uint8>() is returned.
 	TArray<uint8> GetFileData(FString FileName) const;
@@ -55,10 +65,10 @@ public:
 		const FileInfo* TargetFileInfo = _Files.Find(FileName);
 		return TargetFileInfo ? TargetFileInfo->Address : NULL;
 	}
-	FORCEINLINE uint32 GetFileLength(FString FileName) const
+	FORCEINLINE uint32 GetFileCompressedLength(FString FileName) const
 	{
 		const FileInfo* TargetFileInfo = _Files.Find(FileName);
-		return TargetFileInfo ? TargetFileInfo->Length : NULL;
+		return TargetFileInfo ? TargetFileInfo->CompressedLength : NULL;
 	}
 	FORCEINLINE bool IsFileExist(FString FileName) const
 	{

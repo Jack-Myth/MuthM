@@ -4,6 +4,7 @@
 #include "FileHelper.h"
 #include "LogMacros.h"
 #include "MuthMTypeHelper.h"
+#include "zlib.h"
 #include "PlatformFilemanager.h"
 
 DEFINE_LOG_CATEGORY(MDATFile)
@@ -38,7 +39,7 @@ bool FMDATFile::_DeserializeInternal(const uint8* _pData)
 		_pData += sizeof(uint32);
 		CurFile.bLoaded = false;
 		CurFile.Address = FileAddress;
-		CurFile.Length = FileSize;
+		CurFile.CompressedLength = FileSize;
 		_Files.Add(FileName, CurFile);
 	}
 	_pData += sizeof(UTF8CHAR);
@@ -51,16 +52,20 @@ void FMDATFile::_SerializeInternal(TArray<uint8>& DataResult)
 	DataResult.SetNum(0);
 	DataResult.Append((const uint8*)"_MDAT", 5);
 	TArray<uint8> DataArea;
+	TArray<uint8> CompressBuffer;
 	for (auto it=_Files.CreateIterator();it;++it)
 	{
 		if (!it->Value.bLoaded)
 			_LazyLoad(&(it->Value));
 		it->Value.Address = DataArea.Num();
-		DataArea.Append(it->Value.Data);
 		FTCHARToUTF8 TTU(*it->Key);
+		CompressBuffer.SetNum(it->Value.CompressedLength ? it->Value.CompressedLength : it->Value.OriginalLength);
+		unsigned long DestLen = CompressBuffer.Num();
+		compress2(CompressBuffer.GetData(), &DestLen, it->Value.Data.GetData(), it->Value.Data.Num(), Z_BEST_COMPRESSION);
+		DataArea.Append(CompressBuffer.GetData(), DestLen);
 		DataResult.Append((const uint8*)TTU.Get(), TTU.Length()+1); //Include Terminator Character
 		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.Address));
-		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.Length));
+		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.CompressedLength));
 	}
 	DataResult.Append(DataArea);
 }
@@ -76,14 +81,17 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 		return;
 	}
 	FileHandle->Seek(pFileInfo->Address + _DataAddressBase);
-	pFileInfo->Data.SetNum(pFileInfo->Length);
-	if (!FileHandle->Read(pFileInfo->Data.GetData(), pFileInfo->Length))
+	TArray<uint8> CompressedData;
+	CompressedData.SetNum(pFileInfo->CompressedLength);
+	if (!FileHandle->Read(pFileInfo->Data.GetData(), pFileInfo->CompressedLength))
 	{
 		//Load Failed!
 		UE_LOG(MDATFile, Error, TEXT("Unable to load data from %s!"), *_MDATFileName);
-		pFileInfo->Data.SetNum(0);
 		return;
 	}
+	pFileInfo->Data.SetNum(pFileInfo->OriginalLength);
+	unsigned long DestLen = pFileInfo->Data.Num();
+	uncompress(pFileInfo->Data.GetData(), &DestLen, CompressedData.GetData(), CompressedData.Num());
 	pFileInfo->bLoaded = true;
 }
 
@@ -121,7 +129,7 @@ bool FMDATFile::AddFile(FString FileName, const TArray<uint8>& FileData)
 	tmpFileInfo.bLoaded = true;
 	tmpFileInfo.Data = FileData;
 	tmpFileInfo.Address = 0;
-	tmpFileInfo.Length = FileData.Num();
+	tmpFileInfo.CompressedLength = FileData.Num();
 	return true;
 }
 
