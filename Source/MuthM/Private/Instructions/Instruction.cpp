@@ -11,3 +11,8 @@ void UInstruction::SetTime(float pNewTime)
 {
 	InstructionTime = pNewTime;
 }
+
+void UInstruction::SetWorld(UWorld* WorldContext)
+{
+	CachedWorld = MakeShareable(WorldContext);
+}

@@ -8,7 +8,7 @@ public class MuthM : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","zlib" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore","zlib","BlueprintJson" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
