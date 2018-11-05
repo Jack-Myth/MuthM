@@ -7,6 +7,14 @@
 #include "Classes/BlueprintJsonLibrary.h"
 #include "Instruction.generated.h"
 
+UENUM(BlueprintType)
+enum EInstructionDestroyReason
+{
+	IDR_Manually UMETA(DisplayName = "Manually"),
+	IDR_Unregister UMETA(DisplayName = "Unregister"),
+	IDR_SceneClear UMETA(DisplayName = "SceneClear")
+};
+
 /**
  * The Base UClass of all MMS Instructions
  */
@@ -31,7 +39,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTick(float CurrentTime);
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnInstructionDestroy();
+		void OnInstructionDestroy(EInstructionDestroyReason DestroyReason);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTimeArrived();
 

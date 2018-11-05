@@ -6,19 +6,15 @@
 #include "UObject/Interface.h"
 #include "Instruction.h"
 #include "SubclassOf.h"
+#include "JsonObject.h"
 #include "InstructionManager.generated.h"
-
-struct FInstructionRecord
-{
-	TSubclassOf<UInstruction> InstructionClass;
-};
 
 //Ref of Instruction,Hold by Blueprint
 USTRUCT(BlueprintType)
 struct FInstructionRef
 {
 	GENERATED_BODY()
-	TSharedPtr<FInstructionRecord>* RecordPtr;
+	TSubclassOf<UInstruction> RecordPtr;
 };
 
 // This class does not need to be modified.
@@ -41,9 +37,11 @@ public:
 	static TScriptInterface<IInstructionManager> Get();
 
 	UFUNCTION(BlueprintCallable)
-		virtual FInstructionRef RegisterInstruction(const FName& InstructionName, TSubclassOf<UInstruction> InstructionClass) const = 0;
+		virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) = 0;
 
 	UFUNCTION(BlueprintCallable)
-		virtual bool UnregisterInstruction(const FInstructionRef InstructionRef) const = 0;
+		virtual void UnregisterInstruction(const FInstructionRef InstructionRef) = 0;
 
+	virtual bool ActiveInstruction(FName InstructionName, FJsonObject& JsonArg) = 0;
+	virtual bool DestroyInstructionInstance(UInstruction* InstructionInstance, EInstructionDestroyReason DestroyReason) = 0;
 };

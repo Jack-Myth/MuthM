@@ -14,8 +14,17 @@ UCLASS(NotBlueprintable)
 class MUTHM_API UInstructionManagerImpl : public UObject,public IInstructionManager
 {
 	GENERATED_BODY()
-public:
-	virtual FInstructionRef RegisterInstruction(const FName& InstructionName, TSubclassOf<UInstruction> InstructionClass) const override;
-	virtual bool UnregisterInstruction(const FInstructionRef InstructionRef) const override;
 
+	UPROPERTY()
+		TMap<FName, TSubclassOf<UInstruction>> _InstructionMap;
+	UPROPERTY()
+		TSet<UInstruction*> _InstructionInstanceList;
+public:	
+	virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) override;
+	virtual void UnregisterInstruction(const FInstructionRef InstructionRef) override;
+	virtual bool ActiveInstruction(FName InstructionName, FJsonObject& JsonArg) override;
+
+	//Called by the other function ,so DestroyReason must be provided.
+	virtual bool DestroyInstructionInstance(UInstruction* InstructionInstance, EInstructionDestroyReason DestroyReason) override;
+	
 };
