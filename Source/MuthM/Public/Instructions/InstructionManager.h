@@ -51,7 +51,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void UnregisterInstruction(const FInstructionRef InstructionRef) = 0;
 
-	virtual UInstruction* GenInstruction(FName InstructionName, FJsonObject& JsonArg) = 0;
+	virtual UInstruction* GenInstruction(FName InstructionName,float Time, FJsonObject& JsonArg) = 0;
 	virtual void Tick(float CurrentTime) = 0;
 	virtual void SetWorldContextProvider(UObject* Provider) = 0;
 };

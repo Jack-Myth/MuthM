@@ -13,7 +13,7 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 {
 	GENERATED_BODY()
 		friend class UInstructionManagerImpl;
-	bool _DeserializeInternal(const uint8* _JsonStr);
+	bool _DeserializeInternal(const uint8* _MMSStr);
 	UPROPERTY()
 		TArray<UInstruction*> _InstructionInstances;
 	UPROPERTY()

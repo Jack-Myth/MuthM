@@ -19,7 +19,7 @@ class MUTHM_API UInstructionManagerImpl : public UObject, public IInstructionMan
 public:
 	virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) override;
 	virtual void UnregisterInstruction(const FInstructionRef InstructionRef) override;
-	virtual UInstruction* GenInstruction(FName InstructionName, FJsonObject& JsonArg) override;
+	virtual UInstruction* GenInstruction(FName InstructionName, float Time, FJsonObject& JsonArg) override;
 	virtual void Tick(float CurrentTime) override;
 	virtual void SetWorldContextProvider(UObject* Provider) override;
 };

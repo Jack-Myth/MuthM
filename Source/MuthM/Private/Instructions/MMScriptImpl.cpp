@@ -3,22 +3,53 @@
 #include "MMScriptImpl.h"
 #include "MuthMTypeHelper.h"
 #include "FileHelper.h"
+#include "JsonObject.h"
+#include "JsonReader.h"
+#include "JsonSerializer.h"
+#include "InstructionManager.h"
 
-bool UMMScriptImpl::_DeserializeInternal(const uint8* _JsonStr)
+bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 {
-	if (!FMemory::Memcmp(_JsonStr, "_MMS", 4))
+	if (!FMemory::Memcmp(_MMSStr, "_MMS", 4))
 	{
 		UE_LOG(MMScript, Error, TEXT("Invalid MMScript Data!"));
 		return false;
 	}
-	_JsonStr += 4;
-	uint32 InstructionCount = MuthMTypeHelper::LoadIntFromData(_JsonStr);
-	//TODO: UMMScriptImpl::_DeserializeInternal(const uint8* _JsonStr) Unimplemented
+	_MMSStr += 4;  //Length of "_MMS"
+	//TODO: Clean Previous Instances; 
+	uint32 InstructionCount = MuthMTypeHelper::LoadIntFromData(_MMSStr);
+	struct tmpInstructionList
+	{
+		float Time;
+		FName InstructionName;
+		FJsonObject Args;
+	};
+	TArray<tmpInstructionList> tmpICollection;
 	while (InstructionCount--)
 	{
-
+		tmpInstructionList tmpIItem;
+		tmpIItem.Time = MuthMTypeHelper::LoadFloatFromData(_MMSStr);
+		_MMSStr += sizeof(uint32);
+		auto Conversion = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
+		tmpIItem.InstructionName = Conversion.Get();
+		_MMSStr += Conversion.Length()+1;  //Include Terminate Character
+		auto ConversionJson = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
+		TSharedRef<TJsonReader<TCHAR>> ResultJsonReader = TJsonReaderFactory<TCHAR>::Create(ConversionJson.Get());
+		TSharedPtr<FJsonObject> tmpArgPtr = MakeShareable(&tmpIItem.Args);
+		FJsonSerializer::Deserialize(ResultJsonReader, tmpArgPtr);
+		_MMSStr += ConversionJson.Length() + 1;		//Include Terminate Character
+		tmpICollection.Push(tmpIItem);
 	}
-	//Remember to order the Array
+	tmpICollection.Sort([](const tmpInstructionList& a, const tmpInstructionList& b)
+		{
+			return a.Time < b.Time;
+		});
+	for (int i=0;i<tmpICollection.Num();i++)
+	{
+		UInstruction* InstructionInstance = IInstructionManager::Get()->GenInstruction(
+			tmpICollection[i].InstructionName, tmpICollection[i].Time, tmpICollection[i].Args);
+		_InstructionInstances.Push(InstructionInstance);
+	}
 	return true;
 }
 

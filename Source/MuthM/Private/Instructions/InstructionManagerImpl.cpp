@@ -66,7 +66,7 @@ void UInstructionManagerImpl::UnregisterInstruction(const FInstructionRef Instru
 	}
 }
 
-UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, FJsonObject& JsonArg)
+UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, float Time, FJsonObject& JsonArg)
 {
 	const auto* InstructionClass = _InstructionMap.Find(InstructionName);
 	if (InstructionClass)
@@ -74,6 +74,8 @@ UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, FJs
 		UInstruction* InstructionPtr = NewObject<UInstruction>(nullptr, InstructionClass->ClassStack.Top());
 		FBlueprintJsonObject tmpBPJsonArg;
 		tmpBPJsonArg.Object = MakeShareable<FJsonObject>(&JsonArg);
+		InstructionPtr->SetWorld(_WorldContextProvider->GetWorld());
+		InstructionPtr->SetTime(Time);
 		InstructionPtr->OnInstructionLoaded(tmpBPJsonArg);
 		return InstructionPtr;
 	}

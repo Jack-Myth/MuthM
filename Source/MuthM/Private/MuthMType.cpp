@@ -16,6 +16,7 @@ bool FMDATFile::_DeserializeInternal(const uint8* _pData)
 		UE_LOG(MDATFile, Error, TEXT("Invalid MDAT Data"));
 		return false;
 	}
+	_pData += 5; //Length of "_MDAT"
 	const uint8* _pDataOrigin = _pData;
 	while (true)
 	{
@@ -27,6 +28,7 @@ bool FMDATFile::_DeserializeInternal(const uint8* _pData)
 		FString FileName = Convertion.Get();
 		FileInfo CurFile;
 		uint32 FileAddress = MuthMTypeHelper::LoadIntFromData(_pData);
+		_pData += sizeof(uint32);
 		uint32 FileSize = MuthMTypeHelper::LoadIntFromData(_pData);
 		_pData += sizeof(uint32);
 		CurFile.bLoaded = false;
