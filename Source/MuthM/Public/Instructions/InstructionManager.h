@@ -7,6 +7,7 @@
 #include "Instruction.h"
 #include "SubclassOf.h"
 #include "JsonObject.h"
+#include "MMScript.h"
 #include "InstructionManager.generated.h"
 
 //Ref of Instruction,Hold by Blueprint7
@@ -22,7 +23,6 @@ USTRUCT()
 struct FInstructionStack
 {
 	GENERATED_BODY()
-
 	TArray<TSubclassOf<UInstruction>> ClassStack;
 };
 
@@ -38,7 +38,7 @@ class UInstructionManager : public UInterface
  */
 class MUTHM_API IInstructionManager
 {
-	GENERATED_IINTERFACE_BODY()
+	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
@@ -51,29 +51,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void UnregisterInstruction(const FInstructionRef InstructionRef) = 0;
 
-	virtual bool ActiveInstruction(FName InstructionName, FJsonObject& JsonArg) = 0;
-	virtual bool DestroyInstructionInstance(UInstruction* InstructionInstance, EInstructionDestroyReason DestroyReason) = 0;
+	virtual UInstruction* GenInstruction(FName InstructionName, FJsonObject& JsonArg) = 0;
 	virtual void Tick(float CurrentTime) = 0;
-};
-
-UCLASS(NotBlueprintable)
-class MUTHM_API UInstructionManagerImpl : public UObject, public IInstructionManager
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-		TMap<FName, FInstructionStack> _InstructionMap;
-	UPROPERTY()
-		TArray<UInstruction*> _InstructionInstanceList;
-	UPROPERTY()
-		TArray<UInstruction*> _PreparedInstructionInstanceList;
-public:
-	virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) override;
-	virtual void UnregisterInstruction(const FInstructionRef InstructionRef) override;
-	virtual bool ActiveInstruction(FName InstructionName, FJsonObject& JsonArg) override;
-
-	//Called by the other function ,so DestroyReason must be provided.
-	virtual bool DestroyInstructionInstance(UInstruction* InstructionInstance, EInstructionDestroyReason DestroyReason) override;
-	virtual void Tick(float CurrentTime) override;
-
+	virtual void SetWorldContextProvider(UObject* Provider) = 0;
 };

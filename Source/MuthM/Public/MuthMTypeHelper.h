@@ -20,6 +20,13 @@ public:
 		return tmp;
 	}
 
+	inline static float LoadFloatFromData(const uint8* pData)
+	{
+		uint32 tmpIntData = LoadIntFromData(pData);
+		auto* floatData = (float*)&tmpIntData;
+		return *floatData;
+	}
+
 	inline static TArray<uint8> SaveIntToData(uint32 Int)
 	{
 		TArray<uint8> DataToSave;

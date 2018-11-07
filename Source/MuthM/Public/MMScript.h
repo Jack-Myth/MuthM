@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "Interface.h"
+#include "Instruction.h"
+#include "SubclassOf.h"
 #include "MMScript.generated.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(MMScript, Log, All)
 
 UINTERFACE(MinimalAPI, BlueprintType, meta = (CannotImplementInterfaceInBlueprint))
 class UMMScript : public UInterface
@@ -16,21 +19,14 @@ class UMMScript : public UInterface
 
 class MUTHM_API IMMScript
 {
+	GENERATED_BODY()
+public:
 	UFUNCTION(BlueprintCallable)
-		virtual void LoadFromFile(FString FileName) = 0;
+		virtual bool LoadFromFile(FString FileName) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual void LoadFromData(const TArray<uint8>& FileData) = 0;
+		virtual bool LoadFromData(const TArray<uint8>& FileData) = 0;
+	//virtual void AddInstruction() = 0;
+	virtual	void RemoveInstructionByType(TSubclassOf<UInstruction> InstructionType,EInstructionDestroyReason Reason) = 0;
+	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) = 0;
 };
 
-/**
- * 
- */
-UCLASS(NotBlueprintable,NotBlueprintType)
-class MUTHM_API UMMScriptImpl : public UObject,public IMMScript
-{
-	GENERATED_BODY()
-	void _DeserializeInternal(char* _JsonStr);
-public:
-	virtual void LoadFromFile(FString FileName) override;
-	virtual void LoadFromData(const TArray<uint8>& FileData) override;
-};

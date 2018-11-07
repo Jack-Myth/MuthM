@@ -26,8 +26,20 @@ class MUTHM_API UInstruction:public UObject
 	UPROPERTY(BlueprintGetter="GetTime",BlueprintSetter="SetTime")
 		float InstructionTime;
 	TSharedPtr<UWorld> CachedWorld;
+
+	UPROPERTY(BlueprintGetter="GetScript")
+		TScriptInterface<class IMMScript> AttachedScript = nullptr;
 public:
 	void SetWorld(UWorld* WorldContext);
+	void AttachScript(TScriptInterface<class IMMScript> TargetScript)
+	{
+		AttachedScript = TargetScript;
+	}
+	UFUNCTION(BlueprintGetter)
+		TScriptInterface<class IMMScript> GetScript()
+	{
+		return AttachedScript;
+	}
 	UFUNCTION(BlueprintGetter)
 		float GetTime();
 	UFUNCTION(BlueprintSetter)
@@ -42,6 +54,9 @@ public:
 		void OnInstructionDestroy(EInstructionDestroyReason DestroyReason);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTimeArrived();
+
+	UFUNCTION(Blueprintcallable)
+		void DestroySelf();
 
 	//Override GetWorld() To provide the WorldContext
 	virtual class UWorld* GetWorld() const override final
