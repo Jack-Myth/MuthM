@@ -1,4 +1,4 @@
-// // Copyright (C) 2018 JackMyth. All Rights Reserved.
+// Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 #pragma once
 #include "CoreMinimal.h"

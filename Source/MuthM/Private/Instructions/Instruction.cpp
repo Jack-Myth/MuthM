@@ -1,4 +1,4 @@
-// // Copyright (C) 2018 JackMyth. All Rights Reserved.
+// Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 #include "Instruction.h"
 #include "MMScript.h"
