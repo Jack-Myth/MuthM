@@ -7,12 +7,6 @@
 /**
  * 
  */
-class MUTHM_API MuthMType
-{
-public:
-	MuthMType();
-	~MuthMType();
-};
 
 DECLARE_LOG_CATEGORY_EXTERN(MDATFile, Log, All);
 class MUTHM_API FMDATFile

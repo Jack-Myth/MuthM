@@ -9,12 +9,21 @@
 #include "JsonObject.h"
 #include "InstructionManager.generated.h"
 
-//Ref of Instruction,Hold by Blueprint
+//Ref of Instruction,Hold by Blueprint7
 USTRUCT(BlueprintType)
 struct FInstructionRef
 {
 	GENERATED_BODY()
+	FName InstructionName;
 	TSubclassOf<UInstruction> RecordPtr;
+};
+
+USTRUCT()
+struct FInstructionStack
+{
+	GENERATED_BODY()
+
+	TArray<TSubclassOf<UInstruction>> ClassStack;
 };
 
 // This class does not need to be modified.
@@ -44,4 +53,27 @@ public:
 
 	virtual bool ActiveInstruction(FName InstructionName, FJsonObject& JsonArg) = 0;
 	virtual bool DestroyInstructionInstance(UInstruction* InstructionInstance, EInstructionDestroyReason DestroyReason) = 0;
+	virtual void Tick(float CurrentTime) = 0;
+};
+
+UCLASS(NotBlueprintable)
+class MUTHM_API UInstructionManagerImpl : public UObject, public IInstructionManager
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+		TMap<FName, FInstructionStack> _InstructionMap;
+	UPROPERTY()
+		TArray<UInstruction*> _InstructionInstanceList;
+	UPROPERTY()
+		TArray<UInstruction*> _PreparedInstructionInstanceList;
+public:
+	virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) override;
+	virtual void UnregisterInstruction(const FInstructionRef InstructionRef) override;
+	virtual bool ActiveInstruction(FName InstructionName, FJsonObject& JsonArg) override;
+
+	//Called by the other function ,so DestroyReason must be provided.
+	virtual bool DestroyInstructionInstance(UInstruction* InstructionInstance, EInstructionDestroyReason DestroyReason) override;
+	virtual void Tick(float CurrentTime) override;
+
 };

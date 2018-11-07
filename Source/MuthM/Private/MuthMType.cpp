@@ -9,14 +9,6 @@
 
 DEFINE_LOG_CATEGORY(MDATFile)
 
-MuthMType::MuthMType()
-{
-}
-
-MuthMType::~MuthMType()
-{
-}
-
 bool FMDATFile::_DeserializeInternal(const uint8* _pData)
 {
 	if (FMemory::Memcmp(_pData, "_MDAT", 5))
