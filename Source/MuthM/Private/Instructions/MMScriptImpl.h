@@ -18,7 +18,7 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 		TArray<UInstruction*> _InstructionInstances;
 	UPROPERTY()
 		TArray<UInstruction*> _PreparedInstructionInstance;
-	bool bIsAutoDestroy;
+	bool bIsAutoDestroy = true;
 	void _Internal_CleanInstructions();
 public:
 	virtual bool LoadFromFile(FString FileName) override;
