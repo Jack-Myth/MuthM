@@ -184,7 +184,7 @@ void UMMScriptImpl::Destroy()
 	IInstructionManager::Get()->DestroyMMScriptInstance(this);
 }
 
-float UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)
+void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)
 {
 	bIsAutoDestroy = NewAutoDestroy;
 }

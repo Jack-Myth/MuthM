@@ -27,6 +27,6 @@ public:
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) override;
 	void Tick(float CurrentTime);
 	virtual float GetRemainingInstructionCount() override;
-	virtual float SetAutoDestroy(bool NewAutoDestroy) override;
+	virtual void SetAutoDestroy(bool NewAutoDestroy) override;
 	virtual void Destroy() override;
 };
