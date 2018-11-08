@@ -16,7 +16,7 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 		return false;
 	}
 	_MMSStr += 4;  //Length of "_MMS"
-	//TODO: Clean Previous Instances; 
+	_Internal_CleanInstructions();
 	uint32 InstructionCount = MuthMTypeHelper::LoadIntFromData(_MMSStr);
 	struct tmpInstructionList
 	{
@@ -51,6 +51,28 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 		_InstructionInstances.Push(InstructionInstance);
 	}
 	return true;
+}
+
+void UMMScriptImpl::_Internal_CleanInstructions()
+{
+	for (auto it = _InstructionInstances.CreateIterator(); it; ++it)
+	{
+		UInstruction* tmppInstruction = *it;
+		it.RemoveCurrent();
+		tmppInstruction->OnInstructionDestroy(EInstructionDestroyReason::IDR_ScriptDeleted);
+		tmppInstruction->RemoveFromRoot();
+		tmppInstruction->MarkPendingKill();
+		return;
+	}
+	for (auto it = _PreparedInstructionInstance.CreateIterator(); it; ++it)
+	{
+		UInstruction* tmppInstruction = *it;
+		it.RemoveCurrent();
+		tmppInstruction->OnInstructionDestroy(EInstructionDestroyReason::IDR_ScriptDeleted);
+		tmppInstruction->RemoveFromRoot();
+		tmppInstruction->MarkPendingKill();
+		return;
+	}
 }
 
 bool UMMScriptImpl::LoadFromFile(FString FileName)
@@ -96,6 +118,8 @@ void UMMScriptImpl::RemoveInstructionByType(TSubclassOf<UInstruction> Instructio
 			tmppInstruction->MarkPendingKill();
 		}
 	}
+	if (!GetRemainingInstructionCount())
+		Destroy();
 }
 
 void UMMScriptImpl::RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason)
@@ -124,6 +148,8 @@ void UMMScriptImpl::RemoveInstruction(UInstruction* Instance, EInstructionDestro
 			return;
 		}
 	}
+	if (!GetRemainingInstructionCount())
+		Destroy();
 }
 
 void UMMScriptImpl::Tick(float CurrentTime)
@@ -154,5 +180,11 @@ float UMMScriptImpl::GetRemainingInstructionCount()
 
 void UMMScriptImpl::Destroy()
 {
+	_Internal_CleanInstructions();
 	IInstructionManager::Get()->DestroyMMScriptInstance(this);
+}
+
+float UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)
+{
+	bIsAutoDestroy = NewAutoDestroy;
 }

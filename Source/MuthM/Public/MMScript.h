@@ -30,5 +30,9 @@ public:
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual float GetRemainingInstructionCount() = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual float SetAutoDestroy(bool NewAutoDestroy) = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual void Destroy() = 0;
 };
 

@@ -18,6 +18,8 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 		TArray<UInstruction*> _InstructionInstances;
 	UPROPERTY()
 		TArray<UInstruction*> _PreparedInstructionInstance;
+	bool bIsAutoDestroy;
+	void _Internal_CleanInstructions();
 public:
 	virtual bool LoadFromFile(FString FileName) override;
 	virtual bool LoadFromData(const TArray<uint8>& FileData) override;
@@ -25,5 +27,6 @@ public:
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) override;
 	void Tick(float CurrentTime);
 	virtual float GetRemainingInstructionCount() override;
-	void Destroy();
+	virtual float SetAutoDestroy(bool NewAutoDestroy) override;
+	virtual void Destroy() override;
 };
