@@ -16,5 +16,4 @@ class MUTHM_API AMuthMGameModeBase : public AGameModeBase
 	
 	
 	
-	
 };

@@ -54,4 +54,5 @@ public:
 	virtual UInstruction* GenInstruction(FName InstructionName,float Time, FJsonObject& JsonArg) = 0;
 	virtual void Tick(float CurrentTime) = 0;
 	virtual void SetWorldContextProvider(UObject* Provider) = 0;
+	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) = 0;
 };

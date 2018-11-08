@@ -28,5 +28,7 @@ public:
 	//virtual void AddInstruction() = 0;
 	virtual	void RemoveInstructionByType(TSubclassOf<UInstruction> InstructionType,EInstructionDestroyReason Reason) = 0;
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual float GetRemainingInstructionCount() = 0;
 };
 

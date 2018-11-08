@@ -32,7 +32,7 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 		_MMSStr += sizeof(uint32);
 		auto Conversion = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
 		tmpIItem.InstructionName = Conversion.Get();
-		_MMSStr += Conversion.Length()+1;  //Include Terminate Character
+		_MMSStr += Conversion.Length() + 1;  //Include Terminate Character
 		auto ConversionJson = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
 		TSharedRef<TJsonReader<TCHAR>> ResultJsonReader = TJsonReaderFactory<TCHAR>::Create(ConversionJson.Get());
 		TSharedPtr<FJsonObject> tmpArgPtr = MakeShareable(&tmpIItem.Args);
@@ -44,7 +44,7 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 		{
 			return a.Time < b.Time;
 		});
-	for (int i=0;i<tmpICollection.Num();i++)
+	for (int i = 0; i < tmpICollection.Num(); i++)
 	{
 		UInstruction* InstructionInstance = IInstructionManager::Get()->GenInstruction(
 			tmpICollection[i].InstructionName, tmpICollection[i].Time, tmpICollection[i].Args);
@@ -131,7 +131,7 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	//Find the Instructions that need to be prepared.
 	for (auto it = _InstructionInstances.CreateIterator(); it; ++it)
 	{
-		//TODO: Find a suit way to Caculate Prepare Time.
+		//TODO: Find a suit way to Calculate Prepare Time.
 		if (0)
 		{
 			UInstruction* TargetInstruction = *it;
@@ -145,4 +145,14 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	}
 	for (int i = 0; i < _PreparedInstructionInstance.Num(); i++)
 		_PreparedInstructionInstance[i]->OnTick(CurrentTime);
+}
+
+float UMMScriptImpl::GetRemainingInstructionCount()
+{
+	return _InstructionInstances.Num() + _PreparedInstructionInstance.Num();
+}
+
+void UMMScriptImpl::Destroy()
+{
+	IInstructionManager::Get()->DestroyMMScriptInstance(this);
 }

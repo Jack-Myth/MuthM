@@ -24,4 +24,6 @@ public:
 	virtual	void RemoveInstructionByType(TSubclassOf<UInstruction> InstructionType, EInstructionDestroyReason Reason) override;
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) override;
 	void Tick(float CurrentTime);
+	virtual float GetRemainingInstructionCount() override;
+	void Destroy();
 };

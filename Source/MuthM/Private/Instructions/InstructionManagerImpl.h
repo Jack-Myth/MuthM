@@ -22,4 +22,6 @@ public:
 	virtual UInstruction* GenInstruction(FName InstructionName, float Time, FJsonObject& JsonArg) override;
 	virtual void Tick(float CurrentTime) override;
 	virtual void SetWorldContextProvider(UObject* Provider) override;
+	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) override;
+
 };

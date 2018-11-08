@@ -49,7 +49,8 @@ void UInstructionManagerImpl::UnregisterInstruction(const FInstructionRef Instru
 			it.RemoveCurrent();
 		}
 	}*/
-	//TODO:
+	for (int i=0;i<_MMScriptInstances.Num();i++)
+		_MMScriptInstances[i]->RemoveInstructionByType(InstructionRef.RecordPtr,EInstructionDestroyReason::IDR_Unregister);
 	auto _InstStack = _InstructionMap.Find(InstructionRef.InstructionName);
 	if (_InstStack)
 	{
@@ -93,4 +94,16 @@ void UInstructionManagerImpl::Tick(float CurrentTime)
 void UInstructionManagerImpl::SetWorldContextProvider(UObject* Provider)
 {
 	_WorldContextProvider = Provider;
+}
+
+void UInstructionManagerImpl::DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance)
+{
+	uint32 FoundIndex = _MMScriptInstances.Find(Cast<UMMScriptImpl>(TargetMMSInstance.GetObject()));
+	if (FoundIndex != INDEX_NONE)
+	{
+		UMMScriptImpl* PendingKillMMS = _MMScriptInstances[FoundIndex];
+		_MMScriptInstances.RemoveAt(FoundIndex);
+		PendingKillMMS->RemoveFromRoot();
+		PendingKillMMS->MarkPendingKill();
+	}
 }
