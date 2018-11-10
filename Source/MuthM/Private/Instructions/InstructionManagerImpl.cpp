@@ -107,3 +107,15 @@ void UInstructionManagerImpl::DestroyMMScriptInstance(TScriptInterface<IMMScript
 		PendingKillMMS->MarkPendingKill();
 	}
 }
+
+UObject* UInstructionManagerImpl::GetWorldProvider()
+{
+	return _WorldContextProvider;
+}
+
+TScriptInterface<IMMScript> UInstructionManagerImpl::GenMMScript(bool bIsEditorMode)
+{
+	UMMScriptImpl* pMMScript = NewObject<UMMScriptImpl>();
+	_MMScriptInstances.Add(pMMScript);
+	return pMMScript;
+}

@@ -19,6 +19,7 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 	UPROPERTY()
 		TArray<UInstruction*> _PreparedInstructionInstance;
 	bool bIsAutoDestroy = true;
+	EPlayType _PlayType;
 	void _Internal_CleanInstructions();
 public:
 	virtual bool LoadFromFile(FString FileName) override;

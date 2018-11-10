@@ -23,5 +23,7 @@ public:
 	virtual void Tick(float CurrentTime) override;
 	virtual void SetWorldContextProvider(UObject* Provider) override;
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) override;
+	virtual UObject* GetWorldProvider() override;
+	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) override;
 
 };

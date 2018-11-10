@@ -13,7 +13,8 @@ enum EInstructionDestroyReason
 	IDR_Manually UMETA(DisplayName = "Manually"),
 	IDR_Unregister UMETA(DisplayName = "Unregister"),
 	IDR_CleanScene UMETA(DisplayName = "CleanScene"),
-	IDR_ScriptDeleted UMETA(DisplayName = "ScriptDeleted")
+	IDR_ScriptDeleted UMETA(DisplayName = "ScriptDeleted"),
+	IDR_ExitPIE UMETA(DisplayName = "ExitPIE")
 };
 
 /**

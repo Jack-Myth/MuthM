@@ -17,6 +17,14 @@ class UMMScript : public UInterface
 
 };
 
+UENUM(BlueprintType)
+enum EPlayType
+{
+	PT_Game UMETA(DisplayName = "Game"),
+	PT_Editor UMETA(DisplayName = "Editor"),
+	PT_PIE UMETA(DisplayName = "PIE")
+};
+
 class MUTHM_API IMMScript
 {
 	GENERATED_BODY()
