@@ -26,6 +26,7 @@ class MUTHM_API FMDATFile
 	uint32 _DataAddressBase;
 	FString _MDATFileName;
 	bool _DeserializeInternal(const uint8* _pData);
+	bool _DeserializeInternal_Lazy(IFileHandle* FileHandle);
 	void _SerializeInternal(TArray<uint8>& DataResult);
 	void _LazyLoad(FileInfo* pFileInfo) const;
 public:

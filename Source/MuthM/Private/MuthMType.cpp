@@ -16,8 +16,8 @@ bool FMDATFile::_DeserializeInternal(const uint8* _pData)
 		UE_LOG(MDATFile, Error, TEXT("Invalid MDAT Data"));
 		return false;
 	}
-	_pData += 5; //Length of "_MDAT"
 	const uint8* _pDataOrigin = _pData;
+	_pData += 5; //Length of "_MDAT"
 	while (true)
 	{
 		auto Convertion = FUTF8ToTCHAR((const ANSICHAR*)_pData);
@@ -31,13 +31,66 @@ bool FMDATFile::_DeserializeInternal(const uint8* _pData)
 		_pData += sizeof(uint32);
 		uint32 FileSize = MuthMTypeHelper::LoadIntFromData(_pData);
 		_pData += sizeof(uint32);
-		CurFile.bLoaded = false;
+		uint32 OriginalSize = MuthMTypeHelper::LoadIntFromData(_pData);
+		_pData += sizeof(uint32);
+		CurFile.bLoaded = true;
 		CurFile.Address = FileAddress;
 		CurFile.CompressedLength = FileSize;
+		CurFile.OriginalLength = OriginalSize;
 		_Files.Add(FileName, CurFile);
 	}
 	_pData += sizeof(UTF8CHAR);
 	_DataAddressBase = _pData - _pDataOrigin;
+	for (auto it=_Files.CreateIterator();it;++it)
+	{
+		it->Value.Data.SetNum(it->Value.OriginalLength);
+		unsigned long FileLength = it->Value.OriginalLength;
+		uncompress(it->Value.Data.GetData(), &FileLength, _pData + it->Value.Address, it->Value.CompressedLength);
+		it->Value.bLoaded = true;
+	}
+	return true;
+}
+
+bool FMDATFile::_DeserializeInternal_Lazy(IFileHandle* FileHandle)
+{
+	TArray<uint8> tmpData;
+	tmpData.SetNum(5);
+	FileHandle->Seek(0);
+	FileHandle->Read(tmpData.GetData(), 5);
+	if (FMemory::Memcmp(tmpData.GetData(), "_MDAT", 5))
+	{
+		UE_LOG(MDATFile, Error, TEXT("Invalid MDAT Data"));
+		return false;
+	}
+	while (true)
+	{
+		tmpData.SetNum(0, false);
+		ANSICHAR CurChar;
+		do
+		{
+			FileHandle->Read((uint8*)&CurChar, sizeof(ANSICHAR));
+			tmpData.Push(CurChar);
+		} while (CurChar);
+		//if end of file list
+		if (!tmpData[0])
+			break;
+		auto Convertion = FUTF8ToTCHAR((const ANSICHAR*)tmpData.GetData());
+		FString FileName = Convertion.Get();
+		FileInfo CurFile;
+		tmpData.SetNum(sizeof(uint32),false);
+		FileHandle->Read(tmpData.GetData(), sizeof(uint32));
+		uint32 FileAddress = MuthMTypeHelper::LoadIntFromData(tmpData.GetData());
+		FileHandle->Read(tmpData.GetData(), sizeof(uint32));
+		uint32 FileSize = MuthMTypeHelper::LoadIntFromData(tmpData.GetData());
+		FileHandle->Read(tmpData.GetData(), sizeof(uint32));
+		uint32 OriginalFileLength = MuthMTypeHelper::LoadIntFromData(tmpData.GetData());
+		CurFile.bLoaded = false;
+		CurFile.Address = FileAddress;
+		CurFile.CompressedLength = FileSize;
+		CurFile.OriginalLength = OriginalFileLength;
+		_Files.Add(FileName, CurFile);
+	}
+	_DataAddressBase = FileHandle->Tell();
 	return true;
 }
 
@@ -60,6 +113,7 @@ void FMDATFile::_SerializeInternal(TArray<uint8>& DataResult)
 		DataResult.Append((const uint8*)TTU.Get(), TTU.Length()+1); //Include Terminator Character
 		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.Address));
 		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.CompressedLength));
+		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.OriginalLength));
 	}
 	DataResult.Append(DataArea);
 }
@@ -92,12 +146,13 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 bool FMDATFile::LoadFromFile(FString FileName)
 {
 	TArray<uint8> Result;
-	if (!FFileHelper::LoadFileToArray(Result, *FileName))
+	IFileHandle* FileHandle = FPlatformFileManager::Get().GetPlatformFile().OpenRead(*FileName);
+	if (!FileHandle)
 	{
 		UE_LOG(MDATFile, Error, TEXT("Load File %s Failed!"), *FileName);
 		return false;
 	}
-	bool IsSucceed = Load(Result.GetData());
+	bool IsSucceed = _DeserializeInternal_Lazy(FileHandle);
 	if (!IsSucceed)
 		UE_LOG(MDATFile, Error, TEXT("At File Name:%s"), *FileName);
 	return IsSucceed;
@@ -123,7 +178,7 @@ bool FMDATFile::AddFile(FString FileName, const TArray<uint8>& FileData)
 	tmpFileInfo.bLoaded = true;
 	tmpFileInfo.Data = FileData;
 	tmpFileInfo.Address = 0;
-	tmpFileInfo.CompressedLength = FileData.Num();
+	tmpFileInfo.OriginalLength = FileData.Num();
 	return true;
 }
 
