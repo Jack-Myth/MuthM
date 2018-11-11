@@ -91,9 +91,15 @@ void UInstructionManagerImpl::Tick(float CurrentTime)
 	}
 }
 
+void UInstructionManagerImpl::EditorSetTime(float CurrentTime)
+{
+	//TODO: Editor Set Time;
+}
+
 void UInstructionManagerImpl::SetWorldContextProvider(UObject* Provider)
 {
 	_WorldContextProvider = Provider;
+	LastTickTime = 0;
 }
 
 void UInstructionManagerImpl::DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance)
@@ -116,6 +122,14 @@ UObject* UInstructionManagerImpl::GetWorldProvider()
 TScriptInterface<IMMScript> UInstructionManagerImpl::GenMMScript(bool bIsEditorMode)
 {
 	UMMScriptImpl* pMMScript = NewObject<UMMScriptImpl>();
-	_MMScriptInstances.Add(pMMScript);
-	return pMMScript;
+	if (bIsEditorMode)
+	{
+		pMMScript->_SetPlayType(EPlayType::PT_Editor);
+		_EditorMMSInstances.Add(pMMScript);
+	}
+	else
+	{
+		_MMScriptInstances.Add(pMMScript);
+		return pMMScript;
+	}
 }

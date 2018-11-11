@@ -15,12 +15,16 @@ class MUTHM_API UInstructionManagerImpl : public UObject, public IInstructionMan
 	UPROPERTY()
 		TArray<class UMMScriptImpl*> _MMScriptInstances;
 	UPROPERTY()
+		TArray<class UMMScriptImpl*> _EditorMMSInstances;
+	UPROPERTY()
 		UObject* _WorldContextProvider = nullptr;
+	float LastTickTime;
 public:
 	virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) override;
 	virtual void UnregisterInstruction(const FInstructionRef InstructionRef) override;
 	virtual UInstruction* GenInstruction(FName InstructionName, float Time, FJsonObject& JsonArg) override;
 	virtual void Tick(float CurrentTime) override;
+	virtual void EditorSetTime(float CurrentTime) override;
 	virtual void SetWorldContextProvider(UObject* Provider) override;
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) override;
 	virtual UObject* GetWorldProvider() override;

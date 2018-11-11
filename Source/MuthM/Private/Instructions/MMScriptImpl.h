@@ -21,6 +21,10 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 	bool bIsAutoDestroy = true;
 	EPlayType _PlayType;
 	void _Internal_CleanInstructions();
+	void _SetPlayType(EPlayType _PlayType);
+	TArray<uint8> _EditorCachedMMSData;
+	UMMScriptImpl(const UMMScriptImpl& _ProtoType);
+	UMMScriptImpl() = default;
 public:
 	virtual bool LoadFromFile(FString FileName) override;
 	virtual bool LoadFromData(const TArray<uint8>& FileData) override;
@@ -30,4 +34,6 @@ public:
 	virtual float GetRemainingInstructionCount() override;
 	virtual void SetAutoDestroy(bool NewAutoDestroy) override;
 	virtual void Destroy() override;
+	virtual TScriptInterface<IMMScript> GenPIEDuplicate() override;
+
 };

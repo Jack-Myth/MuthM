@@ -7,6 +7,8 @@
 #include "JsonReader.h"
 #include "JsonSerializer.h"
 #include "InstructionManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "MuthMInEditorMode.h"
 
 bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 {
@@ -75,6 +77,11 @@ void UMMScriptImpl::_Internal_CleanInstructions()
 	}
 }
 
+void UMMScriptImpl::_SetPlayType(EPlayType _PlayType)
+{
+	this->_PlayType = _PlayType;
+}
+
 bool UMMScriptImpl::LoadFromFile(FString FileName)
 {
 	TArray<uint8> FileData;
@@ -90,6 +97,8 @@ bool UMMScriptImpl::LoadFromFile(FString FileName)
 
 bool UMMScriptImpl::LoadFromData(const TArray<uint8>& FileData)
 {
+	if (_PlayType == EPlayType::PT_Editor)
+		_EditorCachedMMSData = FileData;
 	return _DeserializeInternal(FileData.GetData());
 }
 
@@ -182,6 +191,17 @@ void UMMScriptImpl::Destroy()
 {
 	_Internal_CleanInstructions();
 	IInstructionManager::Get()->DestroyMMScriptInstance(this);
+}
+
+TScriptInterface<IMMScript> UMMScriptImpl::GenPIEDuplicate()
+{
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	if (InEditorMode&&_PlayType==EPlayType::PT_Editor)
+	{
+		UMMScriptImpl* curTmpMMS = Cast<UMMScriptImpl>(IInstructionManager::Get()->GenMMScript(true).GetObject());
+		curTmpMMS->_SetPlayType(PT_PIE);
+		curTmpMMS->LoadFromData(_EditorCachedMMSData);
+	}
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

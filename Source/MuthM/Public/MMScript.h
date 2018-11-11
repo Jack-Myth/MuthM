@@ -42,5 +42,6 @@ public:
 		virtual void SetAutoDestroy(bool NewAutoDestroy) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual void Destroy() = 0;
+	virtual TScriptInterface<IMMScript> GenPIEDuplicate() = 0;
 };
 
