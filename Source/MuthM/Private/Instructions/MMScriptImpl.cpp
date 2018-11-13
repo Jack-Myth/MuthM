@@ -200,7 +200,7 @@ TScriptInterface<IMMScript> UMMScriptImpl::GenPIEDuplicate()
 	{
 		UMMScriptImpl* curTmpMMS = Cast<UMMScriptImpl>(IInstructionManager::Get()->GenMMScript(true).GetObject());
 		curTmpMMS->_SetPlayType(PT_PIE);
-		//TODO: Unimplemented GenPIElicate;
+		curTmpMMS->LoadFromData(Serialize());
 		return curTmpMMS;
 	}
 	return nullptr;

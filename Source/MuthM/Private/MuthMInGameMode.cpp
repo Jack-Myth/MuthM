@@ -5,4 +5,6 @@
 void AMuthMInGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	//TODO:Get Property From GameInstance etc.
+
 }

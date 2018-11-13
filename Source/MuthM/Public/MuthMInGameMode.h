@@ -17,6 +17,7 @@ class MUTHM_API AMuthMInGameMode : public AMuthMGameModeBase
 
 	TArray<TScriptInterface<IMMScript>> MainMMSInstance;
 	class FMDATFile* _pMDAT;
+	TScriptInterface<IMMScript> _MainMMSInstance;
 public:
 	//GetScoreCore
 	FORCEINLINE class FMDATFile* GetMDAT()
@@ -25,5 +26,4 @@ public:
 	}
 protected:
 	virtual void BeginPlay() override;
-
 };
