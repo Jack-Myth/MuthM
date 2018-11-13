@@ -50,10 +50,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		virtual void UnregisterInstruction(const FInstructionRef InstructionRef) = 0;
-
+	UFUNCTION(BlueprintCallable)
+		virtual FName GetInstructionName(FInstructionRef InstructionRef) = 0;
+	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) = 0;
 	virtual UInstruction* GenInstruction(FName InstructionName,float Time, FJsonObject& JsonArg) = 0;
 	virtual void Tick(float CurrentTime) = 0;
-	virtual void EditorSetTime(float CurrentTime) = 0;
 	virtual void SetWorldContextProvider(UObject* Provider) = 0;
 	virtual UObject* GetWorldProvider() = 0;
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) = 0;

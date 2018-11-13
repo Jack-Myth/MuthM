@@ -24,10 +24,11 @@ public:
 	virtual void UnregisterInstruction(const FInstructionRef InstructionRef) override;
 	virtual UInstruction* GenInstruction(FName InstructionName, float Time, FJsonObject& JsonArg) override;
 	virtual void Tick(float CurrentTime) override;
-	virtual void EditorSetTime(float CurrentTime) override;
 	virtual void SetWorldContextProvider(UObject* Provider) override;
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) override;
 	virtual UObject* GetWorldProvider() override;
 	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) override;
+	virtual FName GetInstructionName(FInstructionRef InstructionRef) override;
+	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) override;
 
 };

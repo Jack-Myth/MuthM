@@ -56,7 +56,8 @@ public:
 		void OnInstructionDestroy(EInstructionDestroyReason DestroyReason);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTimeArrived();
-
+	UFUNCTION(BlueprintImplementableEvent)
+		FBlueprintJsonObject GenArgsJsonObject();
 	UFUNCTION(Blueprintcallable)
 		void DestroySelf();
 

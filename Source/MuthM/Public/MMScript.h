@@ -43,5 +43,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void Destroy() = 0;
 	virtual TScriptInterface<IMMScript> GenPIEDuplicate() = 0;
+	virtual TArray<uint8> Serialize() = 0;
 };
 

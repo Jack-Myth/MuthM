@@ -9,6 +9,8 @@
 #include "InstructionManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "MuthMInEditorMode.h"
+#include "JsonSerializerMacros.h"
+#include "JsonWriter.h"
 
 bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 {
@@ -97,8 +99,6 @@ bool UMMScriptImpl::LoadFromFile(FString FileName)
 
 bool UMMScriptImpl::LoadFromData(const TArray<uint8>& FileData)
 {
-	if (_PlayType == EPlayType::PT_Editor)
-		_EditorCachedMMSData = FileData;
 	return _DeserializeInternal(FileData.GetData());
 }
 
@@ -200,8 +200,37 @@ TScriptInterface<IMMScript> UMMScriptImpl::GenPIEDuplicate()
 	{
 		UMMScriptImpl* curTmpMMS = Cast<UMMScriptImpl>(IInstructionManager::Get()->GenMMScript(true).GetObject());
 		curTmpMMS->_SetPlayType(PT_PIE);
-		curTmpMMS->LoadFromData(_EditorCachedMMSData);
+		//TODO: Unimplemented GenPIElicate;
+		return curTmpMMS;
 	}
+	return nullptr;
+}
+
+TArray<uint8> UMMScriptImpl::Serialize()
+{
+	TArray<uint8> MMSData;
+	MMSData.Append((const uint8*)"_MMS", 4);
+	MMSData.SetNum(4 + sizeof(uint32)); //"_MMS" and Instruction Count(sizeof(uint32)=4)
+	//Reserve 4 byte for Instruction Count.
+	TScriptInterface<IInstructionManager> InstructionManager=IInstructionManager::Get();
+	//Get Args form Each Instructions.
+	for (int i=0;i<_InstructionInstances.Num();i++)
+	{
+		FBlueprintJsonObject ArgsJsonObj = _InstructionInstances[i]->GenArgsJsonObject();
+		FString InstructionJsonStr;
+		FJsonObject InstructionJson;
+		InstructionJson.SetNumberField("Time", _InstructionInstances[i]->GetTime());
+		InstructionJson.SetStringField("Instruction",InstructionManager->GetInstructionName(_InstructionInstances[i]->GetClass()).ToString());
+		InstructionJson.SetObjectField("Args", ArgsJsonObj.Object);
+		TSharedRef<TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<TCHAR>::Create(&InstructionJsonStr);
+		FJsonSerializer::Serialize(ArgsJsonObj.Object.ToSharedRef(), JsonWriter);
+		FTCHARToUTF8 InstructionJsonStrConversion(*InstructionJsonStr);
+		MMSData.Append(MuthMTypeHelper::SaveIntToData(InstructionJsonStrConversion.Length()));
+		MMSData.Append((const uint8*)InstructionJsonStrConversion.Get(), InstructionJsonStrConversion.Length());
+	}
+	//Fill Count of Instructions.
+	FMemory::Memcpy(MMSData.GetData() + 4, MuthMTypeHelper::SaveIntToData(_InstructionInstances.Num()).GetData(),sizeof(uint32));
+	return MMSData;
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

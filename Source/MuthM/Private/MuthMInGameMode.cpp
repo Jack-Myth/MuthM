@@ -2,6 +2,7 @@
 
 #include "MuthMInGameMode.h"
 
-
-
-
+void AMuthMInGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+}

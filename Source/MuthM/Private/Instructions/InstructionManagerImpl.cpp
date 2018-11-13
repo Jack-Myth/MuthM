@@ -91,11 +91,6 @@ void UInstructionManagerImpl::Tick(float CurrentTime)
 	}
 }
 
-void UInstructionManagerImpl::EditorSetTime(float CurrentTime)
-{
-	//TODO: Editor Set Time;
-}
-
 void UInstructionManagerImpl::SetWorldContextProvider(UObject* Provider)
 {
 	_WorldContextProvider = Provider;
@@ -130,6 +125,21 @@ TScriptInterface<IMMScript> UInstructionManagerImpl::GenMMScript(bool bIsEditorM
 	else
 	{
 		_MMScriptInstances.Add(pMMScript);
-		return pMMScript;
 	}
+	return pMMScript;
+}
+
+FName UInstructionManagerImpl::GetInstructionName(FInstructionRef InstructionRef)
+{
+	return InstructionRef.InstructionName;
+}
+
+FName UInstructionManagerImpl::GetInstructionName(TSubclassOf<UInstruction> InstructionClass)
+{
+	for (auto it=_InstructionMap.CreateIterator();it;++it)
+	{
+		if (it->Value.ClassStack.Find(InstructionClass) != INDEX_NONE)
+			return it->Key;
+	}
+	return FName();
 }
