@@ -2,7 +2,7 @@
 
 #include "MuthMNativeLib.h"
 
-TArray<uint8> MuthMNativeLib::NativeEncodePCMToOpus(const TArray<uint8>& _PCMData)
+TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Data)
 {
-
+	
 }

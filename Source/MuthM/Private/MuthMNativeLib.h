@@ -10,5 +10,5 @@
 class MuthMNativeLib
 {
 public:
-	TArray<uint8> NativeEncodePCMToOpus(const TArray<uint8>& _PCMData);
+	TArray<uint8> NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Data);
 };
