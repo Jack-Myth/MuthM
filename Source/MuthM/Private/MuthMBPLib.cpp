@@ -9,6 +9,7 @@
 #include "FileHelper.h"
 #include "ModuleManager.h"
 #include "IImageWrapper.h"
+#include "Sound/SoundWave.h"
 
 TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager()
 {
@@ -20,7 +21,7 @@ class UTexture2D* UMuthMBPLib::LoadTextureInGame(UObject* WorldContextObj, FStri
 	auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(WorldContextObj));
 	if (IsValid(InGameMode))
 	{
-		FMDATFile* _MDAT = InGameMode->GetMDAT();
+		TSharedPtr<FMDATFile> _MDAT = InGameMode->GetMDAT();
 		auto FileData = _MDAT->GetFileData(FileName);
 		return GetLocalTextureByImageData(FileData);
 	}
@@ -136,4 +137,24 @@ UTexture2D* UMuthMBPLib::TextureFromImage(const int32 SrcWidth, const int32 SrcH
 	MyScreenshot->UpdateResource();
 
 	return MyScreenshot;
+}
+
+class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& MusicFile)
+{
+	USoundWave* WorkingWaveSource = NewObject<USoundWave>();
+	WorkingWaveSource->CompressedFormatData.GetFormat(TEXT("Opus"));
+	//TODO:DecodeWaveFromOpus
+	return nullptr;
+}
+
+TArray<uint8> UMuthMBPLib::EncodePCMToOpus(const TArray<uint8>& PCMData)
+{
+	//TODO:EncodePCMToOpus
+	return TArray<uint8>();
+}
+
+TArray<uint8> UMuthMBPLib::DecodePCMFromMP3(const TArray<uint8>& MP3Data)
+{
+	//TODO:DecodePCMFromMP3
+	return TArray<uint8>();
 }

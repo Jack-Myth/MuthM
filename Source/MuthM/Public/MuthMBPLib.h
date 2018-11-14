@@ -26,4 +26,10 @@ public:
 	static class UTexture2D* GetLocalTextureByImageData(const TArray<uint8>& ImageData);
 	static TArray<FColor> uint8ToFColor(const TArray<uint8> origin);
 	static UTexture2D* TextureFromImage(const int32 SrcWidth, const int32 SrcHeight, const TArray<FColor>&SrcData, const bool UseAlpha);
+	UFUNCTION(BlueprintCallable)
+		static class USoundWave* DecodeWaveFromOpus(const TArray<uint8>& OpusData);
+	UFUNCTION(BlueprintCallable)
+		static TArray<uint8> EncodePCMToOpus(const TArray<uint8>& PCMData);
+	UFUNCTION(BlueprintCallable)
+		static TArray<uint8> DecodePCMFromMP3(const TArray<uint8>& MP3Data);
 };

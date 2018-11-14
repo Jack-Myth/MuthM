@@ -14,6 +14,8 @@ public class MuthM : ModuleRules
             "Engine",
             "InputCore",
             "zlib",
+            "libOpus",
+            "libmp3lame",
             "Json",
             "BlueprintJson" });
 

@@ -7,6 +7,8 @@
 #include "MMScript.h"
 #include "MuthMInGameMode.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(MuthMInGameMode, Log, All)
+
 /**
  * 
  */
@@ -16,14 +18,21 @@ class MUTHM_API AMuthMInGameMode : public AMuthMGameModeBase
 	GENERATED_BODY()
 
 	TArray<TScriptInterface<IMMScript>> MainMMSInstance;
-	class FMDATFile* _pMDAT;
+	TSharedPtr<class FMDATFile> _pMDAT;
 	TScriptInterface<IMMScript> _MainMMSInstance;
+	FString MusicTitle;
+	FString Author;
+	UPROPERTY()
+		class USoundWave* _GameMainMusic;
 public:
 	//GetScoreCore
-	FORCEINLINE class FMDATFile* GetMDAT()
+	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
 	{
 		return _pMDAT;
 	}
+
+	virtual void Tick(float DeltaSeconds) override;
+
 protected:
 	virtual void BeginPlay() override;
 };
