@@ -15,7 +15,8 @@ public class MuthM : ModuleRules
             "InputCore",
             "zlib",
             "libOpus",
-            "libmpg123",
+            "libminimp3",
+            "UELibSampleRate",
             "Json",
             "BlueprintJson" });
 
@@ -27,6 +28,6 @@ public class MuthM : ModuleRules
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 
-		// To include OnlineSubsystemSteam, add it t    o the plugins section in your uproject file with the Enabled attribute set to true
+		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 	}
 }

@@ -1,43 +1,122 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 #include "MuthMNativeLib.h"
-#include "libmpg123/mpg123.h"
 #include "opus.h"
+#define MINIMP3_IMPLEMENTATION
+#include "minimp3.h"
+#include "minimp3_ex.h"
+#include "Audio.h"
+#include "LogMacros.h"
+
+DEFINE_LOG_CATEGORY(MuthMNativeLib)
+//Copy from Unreal Engine 4 Internal Resample function :P
+static void ResampleWaveData(TArray<uint8>& WaveData, size_t& NumBytes, int32 NumChannels, float SourceSampleRate, float DestinationSampleRate)
+{
+	double StartTime = FPlatformTime::Seconds();
+
+	// Set up temporary output buffers:
+	Audio::AlignedFloatBuffer ResamplerInputData;
+	Audio::AlignedFloatBuffer ResamplerOutputData;
+
+	int32 NumSamples = NumBytes / sizeof(int16);
+
+	check(WaveData.Num() == NumBytes);
+	check(NumSamples == NumBytes / 2);
+
+	// Convert wav data from int16 to float:
+	ResamplerInputData.AddUninitialized(NumSamples);
+	int16* InputData = (int16*)WaveData.GetData();
+
+	for (int32 Index = 0; Index < NumSamples; Index++)
+	{
+		ResamplerInputData[Index] = ((float)InputData[Index]) / 32767.0f;
+	}
+
+	// set up converter input params:
+	Audio::FResamplingParameters ResamplerParams = {
+		Audio::EResamplingMethod::BestSinc,
+		NumChannels,
+		SourceSampleRate,
+		DestinationSampleRate,
+		ResamplerInputData
+	};
+
+	// Allocate enough space in output buffer for the resulting audio:
+	ResamplerOutputData.AddUninitialized(Audio::GetOutputBufferSize(ResamplerParams));
+	Audio::FResamplerResults ResamplerResults;
+	ResamplerResults.OutBuffer = &ResamplerOutputData;
+
+	// Resample:
+	if (Audio::Resample(ResamplerParams, ResamplerResults))
+	{
+		// resize WaveData buffer and convert back to int16:
+		int32 NumSamplesGenerated = ResamplerResults.OutputFramesGenerated * NumChannels;
+		WaveData.SetNum(NumSamplesGenerated * sizeof(int16));
+		InputData = (int16*)WaveData.GetData();
+
+		for (int32 Index = 0; Index < NumSamplesGenerated; Index++)
+		{
+			InputData[Index] = (int16)(ResamplerOutputData[Index] * 32767.0f);
+		}
+
+		NumBytes = NumSamplesGenerated * sizeof(int16);
+	}
+	else
+	{
+		UE_LOG(MuthMNativeLib, Error, TEXT("Resampling operation failed."));
+	}
+
+	double TimeDelta = FPlatformTime::Seconds() - StartTime;
+	UE_LOG(MuthMNativeLib, Display, TEXT("Resampling file from %f to %f took %f seconds."), SourceSampleRate, DestinationSampleRate, TimeDelta);
+}
 
 TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Data)
 {
 	//TODO: Performance Improvement request.
 	//It doesn't need to decode the whole MP3 to PCM, maybe some sample and encode to Opus immediately
 	//It can reduce some memory usage.
-	mpg123_init();
 	int retmsg;
 	TArray<uint8> _PCMData;
 	TArray<uint8> _MegabyteBuffer;
 	constexpr int BufferSize = 1024 * 1024;
+	constexpr opus_int32 samplingRate = 48000;
 	_MegabyteBuffer.SetNum(BufferSize);
 	//Begin MP3 Decode
-	mpg123_handle* _decoderHandle = mpg123_new(nullptr, &retmsg);
-	mpg123_open_feed(_decoderHandle);
-	mpg123_format_none(_decoderHandle);
-	mpg123_format(_decoderHandle, 48000, MPG123_STEREO, MPG123_ENC_16);
-	mpg123_param(_decoderHandle, MPG123_FORCE_RATE, 48000, 0);
-	size_t OutSize;
-	retmsg = mpg123_decode(_decoderHandle, _MP3Data.GetData(), _MP3Data.Num(), _MegabyteBuffer.GetData(), BufferSize, &OutSize);
-	while (retmsg==MPG123_NEED_MORE)
+	mp3dec_file_info_t mp3FileInfo;
 	{
-		_PCMData.Append(_MegabyteBuffer);
-		retmsg = mpg123_decode(_decoderHandle,NULL,0, _MegabyteBuffer.GetData(), BufferSize, &OutSize);
+		struct FtmpItData
+		{
+			mp3dec_t* Mp3dec;
+			TArray<uint8>* pOriginalPCMData;
+			TArray<mp3d_sample_t>* pFrameBuffer;
+			mp3dec_file_info_t* pFileInfo;
+		};
+		FtmpItData tmpItData;
+		TArray<mp3d_sample_t> FrameBuffer;
+		FrameBuffer.SetNum(MINIMP3_MAX_SAMPLES_PER_FRAME);
+		mp3dec_t MiniMp3Dec;
+		mp3dec_init(&MiniMp3Dec);
+		tmpItData.Mp3dec = &MiniMp3Dec;
+		tmpItData.pOriginalPCMData = &_PCMData;
+		tmpItData.pFrameBuffer = &FrameBuffer;
+		mp3dec_load_buf(&MiniMp3Dec, _MP3Data.GetData(), _MP3Data.Num(), &mp3FileInfo, nullptr, nullptr);
+		tmpItData.pFileInfo = &mp3FileInfo;
+		mp3dec_iterate_buf(_MP3Data.GetData(), _MP3Data.Num(), 
+			[](void *user_data, const uint8_t *frame, int frame_size, size_t offset, mp3dec_frame_info_t *info)->int
+			{
+				FtmpItData* user_data_it = (FtmpItData*)user_data;
+				mp3dec_frame_info_t thisFrameInfo;
+				mp3dec_decode_frame(user_data_it->Mp3dec, frame, frame_size, user_data_it->pFrameBuffer->GetData(), &thisFrameInfo);
+				user_data_it->pOriginalPCMData->Append((uint8*)user_data_it->pFrameBuffer->GetData(), thisFrameInfo.frame_bytes);
+			},nullptr);
+		//Resample
+		size_t SampleDataLength = _PCMData.Num();
+		ResampleWaveData(_PCMData, SampleDataLength, mp3FileInfo.channels, mp3FileInfo.samples, samplingRate);
+		_PCMData.SetNum(SampleDataLength);
 	}
-	if (retmsg == MPG123_ERR)
-		return TArray<uint8>();
-	_PCMData.Append(_MegabyteBuffer.GetData(),OutSize);
-	mpg123_close(_decoderHandle);
-	mpg123_delete(_decoderHandle);
-	mpg123_exit();
 	//MP3 Data Decode Finish.
 	//Begin Opus Encode
 	//XXX: big little endian problem(May cause bugs in some situation?)
-	opus_int32 samplingRate = 48000;
 	OpusEncoder* _pOpusEncoder = opus_encoder_create(samplingRate, 2, OPUS_APPLICATION_AUDIO, &retmsg);
 	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_BITRATE(192 * 1024));
 	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_FORCE_CHANNELS(2));
