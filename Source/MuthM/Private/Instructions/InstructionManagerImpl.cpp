@@ -80,7 +80,7 @@ UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, flo
 		InstructionPtr->OnInstructionLoaded(tmpBPJsonArg);
 		return InstructionPtr;
 	}
-	return false;
+	return nullptr;
 }
 
 void UInstructionManagerImpl::Tick(float CurrentTime)

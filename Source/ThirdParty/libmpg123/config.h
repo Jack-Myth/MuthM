@@ -34,9 +34,3 @@
 #define REAL_IS_FLOAT
 
 #define inline __inline
-
-/* we are on win32 */
-#define HAVE_WINDOWS_H
-
-/* use the unicode support within libmpg123 */
-#define WANT_WIN32_UNICODE
