@@ -207,7 +207,7 @@ int mp3dec_ex_read(mp3dec_ex_t *dec, int16_t *buf, int samples)
 }*/
 
 #ifndef MINIMP3_NO_STDIO
-
+#ifdef PLATFORM_SPECIFIC
 #if defined(__linux__) || defined(__FreeBSD__)
 #include <errno.h>
 #include <sys/mman.h>
@@ -293,6 +293,7 @@ error:
     CloseHandle(file);
     return -1;
 }
+#endif
 #else
 #include <stdio.h>
 
@@ -307,7 +308,8 @@ static void mp3dec_close_file(mp3dec_map_info_t *map_info)
 static int mp3dec_open_file(const char *file_name, mp3dec_map_info_t *map_info)
 {
     memset(map_info, 0, sizeof(*map_info));
-    FILE *file = fopen(file_name, "rb");
+	FILE *file;
+	fopen_s(&file,file_name, "rb");
     if (!file)
         return -1;
 
@@ -337,7 +339,8 @@ int mp3dec_load(mp3dec_t *dec, const char *file_name, mp3dec_file_info_t *info, 
 {
     int ret;
     mp3dec_map_info_t map_info;
-    if ((ret = mp3dec_open_file(file_name, &map_info)))
+	ret = mp3dec_open_file(file_name, &map_info);
+    if (ret)
         return ret;
     mp3dec_load_buf(dec, map_info.buffer, map_info.size, info, progress_cb, user_data);
     mp3dec_close_file(&map_info);
@@ -348,7 +351,8 @@ int mp3dec_iterate(const char *file_name, MP3D_ITERATE_CB callback, void *user_d
 {
     int ret;
     mp3dec_map_info_t map_info;
-    if ((ret = mp3dec_open_file(file_name, &map_info)))
+	ret = mp3dec_open_file(file_name, &map_info);
+    if (ret)
         return ret;
     mp3dec_iterate_buf(map_info.buffer, map_info.size, callback, user_data);
     mp3dec_close_file(&map_info);
@@ -368,7 +372,8 @@ int mp3dec_ex_open(mp3dec_ex_t *dec, const char *file_name, int seek_method)
 {
     int ret;
     memset(dec, 0, sizeof(*dec));
-    if ((ret = mp3dec_open_file(file_name, &dec->file)))
+	ret = mp3dec_open_file(file_name, &dec->file);
+    if (ret)
         return ret;
     dec->seek_method = seek_method;
     dec->is_file = 1;

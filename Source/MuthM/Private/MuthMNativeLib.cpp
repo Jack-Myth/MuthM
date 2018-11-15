@@ -75,7 +75,7 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 	//TODO: Performance Improvement request.
 	//It doesn't need to decode the whole MP3 to PCM, maybe some sample and encode to Opus immediately
 	//It can reduce some memory usage.
-	int retmsg;
+	/*int retmsg;
 	TArray<uint8> _PCMData;
 	TArray<uint8> _MegabyteBuffer;
 	constexpr int BufferSize = 1024 * 1024;
@@ -137,6 +137,7 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 			_MegabyteBuffer.Num());
 		OpusData.Append(_MegabyteBuffer.GetData(), EncodedOpusSize);
 	}
-	return OpusData;
+	return OpusData;*/
+	return TArray<uint8>();
 	//End Opus Encode
 }
