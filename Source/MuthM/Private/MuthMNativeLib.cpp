@@ -5,8 +5,8 @@
 #define MINIMP3_IMPLEMENTATION
 #include "minimp3.h"
 #include "minimp3_ex.h"
-#include "Audio.h"
 #include "LogMacros.h"
+#include "AudioResampler.h"
 
 DEFINE_LOG_CATEGORY(MuthMNativeLib)
 //Copy from Unreal Engine 4 Internal Resample function :P
@@ -75,7 +75,7 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 	//TODO: Performance Improvement request.
 	//It doesn't need to decode the whole MP3 to PCM, maybe some sample and encode to Opus immediately
 	//It can reduce some memory usage.
-	/*int retmsg;
+	int retmsg;
 	TArray<uint8> _PCMData;
 	TArray<uint8> _MegabyteBuffer;
 	constexpr int BufferSize = 1024 * 1024;
@@ -108,6 +108,7 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 				mp3dec_frame_info_t thisFrameInfo;
 				mp3dec_decode_frame(user_data_it->Mp3dec, frame, frame_size, user_data_it->pFrameBuffer->GetData(), &thisFrameInfo);
 				user_data_it->pOriginalPCMData->Append((uint8*)user_data_it->pFrameBuffer->GetData(), thisFrameInfo.frame_bytes);
+				return 1;
 			},nullptr);
 		//Resample
 		size_t SampleDataLength = _PCMData.Num();
@@ -117,7 +118,7 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 	//MP3 Data Decode Finish.
 	//Begin Opus Encode
 	//XXX: big little endian problem(May cause bugs in some situation?)
-	OpusEncoder* _pOpusEncoder = opus_encoder_create(samplingRate, 2, OPUS_APPLICATION_AUDIO, &retmsg);
+	OpusEncoder* _pOpusEncoder = opus_encoder_create(samplingRate, mp3FileInfo.channels, OPUS_APPLICATION_AUDIO, &retmsg);
 	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_BITRATE(192 * 1024));
 	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_FORCE_CHANNELS(2));
 	if (retmsg != OPUS_OK)
@@ -126,7 +127,7 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 	//Use 480 Sample per decode
 	//Will decode more than 18000 times for every sound.
 	constexpr int PerDecodeSampleNum = 480;
-	constexpr int PerDecodeSize = PerDecodeSampleNum * 2 * 2; //SampleNum*ChannelCount(2)*16Bit(2)
+	int PerDecodeSize = PerDecodeSampleNum * mp3FileInfo.channels * 2; //SampleNum*ChannelCount*16Bit(2)
 	int EncodedOpusSize;
 	TArray<uint8> OpusData;
 	for (int i=0;i<_PCMData.Num();i+= PerDecodeSize)
@@ -137,7 +138,7 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 			_MegabyteBuffer.Num());
 		OpusData.Append(_MegabyteBuffer.GetData(), EncodedOpusSize);
 	}
-	return OpusData;*/
+	return OpusData;
 	return TArray<uint8>();
 	//End Opus Encode
 }
