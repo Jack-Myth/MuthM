@@ -233,6 +233,13 @@ TArray<uint8> UMMScriptImpl::Serialize()
 	return MMSData;
 }
 
+float UMMScriptImpl::GetSuiltableDelay()
+{
+	//TODO: Caculate suit able Delay When Script Start;
+	//It should not less than 0;
+	return 0;
+}
+
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)
 {
 	bIsAutoDestroy = NewAutoDestroy;

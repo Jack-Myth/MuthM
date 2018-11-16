@@ -24,7 +24,16 @@ class MUTHM_API AMuthMInGameMode : public AMuthMGameModeBase
 	FString Author;
 	UPROPERTY()
 		class USoundWave* _GameMainMusic;
+	UPROPERTY()
+		class UAudioComponent* _MainSoundComponent;
+
+	//Because the Playback time will be wrong in some platform (Android for example)
+	//So calculate playback time by Tick() and control pause and resume by LifeCycleComponent;
+	float MusicPlaybackTime = 0;
+	UPROPERTY()
+		class UPauseUIBase* pPauseUI=nullptr;
 public:
+	AMuthMInGameMode();
 	//GetScoreCore
 	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
 	{
@@ -32,6 +41,9 @@ public:
 	}
 
 	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void PauseGame() override;
+	virtual void ResumeGame() override;
 
 protected:
 	virtual void BeginPlay() override;

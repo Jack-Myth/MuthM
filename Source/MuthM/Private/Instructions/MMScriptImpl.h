@@ -34,5 +34,6 @@ public:
 	virtual void Destroy() override;
 	virtual TScriptInterface<IMMScript> GenPIEDuplicate() override;
 	virtual TArray<uint8> Serialize() override;
+	virtual float GetSuiltableDelay() override;
 
 };
