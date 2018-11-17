@@ -24,6 +24,7 @@ FGameArgs UMuthMGameInstance::ExchangeGameArgs()
 
 void UMuthMGameInstance::PostInitProperties()
 {
+	Super::PostInitProperties();
 	FCoreDelegates::ApplicationWillDeactivateDelegate.AddUObject(this, &UMuthMGameInstance::OnApplicationDeactive);
 	FCoreDelegates::ApplicationHasReactivatedDelegate.AddUObject(this, &UMuthMGameInstance::OnApplicationReactive);
 	FCoreDelegates::ApplicationWillEnterBackgroundDelegate.AddUObject(this, &UMuthMGameInstance::OnApplicationSwitchBackground);

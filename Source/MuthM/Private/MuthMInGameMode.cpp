@@ -10,6 +10,7 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "PauseUIBase.h"
+#include "UIProvider.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode);
 
@@ -31,7 +32,7 @@ void AMuthMInGameMode::PauseGame()
 	//And ensure the PauseUI has been generated.
 	if (!::IsValid(pPauseUI))
 	{
-		TSubclassOf<UPauseUIBase> PauseUIClass = LoadClass<UPauseUIBase>(NULL, TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/PauseUI.PauseUI_C'"));
+		TSubclassOf<UPauseUIBase> PauseUIClass = UUIProvider::Get()->GetPauseUI();
 		UPauseUIBase* PauseUIInstance = Cast<UPauseUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), PauseUIClass, "PauseUI"));
 		//TODO:It's ready for mod,Framework shouldn't load failed.
 		if (!PauseUIInstance)
