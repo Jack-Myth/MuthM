@@ -8,7 +8,7 @@
 #include "Instruction.generated.h"
 
 UENUM(BlueprintType)
-enum EInstructionDestroyReason
+enum class EInstructionDestroyReason :uint8
 {
 	IDR_Manually UMETA(DisplayName = "Manually"),
 	IDR_Unregister UMETA(DisplayName = "Unregister"),
