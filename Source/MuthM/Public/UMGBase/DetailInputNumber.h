@@ -22,5 +22,5 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		float GetInputNumber();
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnValueInit"))
-		void K2_OnValueInit(FText DisplayName, class UInstruction* InstructionInstance,float NumberValue);
+		void K2_OnValueInit(const FText& DisplayName, class UInstruction* InstructionInstance,float NumberValue);
 };

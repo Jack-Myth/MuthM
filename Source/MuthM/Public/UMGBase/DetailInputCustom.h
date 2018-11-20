@@ -21,5 +21,5 @@ public:
 	void ValueInit(TSharedPtr<struct FDetailItemCustom> DetailItemInfo);
 
 	UFUNCTION(BlueprintImplementableEvent,meta=(DisplayName="OnValueInit"))
-		void K2_OnValueInit(FText DisplayName, class UInstruction* InstructionInstance);
+		void K2_OnValueInit(const FText& DisplayName, class UInstruction* InstructionInstance);
 };
