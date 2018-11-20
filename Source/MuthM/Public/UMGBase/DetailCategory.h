@@ -6,10 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "DetailCategory.generated.h"
 
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAddItemWidget,*)
-
 /**
- * 
+ * A Holder of Detail Input.
+ * Just For Visual, less logic.
  */
 UCLASS()
 class MUTHM_API UDetailCategory : public UUserWidget

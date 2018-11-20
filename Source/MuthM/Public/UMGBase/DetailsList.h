@@ -13,8 +13,7 @@ UCLASS()
 class MUTHM_API UDetailsList : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void AddCategoryWidget(class UDetailCategory* DetailCategory);
 };

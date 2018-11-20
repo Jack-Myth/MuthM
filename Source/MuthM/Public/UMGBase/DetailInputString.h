@@ -13,7 +13,14 @@ UCLASS()
 class MUTHM_API UDetailInputString : public UUserWidget
 {
 	GENERATED_BODY()
-public:
 
-	
+	TSharedPtr<struct FDetailItemString> _DetailItemInfo;
+public:
+	UFUNCTION(BlueprintCallable)
+		void FireOnValueChanged();
+	void ValueInit(TSharedPtr<struct FDetailItemString> DetailItemInfo);
+	UFUNCTION(BlueprintImplementableEvent)
+		float GetInputNumber();
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnValueInit"))
+		void K2_OnValueInit(const FText& DisplayName, class UInstruction* InstructionInstance, const FString& StrValue);
 };
