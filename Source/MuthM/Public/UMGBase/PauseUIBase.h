@@ -17,6 +17,13 @@ class MUTHM_API UPauseUIBase : public UUserWidget
 public:
 	UFUNCTION(BlueprintImplementableEvent, meta=(ToolTip="This event may fire many times if OnGameResumed return false."))
 		void OnGamePaused();
-	UFUNCTION(BlueprintImplementableEvent,meta=(ToolTip="Return true if the PauseUI is about to be removed."))
+	UFUNCTION(BlueprintNativeEvent,meta=(ToolTip="Return true if the PauseUI is about to be removed."))
 		bool OnGameResumed();
+
+	UFUNCTION(BlueprintCallable)
+		void Resume();
+	UFUNCTION(BlueprintCallable)
+		void Restart();
+	UFUNCTION(BlueprintCallable)
+		void BackToMenu();
 };

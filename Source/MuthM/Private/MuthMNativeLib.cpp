@@ -70,7 +70,7 @@ static void ResampleWaveData(TArray<uint8>& WaveData, size_t& NumBytes, int32 Nu
 	UE_LOG(MuthMNativeLib, Display, TEXT("Resampling file from %f to %f took %f seconds."), SourceSampleRate, DestinationSampleRate, TimeDelta);
 }
 
-TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Data)
+bool MuthMNativeLib::NativeConvertMP3ToOpus(const TArray<uint8>& _MP3Data, TArray<uint8>& OpusOutput)
 {
 	//TODO: Performance Improvement request.
 	//It doesn't need to decode the whole MP3 to PCM, maybe some sample and encode to Opus immediately
@@ -122,23 +122,21 @@ TArray<uint8> MuthMNativeLib::NativeDecodeMP3ToOpus(const TArray<uint8>& _MP3Dat
 	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_BITRATE(192 * 1024));
 	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_FORCE_CHANNELS(2));
 	if (retmsg != OPUS_OK)
-		return TArray<uint8>();
+		return false;
 	//opus_encoder_init(_pOpusEncoder, 48000, 2, OPUS_APPLICATION_AUDIO);
 	//Use 480 Sample per decode
 	//Will decode more than 18000 times for every sound.
 	constexpr int PerDecodeSampleNum = 480;
 	int PerDecodeSize = PerDecodeSampleNum * mp3FileInfo.channels * 2; //SampleNum*ChannelCount*16Bit(2)
 	int EncodedOpusSize;
-	TArray<uint8> OpusData;
 	for (int i=0;i<_PCMData.Num();i+= PerDecodeSize)
 	{
 		EncodedOpusSize=opus_encode(_pOpusEncoder, 
 			(const opus_int16*)(_PCMData.GetData() + i),
 			PerDecodeSampleNum, _MegabyteBuffer.GetData(), 
 			_MegabyteBuffer.Num());
-		OpusData.Append(_MegabyteBuffer.GetData(), EncodedOpusSize);
+		OpusOutput.Append(_MegabyteBuffer.GetData(), EncodedOpusSize);
 	}
-	return OpusData;
-	return TArray<uint8>();
+	return true;
 	//End Opus Encode
 }

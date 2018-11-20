@@ -16,57 +16,61 @@ enum class EDetailInputType :uint8
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackStr, class UInstruction*, InstructionInstance, FName, PropertyName, FString, StrValue);
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackNumber, class UInstruction*, InstructionInstance, FName, PropertyName, float, NumberValue);
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackCustom, class UInstruction*, InstructionInstance, FName, PropertyName, class UUserWidget*, CustomWidget);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackCustom, class UInstruction*, InstructionInstance, FName, PropertyName, class UDetailInputCustom*, CustomWidget);
 
-UCLASS(MinimalAPI,NotBlueprintable, BlueprintType)
-class UDetailItem :public UObject
+USTRUCT(BlueprintType)
+struct FDetailItem
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintReadOnly)
-		FName Title;
-};
-
-UCLASS(MinimalAPI,NotBlueprintType, NotBlueprintable)
-class UDetailItemString :public UDetailItem
-{
-	GENERATED_BODY()
-public:
-	FString StrValue;
-	FDetailCallbackStr DetailCallbackStr;
-	UFUNCTION(BlueprintPure)
-		static UDetailItem* GenDetailItemString(FName ItemTitle, FString StrValue, FDetailCallbackStr DetailCallbackStr);
-};
-
-UCLASS(MinimalAPI, NotBlueprintType, NotBlueprintable)
-class UDetailItemNumber :public UDetailItem
-{
-	GENERATED_BODY()
-public:
-	float NumberValue;
-	FDetailCallbackNumber DetailCallbackNumber;
-	UFUNCTION(BlueprintPure)
-		static UDetailItem* GenDetailItemNumber(FName ItemTitle, float NumberValue, FDetailCallbackNumber DetailCallbackNumber);
-};
-
-UCLASS(MinimalAPI, NotBlueprintType, NotBlueprintable)
-class UDetailItemCustom :public UDetailItem
-{
-	GENERATED_BODY()
-public:
-	class UUserWidget* CustomWidget;
-	FDetailCallbackCustom DetailCallbackCustom;
-	UFUNCTION(BlueprintPure)
-		static UDetailItem* GenDetailItemCustom(FName ItemTitle, class UUserWidget* CustomWidget, FDetailCallbackCustom DetailCallbackCustom);
+	UPROPERTY(BlueprintReadWrite)
+		FName Name;
+	UPROPERTY(BlueprintReadWrite)
+		FText DisplayName;
+	UPROPERTY(BlueprintReadWrite)
+		class UInstruction* InstructionInstance;
+	EDetailInputType InputType;
 };
 
 USTRUCT(BlueprintType)
-struct FDetailCategory
+struct FDetailItemString :public FDetailItem
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+		FString StrValue;
+	UPROPERTY(BlueprintReadWrite)
+		FDetailCallbackStr DetailCallbackStr;
+};
+
+USTRUCT(BlueprintType)
+struct FDetailItemNumber :public FDetailItem
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+		float NumberValue;
+	UPROPERTY(BlueprintReadWrite)
+		FDetailCallbackNumber DetailCallbackNumber;
+};
+
+USTRUCT(BlueprintType)
+struct FDetailItemCustom :public FDetailItem
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite)
+		class UUserWidget* CustomWidget;
+	UPROPERTY(BlueprintReadWrite)
+		FDetailCallbackCustom DetailCallbackCustom;
+};
+
+USTRUCT(BlueprintType)
+struct FDetailCategoryStruct
 {
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadWrite)
 		FName Title;
-	UPROPERTY(BlueprintReadWrite)
-		TArray<UDetailItem*> ItemList;
+	TArray<TSharedPtr<FDetailItem>> ItemList;
 };

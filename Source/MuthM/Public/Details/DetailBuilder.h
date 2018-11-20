@@ -22,6 +22,8 @@ class MUTHM_API IDetailBuilder
 	GENERATED_BODY()
 
 public:
-	/*UFUNCTION(BlueprintCallable)
-		virtual void AddCategory(FDetailCategory Category) = 0;*/
+	static TScriptInterface<IDetailBuilder> GenNewBuilder();
+	UFUNCTION(BlueprintCallable)
+		virtual void AddCategory(FDetailCategoryStruct Category) = 0;
+	virtual UUserWidget* GenDetails() = 0;
 };

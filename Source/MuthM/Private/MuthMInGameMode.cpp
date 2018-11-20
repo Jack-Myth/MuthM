@@ -51,6 +51,11 @@ void AMuthMInGameMode::ResumeGame()
 		pPauseUI = nullptr;
 }
 
+void AMuthMInGameMode::RestartGame()
+{
+	//UNDONE: RestartGame
+}
+
 void AMuthMInGameMode::BeginPlay()
 {
 	Super::BeginPlay();

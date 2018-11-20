@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "MuthMGameModeBase.h"
-#include "MuthMMainMenuGameMode.generated.h"
+#include "MuthMMainMenuMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MUTHM_API AMuthMMainMenuGameMode : public AMuthMGameModeBase
+class MUTHM_API AMuthMMainMenuMode : public AMuthMGameModeBase
 {
 	GENERATED_BODY()
 	

@@ -44,7 +44,7 @@ public:
 
 	virtual void PauseGame() override;
 	virtual void ResumeGame() override;
-
+	void RestartGame();
 protected:
 	virtual void BeginPlay() override;
 };

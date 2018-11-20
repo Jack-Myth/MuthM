@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "InstructionManager.h"
+#include "DetailStructures.h"
 #include "MuthMBPLib.generated.h"
 
 /**
@@ -29,7 +30,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		static class USoundWave* DecodeWaveFromOpus(const TArray<uint8>& OpusData);
 	UFUNCTION(BlueprintCallable)
-		static TArray<uint8> EncodePCMToOpus(const TArray<uint8>& PCMData);
+		static bool ConvertMP3ToOpus(const TArray<uint8>& MP3File,TArray<uint8>& OpusOutput);
 	UFUNCTION(BlueprintCallable)
-		static TArray<uint8> DecodePCMFromMP3(const TArray<uint8>& MP3Data);
+		static void AddStringItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemString StringItem);
+	UFUNCTION(BlueprintCallable)
+		static void AddNumberItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemNumber NumberItem);
+	UFUNCTION(BlueprintCallable)
+		static void AddCustomItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemCustom CustomItem);
 };

@@ -10,6 +10,7 @@
 #include "ModuleManager.h"
 #include "IImageWrapper.h"
 #include "Sound/SoundWave.h"
+#include "MuthMNativeLib.h"
 
 TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager()
 {
@@ -147,14 +148,28 @@ class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& MusicFile
 	return nullptr;
 }
 
-TArray<uint8> UMuthMBPLib::EncodePCMToOpus(const TArray<uint8>& PCMData)
+bool UMuthMBPLib::ConvertMP3ToOpus(const TArray<uint8>& MP3File, TArray<uint8>& OpusOutput)
 {
-	//TODO:EncodePCMToOpus
-	return TArray<uint8>();
+	return MuthMNativeLib::NativeConvertMP3ToOpus(MP3File, OpusOutput);
 }
 
-TArray<uint8> UMuthMBPLib::DecodePCMFromMP3(const TArray<uint8>& MP3Data)
+void UMuthMBPLib::AddStringItemToCategory(FDetailCategoryStruct& DetailCategory, FDetailItemString StringItem)
 {
-	//TODO:DecodePCMFromMP3
-	return TArray<uint8>();
+	FDetailItemString* mDetail = new FDetailItemString();
+	*mDetail = StringItem;
+	DetailCategory.ItemList.Add(MakeShareable<FDetailItem>(mDetail));
+}
+
+void UMuthMBPLib::AddNumberItemToCategory(FDetailCategoryStruct& DetailCategory, FDetailItemNumber NumberItem)
+{
+	FDetailItemNumber* mDetail = new FDetailItemNumber();
+	*mDetail = NumberItem;
+	DetailCategory.ItemList.Add(MakeShareable<FDetailItem>(mDetail));
+}
+
+void UMuthMBPLib::AddCustomItemToCategory(FDetailCategoryStruct& DetailCategory, FDetailItemCustom CustomItem)
+{
+	FDetailItemCustom* mDetail = new FDetailItemCustom();
+	*mDetail = CustomItem;
+	DetailCategory.ItemList.Add(MakeShareable<FDetailItem>(mDetail));
 }
