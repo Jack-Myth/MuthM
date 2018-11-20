@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
 #include "Classes/BlueprintJsonLibrary.h"
+#include "HasDetails.h"
 #include "Instruction.generated.h"
 
 UENUM(BlueprintType)
@@ -21,7 +22,7 @@ enum class EInstructionDestroyReason :uint8
  * The Base UClass of all MMS Instructions
  */
 UCLASS(BlueprintType,Blueprintable,Abstract)
-class MUTHM_API UInstruction:public UObject
+class MUTHM_API UInstruction:public UObject,public IHasDetails
 {
 	GENERATED_BODY()
 
