@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "DetailsList.generated.h"
+#include "DetailsListBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MUTHM_API UDetailsList : public UUserWidget
+class MUTHM_API UDetailsListBase : public UUserWidget
 {
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-		void AddCategoryWidget(class UDetailCategory* DetailCategory);
+		void AddCategoryWidget(class UDetailCategoryBase* DetailCategory);
 };

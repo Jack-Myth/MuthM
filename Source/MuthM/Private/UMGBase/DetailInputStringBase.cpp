@@ -1,14 +1,14 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
-#include "DetailInputString.h"
+#include "DetailInputStringBase.h"
 #include "DetailStructures.h"
 
-void UDetailInputString::FireOnValueChanged()
+void UDetailInputStringBase::FireOnValueChanged()
 {
 	_DetailItemInfo->DetailCallbackStr.ExecuteIfBound(_DetailItemInfo->InstructionInstance, _DetailItemInfo->Name, _DetailItemInfo->StrValue);
 }
 
-void UDetailInputString::ValueInit(TSharedPtr<struct FDetailItemString> DetailItemInfo)
+void UDetailInputStringBase::ValueInit(TSharedPtr<struct FDetailItemString> DetailItemInfo)
 {
 	_DetailItemInfo = DetailItemInfo;
 	K2_OnValueInit(_DetailItemInfo->DisplayName, _DetailItemInfo->InstructionInstance, _DetailItemInfo->StrValue);

@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "DetailCategory.generated.h"
+#include "DetailCategoryBase.generated.h"
 
 /**
  * A Holder of Detail Input.
  * Just For Visual, less logic.
  */
 UCLASS()
-class MUTHM_API UDetailCategory : public UUserWidget
+class MUTHM_API UDetailCategoryBase : public UUserWidget
 {
 	GENERATED_BODY()
 public:

@@ -1,14 +1,14 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
-#include "DetailInputCustom.h"
+#include "DetailInputCustomBase.h"
 #include "DetailStructures.h"
 
-void UDetailInputCustom::FireOnValueChanged()
+void UDetailInputCustomBase::FireOnValueChanged()
 {
 	_DetailItemInfo->DetailCallbackCustom.ExecuteIfBound(_DetailItemInfo->InstructionInstance, _DetailItemInfo->Name, this);
 }
 
-void UDetailInputCustom::ValueInit(TSharedPtr<FDetailItemCustom> DetailItemInfo)
+void UDetailInputCustomBase::ValueInit(TSharedPtr<FDetailItemCustom> DetailItemInfo)
 {
 	_DetailItemInfo = DetailItemInfo;
 	K2_OnValueInit(DetailItemInfo->DisplayName, DetailItemInfo->InstructionInstance);

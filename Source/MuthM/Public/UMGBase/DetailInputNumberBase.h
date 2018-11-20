@@ -4,23 +4,23 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "DetailInputString.generated.h"
+#include "DetailInputNumberBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MUTHM_API UDetailInputString : public UUserWidget
+class MUTHM_API UDetailInputNumberBase : public UUserWidget
 {
 	GENERATED_BODY()
 
-	TSharedPtr<struct FDetailItemString> _DetailItemInfo;
+	TSharedPtr<struct FDetailItemNumber> _DetailItemInfo;
 public:
 	UFUNCTION(BlueprintCallable)
 		void FireOnValueChanged();
-	void ValueInit(TSharedPtr<struct FDetailItemString> DetailItemInfo);
+	void ValueInit(TSharedPtr<struct FDetailItemNumber> DetailItemInfo);
 	UFUNCTION(BlueprintImplementableEvent)
 		float GetInputNumber();
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnValueInit"))
-		void K2_OnValueInit(const FText& DisplayName, class UInstruction* InstructionInstance, const FString& StrValue);
+		void K2_OnValueInit(const FText& DisplayName, class UInstruction* InstructionInstance,float NumberValue);
 };

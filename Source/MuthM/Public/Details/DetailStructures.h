@@ -16,7 +16,7 @@ enum class EDetailInputType :uint8
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackStr, class UInstruction*, InstructionInstance, FName, PropertyName, FString, StrValue);
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackNumber, class UInstruction*, InstructionInstance, FName, PropertyName, float, NumberValue);
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackCustom, class UInstruction*, InstructionInstance, FName, PropertyName, class UDetailInputCustom*, CustomWidget);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackCustom, class UInstruction*, InstructionInstance, FName, PropertyName, class UDetailInputCustomBase*, CustomWidget);
 
 USTRUCT(BlueprintType)
 struct FDetailItem
