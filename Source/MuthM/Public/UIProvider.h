@@ -9,6 +9,7 @@
 #include "DetailCategoryBase.h"
 #include "DetailInputNumberBase.h"
 #include "DetailInputStringBase.h"
+#include "EditorMainUIBase.h"
 #include "UIProvider.generated.h"
 
 #define MUTHM_UI_DEFINE(UINAME,DEFAULT_UI_REF) \
@@ -22,6 +23,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailsListDelegate, TSubclassOf<UDetailsList
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailCategoryDelegate, TSubclassOf<UDetailCategoryBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputNumberDelegate, TSubclassOf<UDetailInputNumberBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputStringDelegate, TSubclassOf<UDetailInputStringBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FEditorMainUIDelegate, TSubclassOf<UEditorMainUIBase>&, _returnV);
 
 /**
  * 
@@ -66,4 +68,10 @@ public:
 	MUTHM_UI_DEFINE(DetailInputString, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputString.DetailInputString_C'")
 		UFUNCTION(BlueprintCallable)
 		void ClearDetailInputString() { DetailInputString.Unbind(); }
+
+	UPROPERTY(BlueprintReadWrite)
+		FEditorMainUIDelegate EditorMainUI;
+	MUTHM_UI_DEFINE(EditorMainUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/EditorMainUI.EditorMainUI_C'")
+		UFUNCTION(BlueprintCallable)
+		void ClearEditorMainUI() { EditorMainUI.Unbind(); }
 };

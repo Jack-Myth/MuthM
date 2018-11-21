@@ -20,20 +20,16 @@ struct FMusicInfo
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintReadWrite)
-		int ID;
+	int ID;
 	UPROPERTY(BlueprintReadWrite)
 		FString Title;
 	UPROPERTY(BlueprintReadWrite)
 		FString Musician;
 	UPROPERTY(BlueprintReadWrite)
 		FString Description;
-	UPROPERTY(BlueprintReadWrite)
-		int Size;
-	UPROPERTY(BlueprintReadWrite)
-		FString DownloadURL;
-	UPROPERTY(BlueprintReadWrite)
-		FName FormatType;
+	int Size;
+	FString DownloadURL;
+	FName FormatType;
 };
 
 /**

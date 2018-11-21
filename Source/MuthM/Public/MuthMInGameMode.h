@@ -17,16 +17,14 @@ class MUTHM_API AMuthMInGameMode : public AMuthMGameModeBase
 {
 	GENERATED_BODY()
 
-	TArray<TScriptInterface<IMMScript>> MainMMSInstance;
+protected:
 	TSharedPtr<class FMDATFile> _pMDAT;
 	TScriptInterface<IMMScript> _MainMMSInstance;
-	FString MusicTitle;
-	FString Author;
 	UPROPERTY()
 		class USoundWave* _GameMainMusic;
 	UPROPERTY()
 		class UAudioComponent* _MainSoundComponent;
-
+	FMusicInfo MusicInfo;
 	//Because the Playback time will be wrong in some platform (Android for example)
 	//So calculate playback time by Tick() and control pause and resume by LifeCycleComponent;
 	float MusicPlaybackTime = 0;

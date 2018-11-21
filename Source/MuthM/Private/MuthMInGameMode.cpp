@@ -62,6 +62,7 @@ void AMuthMInGameMode::BeginPlay()
 	//TODO:Get Property From GameInstance etc.
 	FGameArgs ExchangedGameArgs = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->ExchangeGameArgs();
 	_pMDAT = ExchangedGameArgs._MDAT;
+	MusicInfo = ExchangedGameArgs.MainMusicInfo;
 	if (!_pMDAT->IsFileExist(ExchangedGameArgs.MMSFileName))
 	{
 		UE_LOG(MuthMInGameMode, Error, TEXT("Invalid MMS FileName:%d"), *ExchangedGameArgs.MMSFileName);
