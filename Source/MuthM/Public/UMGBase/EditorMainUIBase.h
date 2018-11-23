@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MusicManager.h"
 #include "EditorMainUIBase.generated.h"
 
 /**
@@ -15,6 +16,7 @@ class MUTHM_API UEditorMainUIBase : public UUserWidget
 	GENERATED_BODY()
 
 	float _TimePoint;
+	class UEditorPanelBase* _EditorPanel;
 public:
 	UFUNCTION(BlueprintCallable)
 		void UIEnterPIE();
@@ -33,4 +35,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnFillMusicInfo(FMusicInfo MusicInfo);
 	void Init(FMusicInfo MusicInfo,TScriptInterface<class IMMScript> MMScript);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnPlaceEditorPanel(class UEditorPanelBase* EditorPanel);
 };

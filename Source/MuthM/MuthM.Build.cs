@@ -18,6 +18,7 @@ public class MuthM : ModuleRules
             "libminimp3",
             "UELibSampleRate",
             "AudioPlatformConfiguration",
+            "SoundVisualizations",
             "Json",
             "BlueprintJson" });
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MuthMGameModeBase.h"
 #include "MMScript.h"
+#include "MusicManager.h"
 #include "MuthMInGameMode.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMInGameMode, Log, All)
@@ -30,6 +31,7 @@ protected:
 	float MusicPlaybackTime = 0;
 	UPROPERTY()
 		class UPauseUIBase* pPauseUI=nullptr;
+
 public:
 	AMuthMInGameMode();
 	//GetScoreCore
@@ -43,6 +45,9 @@ public:
 	virtual void PauseGame() override;
 	virtual void ResumeGame() override;
 	void RestartGame();
+
+	//Notice:This function only draw gray map to RenderTarget2D
+	void DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime,uint32 ResTime,int32 ResFrequency);
 protected:
 	virtual void BeginPlay() override;
 };

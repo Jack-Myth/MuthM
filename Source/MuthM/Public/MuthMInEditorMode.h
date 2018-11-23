@@ -29,6 +29,6 @@ public:
 		void EnterPIE(float BeginTime);
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "For EditorMainUI,recommend to use UIExitPIE() instead."))
 		void ExitPIE();
-	void PlayMusicOnly();
+	void PlayMusicOnly(float BeginTime);
 	void PauseMusicOnly();
 };

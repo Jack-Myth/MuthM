@@ -7,6 +7,7 @@
 #include "MuthMType.h"
 #include "MusicManager.h"
 #include "InstructionManager.h"
+#include "Components/AudioComponent.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
@@ -44,5 +45,16 @@ void AMuthMInEditorMode::EnterPIE(float BeginTime)
 void AMuthMInEditorMode::ExitPIE()
 {
 
+}
+
+void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
+{
+	_MainSoundComponent->SetPaused(false);
+	_MainSoundComponent->Play(BeginTime);
+}
+
+void AMuthMInEditorMode::PauseMusicOnly()
+{
+	_MainSoundComponent->SetPaused(true);
 }
 

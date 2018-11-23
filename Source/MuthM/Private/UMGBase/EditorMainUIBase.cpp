@@ -3,13 +3,33 @@
 #include "EditorMainUIBase.h"
 #include "MuthMInEditorMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "UIProvider.h"
+#include "EditorPanelBase.h"
 
 void UEditorMainUIBase::UIEnterPIE()
 {
 	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
 }
 
-void UEditorMainUIBase::Init(FMusicInfo MusicInfo, TScriptInterface<class IMMScript> MMScript)
+void UEditorMainUIBase::UIExitPIE()
 {
 
+}
+
+void UEditorMainUIBase::PlayMusic()
+{
+
+}
+
+void UEditorMainUIBase::PauseMusic()
+{
+
+}
+
+void UEditorMainUIBase::Init(FMusicInfo MusicInfo, TScriptInterface<class IMMScript> MMScript)
+{
+	//Add Editor Panel
+	OnFillMusicInfo(MusicInfo);
+	_EditorPanel = Cast<UEditorPanelBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetEditorPanel(), "EditorPanel"));
+	OnPlaceEditorPanel(_EditorPanel);
 }

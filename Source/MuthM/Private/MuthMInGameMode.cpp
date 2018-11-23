@@ -11,6 +11,11 @@
 #include "TimerManager.h"
 #include "PauseUIBase.h"
 #include "UIProvider.h"
+#include "Classes/SoundVisualizationStatics.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "Kismet/KismetRenderingLibrary.h"
+#include "CanvasItem.h"
+#include "Engine/Canvas.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode);
 
@@ -54,6 +59,28 @@ void AMuthMInGameMode::ResumeGame()
 void AMuthMInGameMode::RestartGame()
 {
 	//UNDONE: RestartGame
+}
+
+void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
+{
+	float TimeLength = (EndTime - BeginTime) / ResTime;
+	TArray<float> OutArray;
+	UCanvas* SpectrumCanvas;
+	FCanvasBoxItem tmpBoxItem(FVector2D(0,0),FVector2D(RenderTarget2D->SizeX/ResTime, RenderTarget2D->SizeY / ResFrequency)); 
+	FDrawToRenderTargetContext DrawRenderTargetContext;
+	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(this, RenderTarget2D, SpectrumCanvas, FVector2D(RenderTarget2D->SizeX, RenderTarget2D->SizeY), DrawRenderTargetContext);
+	for (int x=0;x<ResTime;x++)
+	{
+		//X for Time
+		USoundVisualizationStatics::CalculateFrequencySpectrum(_GameMainMusic, 0, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
+		for (int y=0;y<OutArray.Num();y++)
+		{
+			//Y for Frequency
+			tmpBoxItem.SetColor(FLinearColor(OutArray[y], OutArray[y], OutArray[y]));
+			SpectrumCanvas->DrawItem(tmpBoxItem, x*tmpBoxItem.Size.X, y*tmpBoxItem.Size.Y);
+		}
+	}
+	UKismetRenderingLibrary::EndDrawCanvasToRenderTarget(this, DrawRenderTargetContext);
 }
 
 void AMuthMInGameMode::BeginPlay()
