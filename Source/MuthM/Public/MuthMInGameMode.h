@@ -25,26 +25,30 @@ protected:
 		class USoundWave* _GameMainMusic;
 	UPROPERTY()
 		class UAudioComponent* _MainSoundComponent;
-	FMusicInfo MusicInfo;
 	//Because the Playback time will be wrong in some platform (Android for example)
 	//So calculate playback time by Tick() and control pause and resume by LifeCycleComponent;
 	float MusicPlaybackTime = 0;
 	UPROPERTY()
 		class UPauseUIBase* pPauseUI=nullptr;
-
+	UPROPERTY()
+		class UGameUIBase* _MainGameUI;
+	UPROPERTY()
+		class UScoreCore* _ScoreCore;
 public:
 	AMuthMInGameMode();
 	//GetScoreCore
+	UFUNCTION(BlueprintPure)
+		class UScoreCore* GetScoreCore();
 	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
 	{
 		return _pMDAT;
 	}
-
 	virtual void Tick(float DeltaSeconds) override;
-
+	void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData);
 	virtual void PauseGame() override;
 	virtual void ResumeGame() override;
 	void RestartGame();
+	void StopGame();
 
 	//Notice:This function only draw gray map to RenderTarget2D
 	void DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime,uint32 ResTime,int32 ResFrequency);

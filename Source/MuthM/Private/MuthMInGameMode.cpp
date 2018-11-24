@@ -16,18 +16,52 @@
 #include "Kismet/KismetRenderingLibrary.h"
 #include "CanvasItem.h"
 #include "Engine/Canvas.h"
+#include "UserWidget.h"
+#include "Score/ScoreCore.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode);
 
 AMuthMInGameMode::AMuthMInGameMode()
 {
 	_MainSoundComponent = CreateDefaultSubobject<UAudioComponent>("_MainAudioComponent");
+	_ScoreCore = CreateDefaultSubobject<UScoreCore>("_ScoreCore");
 	//NOTE: Maybe It's need to Attach to GameMode?
+}
+
+class UScoreCore* AMuthMInGameMode::GetScoreCore()
+{
+	return _ScoreCore;
 }
 
 void AMuthMInGameMode::Tick(float DeltaSeconds)
 {
 	MusicPlaybackTime += DeltaSeconds;
+}
+
+void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
+{
+	_MainMMSInstance = IInstructionManager::Get()->GenMMScript(false);
+	_MainMMSInstance->LoadFromData(MMSData);
+	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
+	TArray<uint8> OpusData;
+	IMusicManager::Get()->LoadMusicDataByID(MusicInfo.ID, OpusData);
+	_GameMainMusic = IMusicManager::Get()->GenSoundWaveByOpus(OpusData);
+	MusicPlaybackTime = -SuitDelay;
+	if (!::IsValid(_GameMainMusic))
+	{
+		UE_LOG(MuthMInGameMode, Warning, TEXT("Load Main Music Failed"));
+	}
+	else
+	{
+		_MainSoundComponent->SetSound(_GameMainMusic);
+		FTimerHandle tmpTimeHandle; //No Need this TimeHandle anymore.
+		GetWorld()->GetTimerManager().SetTimer(tmpTimeHandle, [=]()
+			{
+				_MainSoundComponent->Play();
+			}, 0, false, SuitDelay);
+	}
+	TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get()->GetGameUI();
+	_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, "GameUI"));
 }
 
 void AMuthMInGameMode::PauseGame()
@@ -61,6 +95,12 @@ void AMuthMInGameMode::RestartGame()
 	//UNDONE: RestartGame
 }
 
+void AMuthMInGameMode::StopGame()
+{
+	_MainMMSInstance->Destroy();
+	_MainMMSInstance = nullptr;
+}
+
 void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
 {
 	float TimeLength = (EndTime - BeginTime) / ResTime;
@@ -89,31 +129,12 @@ void AMuthMInGameMode::BeginPlay()
 	//TODO:Get Property From GameInstance etc.
 	FGameArgs ExchangedGameArgs = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->ExchangeGameArgs();
 	_pMDAT = ExchangedGameArgs._MDAT;
-	MusicInfo = ExchangedGameArgs.MainMusicInfo;
+	FMusicInfo MusicInfo = ExchangedGameArgs.MainMusicInfo;
 	if (!_pMDAT->IsFileExist(ExchangedGameArgs.MMSFileName))
 	{
 		UE_LOG(MuthMInGameMode, Error, TEXT("Invalid MMS FileName:%d"), *ExchangedGameArgs.MMSFileName);
 		//Game will freeze,Then Developer will looking for Logs.
 		return;
 	}
-	_MainMMSInstance = IInstructionManager::Get()->GenMMScript(false);
-	_MainMMSInstance->LoadFromData(_pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
-	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
-	TArray<uint8> OpusData;
-	IMusicManager::Get()->LoadMusicDataByID(ExchangedGameArgs.MainMusicInfo.ID, OpusData);
-	_GameMainMusic = IMusicManager::Get()->GenSoundWaveByOpus(OpusData);
-	MusicPlaybackTime = -SuitDelay;
-	if (!::IsValid(_GameMainMusic))
-	{
-		UE_LOG(MuthMInGameMode, Warning, TEXT("Load Main Music Failed"));
-	}
-	else
-	{
-		_MainSoundComponent->SetSound(_GameMainMusic);
-		FTimerHandle tmpTimeHandle; //No Need this TimeHandle anymore.
-		GetWorld()->GetTimerManager().SetTimer(tmpTimeHandle, [=]()
-			{
-				_MainSoundComponent->Play();
-			}, 0, false, SuitDelay);
-	}
+	StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
 }
