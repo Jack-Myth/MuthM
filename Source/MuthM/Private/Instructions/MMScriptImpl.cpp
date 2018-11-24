@@ -240,6 +240,22 @@ float UMMScriptImpl::GetSuiltableDelay()
 	return 0;
 }
 
+TArray<TScriptInterface<class IScoreInfo>> UMMScriptImpl::CollectScoreInfoArray()
+{
+	TArray<TScriptInterface<class IScoreInfo>> tmpCollection;
+	for (int i=0;i<_InstructionInstances.Num();i++)
+	{
+		if (_InstructionInstances[i]->Implements<IScoreInfo>())
+			tmpCollection.Add(_InstructionInstances[i]);
+	}
+	for (int i = 0; i < _PreparedInstructionInstance.Num(); i++)
+	{
+		if (_PreparedInstructionInstance[i]->Implements<IScoreInfo>())
+			tmpCollection.Add(_PreparedInstructionInstance[i]);
+	}
+	return tmpCollection;
+}
+
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)
 {
 	bIsAutoDestroy = NewAutoDestroy;

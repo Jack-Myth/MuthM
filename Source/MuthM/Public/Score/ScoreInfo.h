@@ -24,5 +24,5 @@ class MUTHM_API IScoreInfo
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 		float RequestPlainMaxScore();
-	
+
 };

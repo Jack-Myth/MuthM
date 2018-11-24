@@ -62,6 +62,8 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	}
 	TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get()->GetGameUI();
 	_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, "GameUI"));
+	_MainGameUI->Init(MusicInfo);
+	_MainGameUI->AddToViewport(50);
 }
 
 void AMuthMInGameMode::PauseGame()
@@ -74,8 +76,7 @@ void AMuthMInGameMode::PauseGame()
 		TSubclassOf<UPauseUIBase> PauseUIClass = UUIProvider::Get()->GetPauseUI();
 		UPauseUIBase* PauseUIInstance = Cast<UPauseUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), PauseUIClass, "PauseUI"));
 		//TODO:It's ready for mod,Framework shouldn't load failed.
-		if (!PauseUIInstance)
-			return;
+		check(PauseUIInstance)
 		PauseUIInstance->AddToViewport(1000);
 		pPauseUI = PauseUIInstance;
 	}

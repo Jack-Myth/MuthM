@@ -3,6 +3,7 @@
 #include "GameUIBase.h"
 #include "Kismet/GameplayStatics.h"
 #include "MuthMInGameMode.h"
+#include "Score/ScoreCore.h"
 
 void UGameUIBase::Init(FMusicInfo MusicInfo)
 {
@@ -10,7 +11,5 @@ void UGameUIBase::Init(FMusicInfo MusicInfo)
 	auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
 	//Register Score Delegate
 	if (InGameMode)
-	{
-		//TODO:
-	}
+		InGameMode->GetScoreCore()->OnScoreUpdate.AddDynamic(this, &UGameUIBase::OnScoreChanged);
 }

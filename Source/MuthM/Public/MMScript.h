@@ -45,5 +45,6 @@ public:
 	virtual TScriptInterface<IMMScript> GenPIEDuplicate() = 0;
 	virtual TArray<uint8> Serialize() = 0;
 	virtual float GetSuiltableDelay() = 0;
+	virtual TArray<TScriptInterface<class IScoreInfo>> CollectScoreInfoArray() = 0;
 };
 
