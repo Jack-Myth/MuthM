@@ -46,5 +46,7 @@ public:
 	virtual TArray<uint8> Serialize() = 0;
 	virtual float GetSuiltableDelay() = 0;
 	virtual TArray<TScriptInterface<class IScoreInfo>> CollectScoreInfoArray() = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual void SetBeginTime(float BeginTime) = 0;
 };
 

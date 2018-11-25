@@ -17,9 +17,9 @@ enum class EScoreGrade :uint8
 	SG_Miss		UMETA(DisplayName="Miss")
 };
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreUpdate, float, CurScore, float CurRealScore);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnScoreUpdate, float, CurScore, float, CurRealScore);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboUpdate, int, CurCombo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreGradeUpdate, TMap<EScoreGrade, int32>, CurScoreGrades);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreGradeUpdate, EScoreGrade, CurScoreGrade);
 
 /**
  * 
@@ -55,7 +55,7 @@ public:
 		return _RealScore / _MaxScore;
 	}
 	UFUNCTION(BlueprintPure)
-		inline void GetRealScore()
+		inline float GetRealScore()
 	{
 		return _RealScore;
 	}

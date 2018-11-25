@@ -23,6 +23,7 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 	void _Internal_CleanInstructions();
 	void _SetPlayType(EPlayType _PlayType);
 	UMMScriptImpl() = default;
+	float mLastTime = 0;
 public:
 	virtual bool LoadFromFile(FString FileName) override;
 	virtual bool LoadFromData(const TArray<uint8>& FileData) override;
@@ -36,5 +37,6 @@ public:
 	virtual TArray<uint8> Serialize() override;
 	virtual float GetSuiltableDelay() override;
 	virtual TArray<TScriptInterface<class IScoreInfo>> CollectScoreInfoArray() override;
+	virtual void SetBeginTime(float BeginTime) override;
 
 };

@@ -25,6 +25,9 @@ AMuthMInGameMode::AMuthMInGameMode()
 {
 	_MainSoundComponent = CreateDefaultSubobject<UAudioComponent>("_MainAudioComponent");
 	_ScoreCore = CreateDefaultSubobject<UScoreCore>("_ScoreCore");
+	SetTickableWhenPaused(false);
+	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.SetTickFunctionEnable(false);
 	//NOTE: Maybe It's need to Attach to GameMode?
 }
 
@@ -36,10 +39,14 @@ class UScoreCore* AMuthMInGameMode::GetScoreCore()
 void AMuthMInGameMode::Tick(float DeltaSeconds)
 {
 	MusicPlaybackTime += DeltaSeconds;
+	//UNDONE:
+	OnMusicPlaybackTimeUpdate.Broadcast(MusicPlaybackTime,0);
 }
 
-void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
+void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData, float BeginTime)
 {
+	_CachedMusicInfo = MusicInfo;
+	_CachedMMSData = MMSData;
 	_MainMMSInstance = IInstructionManager::Get()->GenMMScript(false);
 	_MainMMSInstance->LoadFromData(MMSData);
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
@@ -64,10 +71,12 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, "GameUI"));
 	_MainGameUI->Init(MusicInfo);
 	_MainGameUI->AddToViewport(50);
+	PrimaryActorTick.SetTickFunctionEnable(true);
 }
 
 void AMuthMInGameMode::PauseGame()
 {
+	PrimaryActorTick.SetTickFunctionEnable(false);
 	UGameplayStatics::SetGamePaused(this, true);
 	//Prevent to construct duplicated widget.
 	//And ensure the PauseUI has been generated.
@@ -75,7 +84,7 @@ void AMuthMInGameMode::PauseGame()
 	{
 		TSubclassOf<UPauseUIBase> PauseUIClass = UUIProvider::Get()->GetPauseUI();
 		UPauseUIBase* PauseUIInstance = Cast<UPauseUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), PauseUIClass, "PauseUI"));
-		//TODO:It's ready for mod,Framework shouldn't load failed.
+		//It's ready for mod,Framework shouldn't load failed.
 		check(PauseUIInstance)
 		PauseUIInstance->AddToViewport(1000);
 		pPauseUI = PauseUIInstance;
@@ -86,6 +95,7 @@ void AMuthMInGameMode::PauseGame()
 
 void AMuthMInGameMode::ResumeGame()
 {
+	PrimaryActorTick.SetTickFunctionEnable(true);
 	UGameplayStatics::SetGamePaused(this, false);
 	if (pPauseUI->OnGameResumed())
 		pPauseUI = nullptr;
@@ -93,13 +103,16 @@ void AMuthMInGameMode::ResumeGame()
 
 void AMuthMInGameMode::RestartGame()
 {
-	//UNDONE: RestartGame
+	StopGame();
+	StartGame(_CachedMusicInfo, _CachedMMSData);
 }
 
 void AMuthMInGameMode::StopGame()
 {
+	PrimaryActorTick.SetTickFunctionEnable(false);
 	_MainMMSInstance->Destroy();
 	_MainMMSInstance = nullptr;
+	_MainGameUI->RemoveFromParent();
 }
 
 void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
@@ -109,8 +122,9 @@ void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* Rende
 	UCanvas* SpectrumCanvas;
 	FCanvasBoxItem tmpBoxItem(FVector2D(0,0),FVector2D(RenderTarget2D->SizeX/ResTime, RenderTarget2D->SizeY / ResFrequency)); 
 	FDrawToRenderTargetContext DrawRenderTargetContext;
-	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(this, RenderTarget2D, SpectrumCanvas, FVector2D(RenderTarget2D->SizeX, RenderTarget2D->SizeY), DrawRenderTargetContext);
-	for (int x=0;x<ResTime;x++)
+	FVector2D CanvasSize = FVector2D(RenderTarget2D->SizeX, RenderTarget2D->SizeY);
+	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(this, RenderTarget2D, SpectrumCanvas, CanvasSize, DrawRenderTargetContext);
+	for (uint32 x=0;x<ResTime;x++)
 	{
 		//X for Time
 		USoundVisualizationStatics::CalculateFrequencySpectrum(_GameMainMusic, 0, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);

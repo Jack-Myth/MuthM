@@ -11,6 +11,7 @@
 #include "MuthMInEditorMode.h"
 #include "JsonSerializerMacros.h"
 #include "JsonWriter.h"
+#include "Score/ScoreInfo.h"
 
 bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 {
@@ -54,6 +55,7 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 			tmpICollection[i].InstructionName, tmpICollection[i].Time, tmpICollection[i].Args);
 		_InstructionInstances.Push(InstructionInstance);
 	}
+	mLastTime = -GetSuiltableDelay();
 	return true;
 }
 
@@ -166,7 +168,7 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	//Find the Instructions that need to be prepared.
 	for (auto it = _InstructionInstances.CreateIterator(); it; ++it)
 	{
-		//TODO: Find a suit way to Calculate Prepare Time.
+		//UNDONE: Find a suit way to Calculate Prepare Time.
 		if (0)
 		{
 			UInstruction* TargetInstruction = *it;
@@ -179,7 +181,11 @@ void UMMScriptImpl::Tick(float CurrentTime)
 		//Because the Array is ordered,if the first no need to be prepared, the second one will also be.
 	}
 	for (int i = 0; i < _PreparedInstructionInstance.Num(); i++)
+	{
 		_PreparedInstructionInstance[i]->OnTick(CurrentTime);
+		if (_PreparedInstructionInstance[i]->GetTime() > mLastTime&&_PreparedInstructionInstance[i]->GetTime() <= CurrentTime)
+			_PreparedInstructionInstance[i]->OnTimeArrived();
+	}
 }
 
 float UMMScriptImpl::GetRemainingInstructionCount()
@@ -245,15 +251,31 @@ TArray<TScriptInterface<class IScoreInfo>> UMMScriptImpl::CollectScoreInfoArray(
 	TArray<TScriptInterface<class IScoreInfo>> tmpCollection;
 	for (int i=0;i<_InstructionInstances.Num();i++)
 	{
-		if (_InstructionInstances[i]->Implements<IScoreInfo>())
+		if (_InstructionInstances[i]->GetClass()->ImplementsInterface(UScoreInfo::StaticClass()))
 			tmpCollection.Add(_InstructionInstances[i]);
 	}
 	for (int i = 0; i < _PreparedInstructionInstance.Num(); i++)
 	{
-		if (_PreparedInstructionInstance[i]->Implements<IScoreInfo>())
+		if (_PreparedInstructionInstance[i]->GetClass()->ImplementsInterface(UScoreInfo::StaticClass()))
 			tmpCollection.Add(_PreparedInstructionInstance[i]);
 	}
 	return tmpCollection;
+}
+
+void UMMScriptImpl::SetBeginTime(float BeginTime)
+{
+	mLastTime = BeginTime;
+	for (auto it=_InstructionInstances.CreateIterator();it;++it)
+	{
+		if ((*it)->GetTime() < BeginTime)
+			it.RemoveCurrent();
+	}
+	for (auto it=_PreparedInstructionInstance.CreateIterator();it;++it)
+	{
+		if ((*it)->GetTime() < BeginTime)
+			it.RemoveCurrent();
+	}
+	Tick(BeginTime);
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

@@ -8,7 +8,9 @@
 #include "MusicManager.h"
 #include "MuthMInGameMode.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(MuthMInGameMode, Log, All)
+DECLARE_LOG_CATEGORY_EXTERN(MuthMInGameMode, Log, All);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnMusicPlaybackTimeUpdate, float,CurrentTime, float,Duration);
 
 /**
  * 
@@ -34,7 +36,12 @@ protected:
 		class UGameUIBase* _MainGameUI;
 	UPROPERTY()
 		class UScoreCore* _ScoreCore;
+
+	//The two cached variable is prepared for RestartGame.
+	FMusicInfo _CachedMusicInfo;
+	TArray<uint8> _CachedMMSData;
 public:
+	FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
 	AMuthMInGameMode();
 	//GetScoreCore
 	UFUNCTION(BlueprintPure)
@@ -44,7 +51,11 @@ public:
 		return _pMDAT;
 	}
 	virtual void Tick(float DeltaSeconds) override;
-	void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData);
+	void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData,float BeginTime);
+	FORCEINLINE void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
+	{
+		StartGame(MusicInfo, MMSData, 0);
+	}
 	virtual void PauseGame() override;
 	virtual void ResumeGame() override;
 	void RestartGame();

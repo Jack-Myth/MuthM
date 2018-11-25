@@ -19,7 +19,17 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnFillMusicInfo(FMusicInfo MusicInfo);
 	UFUNCTION(BlueprintCallable)
-		void OnGameProgressChanged(float NewProgressPercent);
+		void OnGameProgressChanged(float CurrentTime,float Duration);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnScoreChanged(float CurScore, float RealScore);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnComboUpdate(int CurrentCombo);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnScoreGradeUpdate(EScoreGrade NewScoreGrade);
+	UFUNCTION(BlueprintImplementableEvent)
+		void InitUI(bool IsPIEMode);
+	UFUNCTION(BlueprintCallable)
+		void ExitPIE();
+	UFUNCTION(BlueprintCallable)
+		void ShowPauseUI();
 };

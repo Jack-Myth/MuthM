@@ -21,7 +21,7 @@ void UScoreCore::SubmitCombo()
 {
 	_CurrentComboCount++;
 	_MaxComboRecorded = _MaxComboRecorded < _CurrentComboCount ? _CurrentComboCount : _MaxComboRecorded;
-	OnComboUpdate.Broadcast(GetComboBoxInfo())
+	OnComboUpdate.Broadcast(GetCurrentCombo());
 }
 
 void UScoreCore::BreakCombo()
@@ -33,7 +33,7 @@ void UScoreCore::BreakCombo()
 void UScoreCore::SubmitGrade(EScoreGrade ScoreGrade)
 {
 	_ScoreGradeRecord.FindOrAdd(ScoreGrade)++;
-	OnScoreGradeUpdate(GetScoreGrades());
+	OnScoreGradeUpdate.Broadcast(ScoreGrade);
 }
 
 void UScoreCore::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoCollection)
@@ -54,7 +54,6 @@ void UScoreCore::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoCol
 		_MaxScore+=ScoreInfoCollection[i]->RequestPlainMaxScore();
 	_MaxComboScore = _MaxScore * 0.5 / ComboScoreRatio;
 	_MaxScore += _MaxScore * 0.5;
-	OnScoreGradeUpdate.Broadcast(_ScoreGradeRecord);
 	OnComboUpdate.Broadcast(0);
 	OnScoreUpdate.Broadcast(0.f, 0.f);
 }
