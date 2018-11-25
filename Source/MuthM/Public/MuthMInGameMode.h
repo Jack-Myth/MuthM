@@ -41,7 +41,8 @@ protected:
 	FMusicInfo _CachedMusicInfo;
 	TArray<uint8> _CachedMMSData;
 public:
-	FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
+	UPROPERTY(BlueprintAssignable)
+		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
 	AMuthMInGameMode();
 	//GetScoreCore
 	UFUNCTION(BlueprintPure)

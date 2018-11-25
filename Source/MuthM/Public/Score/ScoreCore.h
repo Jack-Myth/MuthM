@@ -37,9 +37,12 @@ class MUTHM_API UScoreCore : public UObject
 	float _MaxComboScore;
 	TMap<EScoreGrade, int32> _ScoreGradeRecord;
 public:
-	FOnScoreUpdate OnScoreUpdate;
-	FOnComboUpdate OnComboUpdate;
-	FOnScoreGradeUpdate OnScoreGradeUpdate;
+	UPROPERTY(BlueprintAssignable)
+		FOnScoreUpdate OnScoreUpdate;
+	UPROPERTY(BlueprintAssignable)
+		FOnComboUpdate OnComboUpdate;
+	UPROPERTY(BlueprintAssignable)
+		FOnScoreGradeUpdate OnScoreGradeUpdate;
 	UScoreCore();
 	UFUNCTION(BlueprintCallable)
 		void SubmitScore(float RealScore);

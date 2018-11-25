@@ -18,7 +18,7 @@ public:
 	void Init(FMusicInfo MusicInfo);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnFillMusicInfo(FMusicInfo MusicInfo);
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintImplementableEvent)
 		void OnGameProgressChanged(float CurrentTime,float Duration);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnScoreChanged(float CurScore, float RealScore);

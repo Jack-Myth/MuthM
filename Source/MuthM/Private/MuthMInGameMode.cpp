@@ -11,7 +11,6 @@
 #include "TimerManager.h"
 #include "PauseUIBase.h"
 #include "UIProvider.h"
-#include "Classes/SoundVisualizationStatics.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/KismetRenderingLibrary.h"
 #include "CanvasItem.h"
@@ -127,7 +126,8 @@ void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* Rende
 	for (uint32 x=0;x<ResTime;x++)
 	{
 		//X for Time
-		USoundVisualizationStatics::CalculateFrequencySpectrum(_GameMainMusic, 0, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
+		//UNDONE:Use New Plugin To Gen Spectrum.
+		//USoundVisualizationStatics::CalculateFrequencySpectrum(_GameMainMusic, 0, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
 		for (int y=0;y<OutArray.Num();y++)
 		{
 			//Y for Frequency

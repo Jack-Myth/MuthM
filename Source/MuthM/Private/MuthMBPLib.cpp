@@ -150,7 +150,8 @@ class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& MusicFile
 
 bool UMuthMBPLib::ConvertMP3ToOpus(const TArray<uint8>& MP3File, TArray<uint8>& OpusOutput)
 {
-	return MuthMNativeLib::NativeConvertMP3ToOpus(MP3File, OpusOutput);
+	return false;
+	//return MuthMNativeLib::NativeConvertMP3ToOpus(MP3File, OpusOutput);
 }
 
 void UMuthMBPLib::AddStringItemToCategory(FDetailCategoryStruct& DetailCategory, FDetailItemString StringItem)
