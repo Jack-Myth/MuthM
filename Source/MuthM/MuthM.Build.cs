@@ -18,11 +18,11 @@ public class MuthM : ModuleRules
             "libminimp3",
             "UELibSampleRate",
             "AudioPlatformConfiguration",
-            "SoundVisualizations",
+            "Kiss_FFT",
             "Json",
             "BlueprintJson" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "SoundVisualizations" });
+		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
