@@ -17,6 +17,7 @@
 #include "Engine/Canvas.h"
 #include "UserWidget.h"
 #include "Score/ScoreCore.h"
+#include "MuthMBPLib.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode);
 
@@ -51,7 +52,8 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
 	TArray<uint8> OpusData;
 	IMusicManager::Get()->LoadMusicDataByID(MusicInfo.ID, OpusData);
-	_GameMainMusic = IMusicManager::Get()->GenSoundWaveByOpus(OpusData);
+	_GameMainMusic =UMuthMBPLib::DecodeVisualizableWaveFromOpus(OpusData);
+	//_GameMainMusic = IMusicManager::Get()->GenSoundWaveByOpus(OpusData);
 	MusicPlaybackTime = -SuitDelay;
 	if (!::IsValid(_GameMainMusic))
 	{

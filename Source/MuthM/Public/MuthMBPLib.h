@@ -8,6 +8,8 @@
 #include "DetailStructures.h"
 #include "MuthMBPLib.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(MuthMBPLib, Log, All);
+
 /**
  * 
  */
@@ -29,6 +31,8 @@ public:
 	static UTexture2D* TextureFromImage(const int32 SrcWidth, const int32 SrcHeight, const TArray<FColor>&SrcData, const bool UseAlpha);
 	UFUNCTION(BlueprintCallable)
 		static class USoundWave* DecodeWaveFromOpus(const TArray<uint8>& OpusData);
+	UFUNCTION(BlueprintCallable)
+		static class UVisualizableSoundWave* DecodeVisualizableWaveFromOpus(const TArray<uint8>& OpusData);
 	UFUNCTION(BlueprintCallable)
 		static bool ConvertMP3ToOpus(const TArray<uint8>& MP3File,TArray<uint8>& OpusOutput);
 	UFUNCTION(BlueprintCallable)

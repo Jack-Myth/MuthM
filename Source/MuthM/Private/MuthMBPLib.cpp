@@ -11,6 +11,11 @@
 #include "IImageWrapper.h"
 #include "Sound/SoundWave.h"
 #include "MuthMNativeLib.h"
+#include "Type/VisualizableSoundWave.h"
+#include "TargetPlatform/Public/Interfaces/IAudioFormat.h"
+#include "OpusAudioInfo.h"
+
+DEFINE_LOG_CATEGORY(MuthMBPLib)
 
 TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager()
 {
@@ -140,12 +145,51 @@ UTexture2D* UMuthMBPLib::TextureFromImage(const int32 SrcWidth, const int32 SrcH
 	return MyScreenshot;
 }
 
-class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& MusicFile)
+class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& OpusData)
 {
-	USoundWave* WorkingWaveSource = NewObject<USoundWave>();
-	WorkingWaveSource->CompressedFormatData.GetFormat(TEXT("Opus"));
-	//TODO:DecodeWaveFromOpus
-	return nullptr;
+	USoundWave* TargetSoundWave = NewObject<USoundWave>();
+	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("Opus"));
+	bulkData->Lock(LOCK_READ_WRITE);
+	FMemory::Memcpy(bulkData->Realloc(OpusData.Num()), OpusData.GetData(), OpusData.Num());
+	bulkData->Unlock();
+	FSoundQualityInfo soundQualityInfo;
+	FOpusAudioInfo opusAudioInfo;
+	if (!opusAudioInfo.ReadCompressedInfo(OpusData.GetData(), OpusData.Num(), &soundQualityInfo))
+	{
+		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read Opus Info"));
+		return nullptr;
+	}
+	TargetSoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
+	TargetSoundWave->NumChannels = soundQualityInfo.NumChannels;
+	TargetSoundWave->Duration = soundQualityInfo.Duration;
+	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
+	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
+	return TargetSoundWave;
+}
+
+class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOpus(const TArray<uint8>& OpusData)
+{
+	auto* TargetSoundWave = NewObject<UVisualizableSoundWave>();
+	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("Opus"));
+	bulkData->Lock(LOCK_READ_WRITE);
+	FMemory::Memcpy(bulkData->Realloc(OpusData.Num()), OpusData.GetData(), OpusData.Num());
+	bulkData->Unlock();
+	FSoundQualityInfo soundQualityInfo;
+	FOpusAudioInfo opusAudioInfo;
+	if (!opusAudioInfo.ReadCompressedInfo(OpusData.GetData(), OpusData.Num(), &soundQualityInfo))
+	{
+		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read Opus Info"));
+		return nullptr;
+	}
+	TargetSoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
+	TargetSoundWave->NumChannels = soundQualityInfo.NumChannels;
+	TargetSoundWave->Duration = soundQualityInfo.Duration;
+	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
+	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
+	//Gen PCM Data
+	TargetSoundWave->_CachedStdPCM.SetNum(soundQualityInfo.Duration*48000*2*sizeof(int16));
+	opusAudioInfo.Decode(OpusData.GetData(), OpusData.Num(), TargetSoundWave->_CachedStdPCM.GetData(), TargetSoundWave->_CachedStdPCM.Num());
+	return TargetSoundWave;
 }
 
 bool UMuthMBPLib::ConvertMP3ToOpus(const TArray<uint8>& MP3File, TArray<uint8>& OpusOutput)

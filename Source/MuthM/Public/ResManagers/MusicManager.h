@@ -43,8 +43,6 @@ public:
 	static TScriptInterface<IMusicManager> Get();
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Get MusicData By ID,return Opus format Music"))
 		virtual bool LoadMusicDataByID(int MusicID, TArray<uint8>& MusicData) = 0;
-	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Generate SoundWave by Opus,It may freeze Engine if Opus is too big"))
-		virtual class USoundWave* GenSoundWaveByOpus(const TArray<uint8>& OpusData) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual bool FindMusicOnlineByID(int MusicID, FMusicInfo& MusicInfo) = 0;
 	UFUNCTION(BlueprintCallable)
