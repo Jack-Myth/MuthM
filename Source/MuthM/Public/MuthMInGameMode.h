@@ -46,10 +46,14 @@ protected:
 		class UGameUIBase* _MainGameUI;
 	UPROPERTY()
 		class UScoreCore* _ScoreCore;
-
 	//The two cached variable is prepared for RestartGame.
 	FMusicInfo _CachedMusicInfo;
 	TArray<uint8> _CachedMMSData;
+protected:
+	FORCEINLINE TScriptInterface<IMMScript> GetMainMMSInstance()
+	{
+		return _MainMMSInstance;
+	}
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
@@ -65,6 +69,10 @@ public:
 	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
 	{
 		return _pMDAT;
+	}
+	FORCEINLINE FMusicInfo GetMusicInfo()
+	{
+		return _CachedMusicInfo;
 	}
 	virtual void Tick(float DeltaSeconds) override;
 	void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData,float BeginTime);

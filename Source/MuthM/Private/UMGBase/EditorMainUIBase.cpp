@@ -9,11 +9,13 @@
 void UEditorMainUIBase::UIEnterPIE()
 {
 	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	InEditorMode->EnterPIE(0);
 }
 
 void UEditorMainUIBase::UIExitPIE()
 {
-
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	InEditorMode->ExitPIE();
 }
 
 void UEditorMainUIBase::PlayMusic()

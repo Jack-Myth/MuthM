@@ -119,7 +119,7 @@ TScriptInterface<IMMScript> UInstructionManagerImpl::GenMMScript(bool bIsEditorM
 	UMMScriptImpl* pMMScript = NewObject<UMMScriptImpl>();
 	if (bIsEditorMode)
 	{
-		pMMScript->_SetPlayType(EPlayType::PT_Editor);
+		pMMScript->SetPlayType(EPlayType::PT_Editor);
 		_EditorMMSInstances.Add(pMMScript);
 	}
 	else

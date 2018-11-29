@@ -14,18 +14,26 @@ DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 void AMuthMInEditorMode::BeginPlay()
 {
 	Super::BeginPlay();
-	//EditorMainUI->Init(, _EditorMMSInstance);
-	//EditorMainUI->AddToViewport(-1);
+	GetMainMMSInstance()->SetPlayType(PT_PIE);
+	_EditorMMSInstance = IInstructionManager::Get()->GenMMScript(true);
+	auto EditorMainUIClass = UUIProvider::Get()->GetEditorMainUI();
+	EditorMainUI = Cast<UEditorMainUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), EditorMainUIClass, "EditorMainUI"));
+	EditorMainUI->Init(GetMusicInfo(), _EditorMMSInstance);
+	EditorMainUI->AddToViewport(100);
 }
 
 void AMuthMInEditorMode::EnterPIE(float BeginTime)
 {
-
+	//TODO: Enter PIE
+	StartGame(GetMusicInfo(), _EditorMMSInstance->Serialize());
+	OnEnterPIE.Broadcast();
 }
 
 void AMuthMInEditorMode::ExitPIE()
 {
-
+	//TODO: Exit PIE
+	StopGame();
+	OnExitPIE.Broadcast();
 }
 
 void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
@@ -37,5 +45,22 @@ void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
 void AMuthMInEditorMode::PauseMusicOnly()
 {
 	_MainSoundComponent->SetPaused(true);
+}
+
+void AMuthMInEditorMode::NativeOnGameEnded(FGameEndReason GameEndReason)
+{
+	switch (GameEndReason)
+	{
+		case FGameEndReason::GER_GameFinished:
+			ExitPIE();
+			break;
+		case FGameEndReason::GER_ExitPIE:
+			ExitPIE();
+			break;
+		case FGameEndReason::GER_Return:
+			ExitPIE();
+			break;
+	}
+	OnGameEnded.Broadcast(GameEndReason);
 }
 

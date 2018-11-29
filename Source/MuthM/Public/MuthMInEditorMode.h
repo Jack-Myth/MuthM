@@ -9,6 +9,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMInEditorMode, Log, All)
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchPIE);
+
 /**
  * 
  */
@@ -25,6 +27,10 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	UPROPERTY(BlueprintAssignable)
+		FOnSwitchPIE OnEnterPIE;
+	UPROPERTY(BlueprintAssignable)
+		FOnSwitchPIE OnExitPIE;
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "For EditorMainUI,recommend to use UIEnterPIE() instead."))
 		void EnterPIE(float BeginTime);
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "For EditorMainUI,recommend to use UIExitPIE() instead."))
@@ -36,4 +42,7 @@ public:
 	{
 		return EditorMainUI;
 	}
+
+	virtual void NativeOnGameEnded(FGameEndReason GameEndReason) override;
+
 };

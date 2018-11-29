@@ -81,11 +81,6 @@ void UMMScriptImpl::_Internal_CleanInstructions()
 	}
 }
 
-void UMMScriptImpl::_SetPlayType(EPlayType _PlayType)
-{
-	this->_PlayType = _PlayType;
-}
-
 bool UMMScriptImpl::LoadFromFile(FString FileName)
 {
 	TArray<uint8> FileData;
@@ -199,19 +194,6 @@ void UMMScriptImpl::Destroy()
 	IInstructionManager::Get()->DestroyMMScriptInstance(this);
 }
 
-TScriptInterface<IMMScript> UMMScriptImpl::GenPIEDuplicate()
-{
-	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
-	if (InEditorMode&&_PlayType==EPlayType::PT_Editor)
-	{
-		UMMScriptImpl* curTmpMMS = Cast<UMMScriptImpl>(IInstructionManager::Get()->GenMMScript(true).GetObject());
-		curTmpMMS->_SetPlayType(PT_PIE);
-		curTmpMMS->LoadFromData(Serialize());
-		return curTmpMMS;
-	}
-	return nullptr;
-}
-
 TArray<uint8> UMMScriptImpl::Serialize()
 {
 	TArray<uint8> MMSData;
@@ -276,6 +258,11 @@ void UMMScriptImpl::SetBeginTime(float BeginTime)
 			it.RemoveCurrent();
 	}
 	Tick(BeginTime);
+}
+
+void UMMScriptImpl::SetPlayType(EPlayType PlayType)
+{
+	this->_PlayType = _PlayType;
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

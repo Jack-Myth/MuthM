@@ -21,7 +21,6 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 	bool bIsAutoDestroy = true;
 	EPlayType _PlayType;
 	void _Internal_CleanInstructions();
-	void _SetPlayType(EPlayType _PlayType);
 	UMMScriptImpl() = default;
 	float mLastTime = 0;
 public:
@@ -33,10 +32,10 @@ public:
 	virtual float GetRemainingInstructionCount() override;
 	virtual void SetAutoDestroy(bool NewAutoDestroy) override;
 	virtual void Destroy() override;
-	virtual TScriptInterface<IMMScript> GenPIEDuplicate() override;
 	virtual TArray<uint8> Serialize() override;
 	virtual float GetSuiltableDelay() override;
 	virtual TArray<TScriptInterface<class IScoreInfo>> CollectScoreInfoArray() override;
 	virtual void SetBeginTime(float BeginTime) override;
+	virtual void SetPlayType(EPlayType PlayType) override;
 
 };
