@@ -10,7 +10,17 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMInGameMode, Log, All);
 
+UENUM(BlueprintType)
+enum class FGameEndReason :uint8
+{
+	GER_GameFinished	UMETA(DisplayName="GameFinished"),
+	GER_Restart			UMETA(DisplayName="Restart"),
+	GER_ExitPIE			UMETA(DisplayName="ExitPIE"),
+	GER_Return			UMETA(DisplayName="Return")
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnMusicPlaybackTimeUpdate, float,CurrentTime, float,Duration);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEnded, FGameEndReason, EndReason);
 
 /**
  * 
@@ -24,7 +34,7 @@ protected:
 	TSharedPtr<class FMDATFile> _pMDAT;
 	TScriptInterface<IMMScript> _MainMMSInstance;
 	UPROPERTY()
-		class USoundWave* _GameMainMusic;
+		class UVisualizableSoundWave* _GameMainMusic;
 	UPROPERTY()
 		class UAudioComponent* _MainSoundComponent;
 	//Because the Playback time will be wrong in some platform (Android for example)
@@ -43,10 +53,15 @@ protected:
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
+	UPROPERTY(BlueprintAssignable)
+		FOnGameEnded OnGameEnded;
 	AMuthMInGameMode();
 	//GetScoreCore
 	UFUNCTION(BlueprintPure)
-		class UScoreCore* GetScoreCore();
+		FORCEINLINE class UScoreCore* GetScoreCore()
+	{
+		return _ScoreCore;
+	}
 	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
 	{
 		return _pMDAT;
@@ -61,7 +76,11 @@ public:
 	virtual void ResumeGame() override;
 	void RestartGame();
 	void StopGame();
-
+	virtual void NativeOnGameEnded(FGameEndReason GameEndReason);
+	
+	//This Function will also save the score to disk.
+	void ShowGameResult();
+	void ReturnToMainMenu();
 	//Notice:This function only draw gray map to RenderTarget2D
 	void DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime,uint32 ResTime,int32 ResFrequency);
 protected:

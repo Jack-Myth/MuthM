@@ -13,6 +13,7 @@
 #include "EditorPanelBase.h"
 #include "InstructionWidgetBase.h"
 #include "GameUIBase.h"
+#include "GameResultUIBase.h"
 #include "UIProvider.generated.h"
 
 #define MUTHM_UI_DEFINE(UINAME,DEFAULT_UI_REF) \
@@ -30,6 +31,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FEditorMainUIDelegate, TSubclassOf<UEditorMain
 DECLARE_DYNAMIC_DELEGATE_OneParam(FEditorPanelDelegate, TSubclassOf<UEditorPanelBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FInstructionWidgetDelegate, TSubclassOf<UInstructionWidgetBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FGameUIDelegate, TSubclassOf<UGameUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FGameResultUIDelegate, TSubclassOf<UGameResultUIBase>&, _returnV);
 
 /**
  * 
@@ -98,4 +100,10 @@ public:
 	MUTHM_UI_DEFINE(GameUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GameUI.GameUI_C'")
 		UFUNCTION(BlueprintCallable)
 		void ClearGameUI() { GameUI.Unbind(); }
+
+	UPROPERTY(BlueprintReadWrite)
+		FGameResultUIDelegate GameResultUI;
+	MUTHM_UI_DEFINE(GameResultUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GameResultUI.GameResultUI_C'")
+		UFUNCTION(BlueprintCallable)
+		void ClearGameResultUI() { GameResultUI.Unbind(); }
 };

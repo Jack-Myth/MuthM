@@ -18,6 +18,8 @@ class MUTHM_API UEditorPanelBase : public UUserWidget
 		class UTextureRenderTarget2D* _SpectrumRenderTarget;
 	UPROPERTY()
 		TArray<class UInstructionWidgetBase*> InstructionWidgets;
+	UPROPERTY()
+		class UInstructionWidgetBase* _SelectedWidget;
 protected:
 	UPROPERTY(BlueprintReadOnly)
 		float PanelLBorder;
@@ -48,6 +50,12 @@ public:
 		void SetTimeAxis(float NewTime);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTimeAxisChanged(float CurrentTime);
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UInstructionWidgetBase* GetSelectedWidget()
+	{
+		return _SelectedWidget;
+	}
+	void ClickWidget(class UInstructionWidgetBase* newClickedWidget);
 protected:
 	virtual void NativeConstruct() override;
 

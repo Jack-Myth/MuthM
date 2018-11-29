@@ -15,9 +15,24 @@ class MUTHM_API UInstructionWidgetBase : public UUserWidget
 	GENERATED_BODY()
 
 	UPROPERTY()
-		class UInstruction* InstructionInstance;
+		class UInstruction* _InstructionInstance;
 public:
 	void Init(class UInstruction* InstructionInstance);
 	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UInstruction* GetInstructionInstance()
+	{
+		return _InstructionInstance;
+	}
+	UFUNCTION(BlueprintPure)
 		float GetInstructionTime();
+	UFUNCTION(BlueprintCallable)
+		void ClickEventHandler();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnWidgetSelected();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnWidgetDeselected();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnTwikleWidget();
+	UFUNCTION(BlueprintCallable)
+		void PupopDetails();
 };

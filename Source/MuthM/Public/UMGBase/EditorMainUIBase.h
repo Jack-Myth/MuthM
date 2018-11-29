@@ -37,4 +37,9 @@ public:
 	void Init(FMusicInfo MusicInfo,TScriptInterface<class IMMScript> MMScript);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnPlaceEditorPanel(class UEditorPanelBase* EditorPanel);
+	UFUNCTION(BlueprintPure)
+		class UEditorPanelBase* GetEditorPanel()
+	{
+		return _EditorPanel;
+	}
 };

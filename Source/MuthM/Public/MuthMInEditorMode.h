@@ -31,4 +31,9 @@ public:
 		void ExitPIE();
 	void PlayMusicOnly(float BeginTime);
 	void PauseMusicOnly();
+	UFUNCTION(BlueprintCallable)
+	class UEditorMainUIBase* GetEditorMainUI()
+	{
+		return EditorMainUI;
+	}
 };

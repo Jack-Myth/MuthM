@@ -175,8 +175,8 @@ class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOpus(const 
 	FMemory::Memcpy(bulkData->Realloc(OpusData.Num()), OpusData.GetData(), OpusData.Num());
 	bulkData->Unlock();
 	FSoundQualityInfo soundQualityInfo;
-	FOpusAudioInfo opusAudioInfo;
-	if (!opusAudioInfo.ReadCompressedInfo(OpusData.GetData(), OpusData.Num(), &soundQualityInfo))
+	IStreamedCompressedInfo* opusAudioInfo=new FOpusAudioInfo();
+	if (!opusAudioInfo->ReadCompressedInfo(OpusData.GetData(), OpusData.Num(), &soundQualityInfo))
 	{
 		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read Opus Info"));
 		return nullptr;
@@ -188,7 +188,8 @@ class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOpus(const 
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
 	//Gen PCM Data
 	TargetSoundWave->_CachedStdPCM.SetNum(soundQualityInfo.Duration*48000*2*sizeof(int16));
-	opusAudioInfo.Decode(OpusData.GetData(), OpusData.Num(), TargetSoundWave->_CachedStdPCM.GetData(), TargetSoundWave->_CachedStdPCM.Num());
+	opusAudioInfo->Decode(OpusData.GetData(), OpusData.Num(), TargetSoundWave->_CachedStdPCM.GetData(), TargetSoundWave->_CachedStdPCM.Num());
+	delete opusAudioInfo;
 	return TargetSoundWave;
 }
 

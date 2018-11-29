@@ -83,4 +83,9 @@ public:
 		return _ScoreGradeRecord;
 	}
 	void InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoCollection);
+
+	//No Need Score Info,Will get the score info from GameMode.
+	void SaveScoreRecord();
+	//No Need Score Info,Will get the score info from GameMode.
+	void UploadScoreRecord();
 };

@@ -57,3 +57,14 @@ void UScoreCore::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoCol
 	OnComboUpdate.Broadcast(0);
 	OnScoreUpdate.Broadcast(0.f, 0.f);
 }
+
+void UScoreCore::SaveScoreRecord()
+{
+	//TODO: Save Score To disk.
+}
+
+void UScoreCore::UploadScoreRecord()
+{
+	//TODO:Upload Score Record.
+	//It need to Use network.
+}

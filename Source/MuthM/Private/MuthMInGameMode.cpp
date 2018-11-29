@@ -11,15 +11,15 @@
 #include "TimerManager.h"
 #include "PauseUIBase.h"
 #include "UIProvider.h"
-#include "Engine/TextureRenderTarget2D.h"
 #include "Kismet/KismetRenderingLibrary.h"
 #include "CanvasItem.h"
 #include "Engine/Canvas.h"
 #include "UserWidget.h"
 #include "Score/ScoreCore.h"
+#include "Type/VisualizableSoundWave.h"
 #include "MuthMBPLib.h"
 
-DEFINE_LOG_CATEGORY(MuthMInGameMode);
+DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
 AMuthMInGameMode::AMuthMInGameMode()
 {
@@ -29,11 +29,6 @@ AMuthMInGameMode::AMuthMInGameMode()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.SetTickFunctionEnable(false);
 	//NOTE: Maybe It's need to Attach to GameMode?
-}
-
-class UScoreCore* AMuthMInGameMode::GetScoreCore()
-{
-	return _ScoreCore;
 }
 
 void AMuthMInGameMode::Tick(float DeltaSeconds)
@@ -116,6 +111,35 @@ void AMuthMInGameMode::StopGame()
 	_MainGameUI->RemoveFromParent();
 }
 
+void AMuthMInGameMode::NativeOnGameEnded(FGameEndReason GameEndReason)
+{
+	switch (GameEndReason)
+	{
+		case FGameEndReason::GER_GameFinished:
+			{
+				StopGame();
+				ShowGameResult();
+			}
+			break;
+	}
+	OnGameEnded.Broadcast(GameEndReason);
+}
+
+void AMuthMInGameMode::ShowGameResult()
+{
+	GetScoreCore()->SaveScoreRecord();
+	auto GameResultUIClass = UUIProvider::Get()->GetGameResultUI();
+	auto* GameResultUI = Cast<UGameResultUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameResultUIClass, "GameResultUI"));
+	GameResultUI->Init();
+	GameResultUI->AddToViewport(120);
+}
+
+void AMuthMInGameMode::ReturnToMainMenu()
+{
+	//UNDONE: Return To Main Menu()
+	//The Level switch is still a problem
+}
+
 void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
 {
 	float TimeLength = (EndTime - BeginTime) / ResTime;
@@ -128,12 +152,12 @@ void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* Rende
 	for (uint32 x=0;x<ResTime;x++)
 	{
 		//X for Time
-		//UNDONE:Use New Plugin To Gen Spectrum.
+		_GameMainMusic->CalculateFrequencySpectrumMixed(BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
 		//USoundVisualizationStatics::CalculateFrequencySpectrum(_GameMainMusic, 0, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
 		for (int y=0;y<OutArray.Num();y++)
 		{
 			//Y for Frequency
-			tmpBoxItem.SetColor(FLinearColor(OutArray[y], OutArray[y], OutArray[y]));
+			tmpBoxItem.SetColor(FLinearColor(OutArray[y]/150, OutArray[y]/150, OutArray[y]/150));
 			SpectrumCanvas->DrawItem(tmpBoxItem, x*tmpBoxItem.Size.X, y*tmpBoxItem.Size.Y);
 		}
 	}

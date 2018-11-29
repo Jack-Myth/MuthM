@@ -41,6 +41,18 @@ void UEditorPanelBase::SetTimeAxis(float NewTime)
 	OnTimeAxisChanged(NewTime);
 }
 
+void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidget)
+{
+	if (newClickedWidget == _SelectedWidget)
+		return;
+	else
+	{
+		GetSelectedWidget()->OnWidgetDeselected();
+		_SelectedWidget = newClickedWidget;
+		GetSelectedWidget()->OnWidgetSelected();
+	}
+}
+
 void UEditorPanelBase::NativeConstruct()
 {
 	_SpectrumRenderTarget = UKismetRenderingLibrary::CreateRenderTarget2D(this,256,64);
