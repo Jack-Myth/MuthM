@@ -33,6 +33,9 @@
 
 
 #include "BeatDetektor.h"
+#include "ModuleManager.h"
+
+IMPLEMENT_MODULE(FDefaultModuleImpl, BeatDetektor)
 
 void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 {
@@ -49,7 +52,7 @@ void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 	
 	unsigned int range_step = (fft_data.size()/BD_DETECTION_RANGES);
 	unsigned int range = 0;
-	int i,x;
+	unsigned int i,x;
 	float v;
 	
 	float bpm_floor = 60.0/BPM_MAX;

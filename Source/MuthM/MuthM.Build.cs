@@ -18,6 +18,7 @@ public class MuthM : ModuleRules
             "libminimp3",
             "UELibSampleRate",
             "AudioPlatformConfiguration",
+            "BeatDetektor",
             "Kiss_FFT",
             "Json",
             "BlueprintJson" });

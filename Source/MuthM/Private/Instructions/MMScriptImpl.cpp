@@ -265,6 +265,17 @@ void UMMScriptImpl::SetPlayType(EPlayType PlayType)
 	this->_PlayType = _PlayType;
 }
 
+void UMMScriptImpl::AddInstruction(class UInstruction* InstructionInstance)
+{
+	if (_PlayType != EPlayType::PT_Editor)
+		return;
+	_InstructionInstances.Add(InstructionInstance);
+	_InstructionInstances.StableSort([](const UInstruction*& a, const UInstruction*& b)
+		{
+			return a < b;
+		});
+}
+
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)
 {
 	bIsAutoDestroy = NewAutoDestroy;

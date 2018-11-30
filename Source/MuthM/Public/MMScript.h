@@ -33,7 +33,7 @@ public:
 		virtual bool LoadFromFile(FString FileName) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual bool LoadFromData(const TArray<uint8>& FileData) = 0;
-	//virtual void AddInstruction() = 0;
+	virtual void AddInstruction(class UInstruction* InstructionInstance) = 0;
 	virtual	void RemoveInstructionByType(TSubclassOf<UInstruction> InstructionType,EInstructionDestroyReason Reason) = 0;
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) = 0;
 	UFUNCTION(BlueprintCallable)

@@ -85,7 +85,11 @@ public:
 	void RestartGame();
 	void StopGame();
 	virtual void NativeOnGameEnded(FGameEndReason GameEndReason);
-	
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE class UVisualizableSoundWave* GetGameMainMusic()
+	{
+		return _GameMainMusic;
+	}
 	//This Function will also save the score to disk.
 	void ShowGameResult();
 	void ReturnToMainMenu();

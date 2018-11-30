@@ -4,6 +4,7 @@
 #include "MuthMInEditorMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetRenderingLibrary.h"
+#include "InstructionWidgetBase.h"
 
 void UEditorPanelBase::SetSpectrumRes(int ResX, int ResY)
 {
@@ -50,6 +51,17 @@ void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidge
 		GetSelectedWidget()->OnWidgetDeselected();
 		_SelectedWidget = newClickedWidget;
 		GetSelectedWidget()->OnWidgetSelected();
+	}
+}
+
+void UEditorPanelBase::OnClickHandler(float Time, float Y)
+{
+	if (IsInFastAddMode())
+	{
+		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+		check(InEditorMode);
+		//auto* InstructionInstance=IInstructionManager::Get()->GenInstruction()
+		//InEditorMode->GetEditorMMS()
 	}
 }
 

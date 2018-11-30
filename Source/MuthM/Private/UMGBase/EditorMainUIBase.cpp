@@ -20,12 +20,14 @@ void UEditorMainUIBase::UIExitPIE()
 
 void UEditorMainUIBase::PlayMusic()
 {
-
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	InEditorMode->PlayMusicOnly(_TimePoint);
 }
 
 void UEditorMainUIBase::PauseMusic()
 {
-
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	InEditorMode->PauseMusicOnly();
 }
 
 void UEditorMainUIBase::Init(FMusicInfo MusicInfo, TScriptInterface<class IMMScript> MMScript)
@@ -34,4 +36,10 @@ void UEditorMainUIBase::Init(FMusicInfo MusicInfo, TScriptInterface<class IMMScr
 	OnFillMusicInfo(MusicInfo);
 	_EditorPanel = Cast<UEditorPanelBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetEditorPanel(), "EditorPanel"));
 	OnPlaceEditorPanel(_EditorPanel);
+}
+
+void UEditorMainUIBase::NativeOnFillBPMInfo(float BPM)
+{
+	//XXX:It may be a wrong design,because it's the panel to hold instruction's alignment.
+	OnFillBPMInfo(BPM);
 }

@@ -37,5 +37,6 @@ public:
 	virtual TArray<TScriptInterface<class IScoreInfo>> CollectScoreInfoArray() override;
 	virtual void SetBeginTime(float BeginTime) override;
 	virtual void SetPlayType(EPlayType PlayType) override;
+	virtual void AddInstruction(class UInstruction* InstructionInstance) override;
 
 };

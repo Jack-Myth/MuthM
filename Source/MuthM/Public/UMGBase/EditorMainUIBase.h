@@ -15,6 +15,7 @@ class MUTHM_API UEditorMainUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 
+	//Current Time.
 	float _TimePoint;
 	class UEditorPanelBase* _EditorPanel;
 public:
@@ -37,6 +38,9 @@ public:
 	void Init(FMusicInfo MusicInfo,TScriptInterface<class IMMScript> MMScript);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnPlaceEditorPanel(class UEditorPanelBase* EditorPanel);
+	void NativeOnFillBPMInfo(float BPM);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnFillBPMInfo(float BPM);
 	UFUNCTION(BlueprintPure)
 		class UEditorPanelBase* GetEditorPanel()
 	{

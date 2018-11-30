@@ -42,7 +42,10 @@ public:
 	{
 		return EditorMainUI;
 	}
-
+	TScriptInterface<IMMScript> GetEditorMMS()
+	{
+		return _EditorMMSInstance;
+	}
 	virtual void NativeOnGameEnded(FGameEndReason GameEndReason) override;
 
 };

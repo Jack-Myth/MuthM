@@ -8,6 +8,7 @@
 #include "MusicManager.h"
 #include "InstructionManager.h"
 #include "Components/AudioComponent.h"
+#include "VisualizableSoundWave.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
@@ -19,6 +20,7 @@ void AMuthMInEditorMode::BeginPlay()
 	auto EditorMainUIClass = UUIProvider::Get()->GetEditorMainUI();
 	EditorMainUI = Cast<UEditorMainUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), EditorMainUIClass, "EditorMainUI"));
 	EditorMainUI->Init(GetMusicInfo(), _EditorMMSInstance);
+	EditorMainUI->NativeOnFillBPMInfo(GetGameMainMusic()->CalculateBPM());
 	EditorMainUI->AddToViewport(100);
 }
 

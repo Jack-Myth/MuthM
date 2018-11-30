@@ -97,23 +97,29 @@
 
 */
 
+#ifdef UE_BUILD_DEBUG
+#define DEVTEST_BUILD 1
+#else
+#define DEVTEST_BUILD 0
+#endif
 
+#include "CoreMinimal.h"
 #include <map>
 #include <vector>
 #include <math.h>
 
 #define BD_DETECTION_RANGES 128
-#define BD_DETECTION_RATE 12.0
-#define BD_DETECTION_FACTOR 0.925
+#define BD_DETECTION_RATE 12.0f
+#define BD_DETECTION_FACTOR 0.925f
 
-#define BD_QUALITY_TOLERANCE 0.96
-#define BD_QUALITY_DECAY 0.95
-#define BD_QUALITY_REWARD 7.0
-#define BD_QUALITY_STEP 0.1
-#define BD_FINISH_LINE 60.0
+#define BD_QUALITY_TOLERANCE 0.96f
+#define BD_QUALITY_DECAY 0.95f
+#define BD_QUALITY_REWARD 7.0f
+#define BD_QUALITY_STEP 0.1f
+#define BD_FINISH_LINE 60.0f
 #define BD_MINIMUM_CONTRIBUTIONS 6
 
-class BeatDetektor
+class BEATDETEKTOR_API BeatDetektor
 {
 public:
 	float BPM_MIN;
@@ -225,7 +231,7 @@ public:
 		for (int i = 0; i < BD_DETECTION_RANGES; i++) 
 		{
 			//			ma_bpm_range[i] = maa_bpm_range[i] = 60.0/(float)(BPM_MIN + (1.0+sin(8.0*M_PI*((float)i/(float)BD_DETECTION_RANGES))/2.0)*((BPM_MAX-BPM_MIN)/2));			
-			ma_bpm_range[i] = maa_bpm_range[i] = 60.0/(float)(BPM_MIN+5)+ ((60.0/(float)(BPM_MAX-5)-60.0/(float)(BPM_MIN+5)) * ((float)i/(float)BD_DETECTION_RANGES));
+			ma_bpm_range[i] = maa_bpm_range[i] = 60.0f/(float)(BPM_MIN+5)+ ((60.0f/(float)(BPM_MAX-5)-60.0/(float)(BPM_MIN+5)) * ((float)i/(float)BD_DETECTION_RANGES));
 			if (reset_freq) 
 			{
 				a_freq_range[i] = ma_freq_range[i] = maa_freq_range[i] = 0;

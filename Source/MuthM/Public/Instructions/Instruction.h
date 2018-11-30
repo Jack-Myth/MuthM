@@ -15,6 +15,7 @@ enum class EInstructionDestroyReason :uint8
 	IDR_Unregister UMETA(DisplayName = "Unregister"),
 	IDR_CleanScene UMETA(DisplayName = "CleanScene"),
 	IDR_ScriptDeleted UMETA(DisplayName = "ScriptDeleted"),
+	IDR_Editing	UMETA(DisplayName="Editing"),
 	IDR_ExitPIE UMETA(DisplayName = "ExitPIE")
 };
 
