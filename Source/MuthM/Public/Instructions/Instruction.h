@@ -62,6 +62,8 @@ public:
 		FBlueprintJsonObject GenArgsJsonObject();
 	UFUNCTION(Blueprintcallable)
 		void DestroySelf();
+	UFUNCTION(BlueprintNativeEvent)
+		class UInstructionWidgetBase* GenInstructionWidget();
 
 	//Override GetWorld() To provide the WorldContext
 	virtual class UWorld* GetWorld() const override final

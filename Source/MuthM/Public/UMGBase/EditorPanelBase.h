@@ -20,10 +20,7 @@ class MUTHM_API UEditorPanelBase : public UUserWidget
 		TArray<class UInstructionWidgetBase*> InstructionWidgets;
 	UPROPERTY()
 		class UInstructionWidgetBase* _SelectedWidget;
-	float _BPM;
-	float _AlignOffset;
-	bool bShouldAlignBPM;
-	bool bFastAddMode = false;
+	bool _NextToAdd;
 protected:
 	UPROPERTY(BlueprintReadOnly)
 		float PanelLBorder;
@@ -36,6 +33,18 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		float TimeAxis;
 public:
+	UPROPERTY(BlueprintReadWrite)
+		float _BPM;
+	UPROPERTY(BlueprintReadWrite)
+		float _AlignOffset;
+	UPROPERTY(BlueprintReadWrite)
+		int BeatDenominator = 4;
+	UPROPERTY(BlueprintReadWrite)
+		bool bShouldAlignBPM;
+	UPROPERTY(BlueprintReadWrite)
+		bool bFastAddMode = false;
+	UPROPERTY(BlueprintReadWrite)
+		FName _FastAddInstructionName;
 	UFUNCTION(BlueprintCallable)
 		void SetSpectrumRes(int ResX, int ResY);
 	UFUNCTION(BlueprintCallable)
@@ -59,30 +68,28 @@ public:
 	{
 		return _SelectedWidget;
 	}
+	//Bind To Instruction Widget's onClick Event
+	//To Handle all Instruction's behavior.
 	void ClickWidget(class UInstructionWidgetBase* newClickedWidget);
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetIsFastAddMode(bool newIsFastAdd)
-	{
-		bFastAddMode = newIsFastAdd;
-	}
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE bool IsInFastAddMode()
-	{
-		return bFastAddMode;
-	}
-	UFUNCTION(BlueprintCallable)
-		FORCEINLINE void SetAlignBPM(bool newAlighBPM)
-	{
-		bShouldAlignBPM = newAlighBPM;
-	}
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE bool ShouldAlighBPM()
-	{
-		return bShouldAlignBPM;
-	}
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Use to handle the click(or touch) event on Panel"))
-		void OnClickHandler(float Time, float Y);
-	void GetAlignBPMInfo(float AlignOffset,)
+		void OnClickHandler(float Time);
+	UFUNCTION(BlueprintPure)
+		inline void GetAlignBPMInfo(float& AlignOffset, float& AlignTime)
+	{
+		AlignOffset = _AlignOffset;
+		AlignTime = 60.f / _BPM / BeatDenominator;
+	}
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInstructionSelected(class UInstructionWidgetBase* SelectedWidget);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInstructionDeselected(class UInstructionWidgetBase* DeselectedWidget);
+	UFUNCTION(BlueprintCallable)
+		void RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove);
+	UFUNCTION(BlueprintCallable,meta=(ToolTip="Set if Next click on panel will add an instruction widget"))
+		FORCEINLINE void SetNextAdd(bool newNextAdd)
+	{
+		_NextToAdd = newNextAdd;
+	}
 protected:
 	virtual void NativeConstruct() override;
 

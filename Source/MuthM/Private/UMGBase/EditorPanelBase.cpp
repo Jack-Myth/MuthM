@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetRenderingLibrary.h"
 #include "InstructionWidgetBase.h"
+#include "InstructionManager.h"
 
 void UEditorPanelBase::SetSpectrumRes(int ResX, int ResY)
 {
@@ -54,14 +55,38 @@ void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidge
 	}
 }
 
-void UEditorPanelBase::OnClickHandler(float Time, float Y)
+void UEditorPanelBase::OnClickHandler(float Time)
 {
-	if (IsInFastAddMode())
+	if (bFastAddMode)
 	{
 		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
 		check(InEditorMode);
-		//auto* InstructionInstance=IInstructionManager::Get()->GenInstruction()
-		//InEditorMode->GetEditorMMS()
+		auto* InstructionInstance = IInstructionManager::Get()->GenInstruction(_FastAddInstructionName, Time, FJsonObject());
+		auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
+		InstructionWidget->Init(InstructionInstance);
+		InstructionWidgets.Add(InstructionWidget);
+	}
+	else
+	{
+		if (_SelectedWidget)
+		{
+			//Deselect Widget;
+			//First Notify Widget
+			_SelectedWidget->OnWidgetDeselected();
+			//Second Notify EditorPanel.
+			OnInstructionDeselected(_SelectedWidget);
+			_SelectedWidget = nullptr;
+		}
+	}
+}
+
+void UEditorPanelBase::RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove)
+{
+	if (InstructionWidgets.Remove(WidgetToRemove))
+	{
+		WidgetToRemove->RemoveFromParent();
+		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+		InEditorMode->GetEditorMMS()->RemoveInstruction(WidgetToRemove->GetInstructionInstance(), EInstructionDestroyReason::IDR_Editing);
 	}
 }
 

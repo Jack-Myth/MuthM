@@ -2,6 +2,7 @@
 
 #include "Instruction.h"
 #include "MMScript.h"
+#include "UIProvider.h"
 
 float UInstruction::GetTime()
 {
@@ -24,6 +25,12 @@ void UInstruction::DestroySelf()
 		this->RemoveFromRoot();
 		this->MarkPendingKill();
 	}
+}
+
+class UInstructionWidgetBase* UInstruction::GenInstructionWidget_Implementation()
+{
+	auto InstructionWidgetClass = UUIProvider::Get()->GetInstructionWidget();
+	return Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));
 }
 
 void UInstruction::SetWorld(UWorld* WorldContext)
