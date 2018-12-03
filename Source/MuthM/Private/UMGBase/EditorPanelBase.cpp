@@ -41,6 +41,8 @@ void UEditorPanelBase::SetTimeAxis(float NewTime)
 {
 	TimeAxis = NewTime;
 	OnTimeAxisChanged(NewTime);
+	if (bFastAddMode)
+		OnCenterTimeAxis();
 }
 
 void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidget)
@@ -61,7 +63,8 @@ void UEditorPanelBase::OnClickHandler(float Time)
 	{
 		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
 		check(InEditorMode);
-		auto* InstructionInstance = IInstructionManager::Get()->GenInstruction(_FastAddInstructionName, Time, FJsonObject());
+		FJsonObject EmptyJsonObj;
+		auto* InstructionInstance = IInstructionManager::Get()->GenInstruction(_FastAddInstructionName, Time, EmptyJsonObj);
 		auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
 		InstructionWidget->Init(InstructionInstance);
 		InstructionWidgets.Add(InstructionWidget);

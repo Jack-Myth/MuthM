@@ -14,6 +14,9 @@
 #include "InstructionWidgetBase.h"
 #include "GameUIBase.h"
 #include "GameResultUIBase.h"
+#include "WelcomeUIBase.h"
+#include "MainMenuUIBase.h"
+#include "MusicSelectionUIBase.h"
 #include "UIProvider.generated.h"
 
 #define MUTHM_UI_DEFINE(UINAME,DEFAULT_UI_REF) \
@@ -32,6 +35,9 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FEditorPanelDelegate, TSubclassOf<UEditorPanel
 DECLARE_DYNAMIC_DELEGATE_OneParam(FInstructionWidgetDelegate, TSubclassOf<UInstructionWidgetBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FGameUIDelegate, TSubclassOf<UGameUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FGameResultUIDelegate, TSubclassOf<UGameResultUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FWelcomeUIDelegate, TSubclassOf<UWelcomeUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FMainMenuUIDelegate, TSubclassOf<UMainMenuUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicSelectionUIDelegate, TSubclassOf<UMusicSelectionUIBase>&, _returnV);
 
 /**
  * 
@@ -106,4 +112,22 @@ public:
 	MUTHM_UI_DEFINE(GameResultUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GameResultUI.GameResultUI_C'")
 		UFUNCTION(BlueprintCallable)
 		void ClearGameResultUI() { GameResultUI.Unbind(); }
+
+	UPROPERTY(BlueprintReadWrite)
+		FWelcomeUIDelegate WelcomeUI;
+	MUTHM_UI_DEFINE(WelcomeUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/WelcomeUI.WelcomeUI_C'")
+		UFUNCTION(BlueprintCallable)
+		void ClearWelcomeUI() { WelcomeUI.Unbind(); }
+
+	UPROPERTY(BlueprintReadWrite)
+		FMainMenuUIDelegate MainMenuUI;
+	MUTHM_UI_DEFINE(MainMenuUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MainMenuUI.MainMenuUI_C'")
+		UFUNCTION(BlueprintCallable)
+		void ClearMainMenuUI() { MainMenuUI.Unbind(); }
+
+	UPROPERTY(BlueprintReadWrite)
+		FMusicSelectionUIDelegate MusicSelectionUI;
+	MUTHM_UI_DEFINE(MusicSelectionUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MusicSelectionUI.MusicSelectionUI_C'")
+		UFUNCTION(BlueprintCallable)
+		void ClearMusicSelectionUI() { MusicSelectionUI.Unbind(); }
 };

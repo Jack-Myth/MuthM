@@ -270,9 +270,11 @@ void UMMScriptImpl::AddInstruction(class UInstruction* InstructionInstance)
 	if (_PlayType != EPlayType::PT_Editor)
 		return;
 	_InstructionInstances.Add(InstructionInstance);
-	_InstructionInstances.StableSort([](const UInstruction*& a, const UInstruction*& b)
+	//The Raw pointer will auto dereferenced.
+	//So use ref instead.
+	_InstructionInstances.StableSort([](UInstruction& a, UInstruction& b)
 		{
-			return a < b;
+			return a.GetTime() < b.GetTime();
 		});
 }
 

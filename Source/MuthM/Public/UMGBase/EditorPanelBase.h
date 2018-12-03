@@ -63,6 +63,8 @@ public:
 		void SetTimeAxis(float NewTime);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTimeAxisChanged(float CurrentTime);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnCenterTimeAxis();
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UInstructionWidgetBase* GetSelectedWidget()
 	{
@@ -74,7 +76,7 @@ public:
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Use to handle the click(or touch) event on Panel"))
 		void OnClickHandler(float Time);
 	UFUNCTION(BlueprintPure)
-		inline void GetAlignBPMInfo(float& AlignOffset, float& AlignTime)
+	void GetAlignBPMInfo(float& AlignOffset, float& AlignTime)
 	{
 		AlignOffset = _AlignOffset;
 		AlignTime = 60.f / _BPM / BeatDenominator;
@@ -86,7 +88,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove);
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Set if Next click on panel will add an instruction widget"))
-		FORCEINLINE void SetNextAdd(bool newNextAdd)
+	void SetNextAdd(bool newNextAdd)
 	{
 		_NextToAdd = newNextAdd;
 	}
