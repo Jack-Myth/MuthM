@@ -16,4 +16,6 @@ class MUTHM_API UMainMenuUIBase : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable)
 		bool FindAndLoadMods();
+	UFUNCTION(BlueprintCallable)
+		void PendingStartGame();
 };
