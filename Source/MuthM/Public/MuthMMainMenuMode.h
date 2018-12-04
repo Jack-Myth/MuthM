@@ -13,8 +13,7 @@ UCLASS()
 class MUTHM_API AMuthMMainMenuMode : public AMuthMGameModeBase
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+public:
+	UFUNCTION(BlueprintCallable)
+		void LoadWelcomeUI();
 };

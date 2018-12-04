@@ -13,8 +13,7 @@ UCLASS()
 class MUTHM_API UMainMenuUIBase : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+public:
+	UFUNCTION(BlueprintCallable)
+		bool FindAndLoadMods();
 };

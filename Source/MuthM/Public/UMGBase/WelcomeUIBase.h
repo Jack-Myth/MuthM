@@ -13,8 +13,5 @@ UCLASS()
 class MUTHM_API UWelcomeUIBase : public UUserWidget
 {
 	GENERATED_BODY()
-	
-	
-	
-	
+public:
 };
