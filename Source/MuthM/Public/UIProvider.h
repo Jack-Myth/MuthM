@@ -16,8 +16,9 @@
 #include "GameResultUIBase.h"
 #include "WelcomeUIBase.h"
 #include "MainMenuUIBase.h"
-#include "MusicSelectionUIBase.h"
+#include "ScoreSelectionUIBase.h"
 #include "MessageBoxBase.h"
+#include "GenericSelectionItemBase.h"
 #include "UIProvider.generated.h"
 
 #define MUTHM_UI_DEFINE(UINAME,DEFAULT_UI_REF) \
@@ -38,7 +39,8 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FGameUIDelegate, TSubclassOf<UGameUIBase>&, _r
 DECLARE_DYNAMIC_DELEGATE_OneParam(FGameResultUIDelegate, TSubclassOf<UGameResultUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FWelcomeUIDelegate, TSubclassOf<UWelcomeUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMainMenuUIDelegate, TSubclassOf<UMainMenuUIBase>&, _returnV);
-DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicSelectionUIDelegate, TSubclassOf<UMusicSelectionUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreSelectionUIDelegate, TSubclassOf<UScoreSelectionUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FGenericSelectionItemDelegate, TSubclassOf<UGenericSelectionItemBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMessageBoxDelegate, TSubclassOf<UMessageBoxBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FQuestionBoxDelegate, TSubclassOf<UQuestionBoxBase>&, _returnV);
 
@@ -134,10 +136,16 @@ public:
 		void ClearMainMenuUI() { MainMenuUI.Unbind(); }
 
 	UPROPERTY(BlueprintReadWrite)
-		FMusicSelectionUIDelegate MusicSelectionUI;
-	MUTHM_UI_DEFINE(MusicSelectionUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MusicSelectionUI.MusicSelectionUI_C'")
+		FScoreSelectionUIDelegate ScoreSelectionUI;
+	MUTHM_UI_DEFINE(ScoreSelectionUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ScoreSelectionUI.ScoreSelectionUI_C'")
 		UFUNCTION(BlueprintCallable)
-		void ClearMusicSelectionUI() { MusicSelectionUI.Unbind(); }
+		void ClearScoreSelectionUI() { ScoreSelectionUI.Unbind(); }
+
+	UPROPERTY(BlueprintReadWrite)
+		FGenericSelectionItemDelegate GenericSelectionItem;
+	MUTHM_UI_DEFINE(GenericSelectionItem, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GenericSelectionItem.GenericSelectionItem_C'")
+		UFUNCTION(BlueprintCallable)
+		void ClearGenericSelectionItem() { GenericSelectionItem.Unbind(); }
 
 	UPROPERTY(BlueprintReadWrite)
 		FMessageBoxDelegate MessageBox;
@@ -150,4 +158,6 @@ public:
 	MUTHM_UI_DEFINE(QuestionBox, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/QuestionBox.QuestionBox_C'")
 		UFUNCTION(BlueprintCallable)
 		void ClearQuestionBox() { QuestionBox.Unbind(); }
+
+
 };

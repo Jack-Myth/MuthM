@@ -7,3 +7,8 @@ bool UMainMenuUIBase::FindAndLoadMods()
 	//UNDONE: Find And Load Mods
 	return false;
 }
+
+void UMainMenuUIBase::PendingStartGame()
+{
+	
+}
