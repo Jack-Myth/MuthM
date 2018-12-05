@@ -79,6 +79,7 @@ void UScoreSelectionUIBase::OnScoreSelectedHandler(class UGenericSelectionItemBa
 	DisplayScoreInfo(ScoreSelectionCollection[DataIndex].DisplayName,
 		ScoreSelectionCollection[DataIndex].Subtitle,
 		ScoreSelectionCollection[DataIndex].MusicID,
+		ScoreSelectionCollection[DataIndex].Img,
 		ScoreSelectionCollection[DataIndex].RequestMods,
 		ScoreSelectionCollection[DataIndex].OptionalMods);
 }

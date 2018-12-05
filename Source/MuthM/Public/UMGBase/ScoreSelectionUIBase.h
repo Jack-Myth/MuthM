@@ -68,7 +68,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void DisplayMDATInfo(const FText& DisplayName,const FText& Author,const FText& Description, class UTexture2D* Cover);
 	UFUNCTION(BlueprintImplementableEvent)
-		void DisplayScoreInfo(const FText& DisplayName, const FText& Subtitle, int MusicID, const TArray<FName>& RequestMods, const TArray<FName>& OptionalMods);
+		void DisplayScoreInfo(const FText& DisplayName, const FText& Subtitle, int MusicID,class UTexture2D* Img, const TArray<FName>& RequestMods, const TArray<FName>& OptionalMods);
 	UFUNCTION(BlueprintCallable)
 		void SelectCurrentScore();
 	UFUNCTION(BlueprintCallable)
