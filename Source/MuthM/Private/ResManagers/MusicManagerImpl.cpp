@@ -27,3 +27,8 @@ bool UMusicManagerImpl::DownloadMusicByID(int MusicID)
 	//TODO:DownloadMusicByID
 	return false;
 }
+
+bool UMusicManagerImpl::IsMusicExistInLocal(int MusicID)
+{
+	return false;
+}

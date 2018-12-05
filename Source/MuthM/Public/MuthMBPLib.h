@@ -29,6 +29,10 @@ public:
 	static class UTexture2D* GetLocalTextureByImageData(const TArray<uint8>& ImageData);
 	static TArray<FColor> uint8ToFColor(const TArray<uint8> origin);
 	static UTexture2D* TextureFromImage(const int32 SrcWidth, const int32 SrcHeight, const TArray<FColor>&SrcData, const bool UseAlpha);
+	UFUNCTION(BlueprintPure)
+		static FBlueprintJsonObject LoadJsonFromStr(FString JsonStr);
+	static TSharedPtr<FJsonObject> DeserializeJsonFromUTF8(TArray<uint8> CharArray);
+	static TSharedPtr<FJsonObject> DeserializeJsonFromStr(FString JsonStr);
 	UFUNCTION(BlueprintCallable)
 		static class USoundWave* DecodeWaveFromOpus(const TArray<uint8>& OpusData);
 	UFUNCTION(BlueprintCallable)

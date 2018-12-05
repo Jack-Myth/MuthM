@@ -22,6 +22,7 @@ class MUTHM_API FMDATFile
 		TArray<uint8> Data;
 		bool bLoaded : 1;
 	};
+	//Need To convert the File Path to the simplest
 	TMap<FString, FileInfo> _Files;
 	uint32 _DataAddressBase;
 	FString _MDATFileName;

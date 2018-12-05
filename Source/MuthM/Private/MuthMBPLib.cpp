@@ -14,6 +14,8 @@
 #include "Type/VisualizableSoundWave.h"
 #include "TargetPlatform/Public/Interfaces/IAudioFormat.h"
 #include "OpusAudioInfo.h"
+#include "JsonReader.h"
+#include "JsonSerializer.h"
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 
@@ -143,6 +145,27 @@ UTexture2D* UMuthMBPLib::TextureFromImage(const int32 SrcWidth, const int32 SrcH
 	MyScreenshot->UpdateResource();
 
 	return MyScreenshot;
+}
+
+FBlueprintJsonObject UMuthMBPLib::LoadJsonFromStr(FString JsonStr)
+{
+	FBlueprintJsonObject tmpJsonObj;
+	tmpJsonObj.Object = DeserializeJsonFromStr(JsonStr);
+	return tmpJsonObj;
+}
+
+TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromUTF8(TArray<uint8> CharArray)
+{
+	FString JsonStr(UTF8_TO_TCHAR((const ANSICHAR*)CharArray.GetData()));
+	return DeserializeJsonFromStr(JsonStr);
+}
+
+TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
+{
+	TSharedPtr<FJsonObject> JsonObj = MakeShareable<FJsonObject>(new FJsonObject());
+	TSharedRef<TJsonReader<TCHAR>> jsonr= TJsonReaderFactory<TCHAR>::Create(*JsonStr);
+	FJsonSerializer::Deserialize(jsonr, JsonObj);
+	return JsonObj;
 }
 
 class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& OpusData)

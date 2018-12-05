@@ -160,6 +160,7 @@ bool FMDATFile::LoadFromFile(FString FileName)
 
 TArray<uint8> FMDATFile::GetFileData(FString FileName) const
 {
+	//TODO:Need to convert the FileName;
 	const FileInfo* TargetFileInfo = _Files.Find(FileName);
 	if (TargetFileInfo)
 	{

@@ -2,3 +2,7 @@
 
 #include "GenericSelectionItemBase.h"
 
+void UGenericSelectionItemBase::NotifySelected()
+{
+	OnSelected.Broadcast(this,GetDataIndex());
+}

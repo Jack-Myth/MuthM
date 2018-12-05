@@ -22,4 +22,7 @@ public:
 	virtual bool FindMusicOnlineByID(int MusicID, FMusicInfo& MusicInfo) override;
 	virtual bool DownloadMusicByID(int MusicID) override;
 
+
+	virtual bool IsMusicExistInLocal(int MusicID) override;
+
 };

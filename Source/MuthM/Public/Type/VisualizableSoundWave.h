@@ -12,7 +12,7 @@
 UCLASS()
 class MUTHM_API UVisualizableSoundWave : public USoundWave
 {
-	friend UMuthMBPLib;
+	friend class UMuthMBPLib;
 	GENERATED_BODY()
 
 	UPROPERTY()
