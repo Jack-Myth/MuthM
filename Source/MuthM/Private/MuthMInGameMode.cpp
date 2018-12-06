@@ -18,6 +18,8 @@
 #include "Score/ScoreCore.h"
 #include "Type/VisualizableSoundWave.h"
 #include "MuthMBPLib.h"
+#include "GameUIBase.h"
+#include "GameResultUIBase.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode)
 

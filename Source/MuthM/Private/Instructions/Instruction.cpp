@@ -3,6 +3,7 @@
 #include "Instruction.h"
 #include "MMScript.h"
 #include "UIProvider.h"
+#include "InstructionWidgetBase.h"
 
 float UInstruction::GetTime()
 {

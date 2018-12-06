@@ -5,6 +5,10 @@
 #include "UIProvider.h"
 #include "HasDetails.h"
 #include "DetailInputCustomBase.h"
+#include "DetailCategoryBase.h"
+#include "DetailStructures.h"
+#include "DetailInputStringBase.h"
+#include "DetailInputNumberBase.h"
 
 void UDetailsBuilderImpl::AddCategory(FDetailCategoryStruct Category)
 {

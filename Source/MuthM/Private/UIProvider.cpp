@@ -3,6 +3,7 @@
  
 #include "UIProvider.h" 
 #include "PauseUIBase.h" 
+#include "DetailsListBase.h" 
 #include "DetailCategoryBase.h" 
 #include "DetailInputNumberBase.h" 
 #include "DetailInputStringBase.h" 
@@ -29,6 +30,20 @@ TSubclassOf<UPauseUIBase> UUIProvider::GetPauseUI()
 	else
 	{
 		return LoadClass<UPauseUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/PauseUI.PauseUI_C'"));
+	} 
+} 
+ 
+TSubclassOf<UDetailsListBase> UUIProvider::GetDetailsList() 
+{ 
+	if(DetailsList.IsBound()) 
+	{ 
+		TSubclassOf<UDetailsListBase> _uclass; 
+		DetailsList.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UDetailsListBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailsList.DetailsList_C'"));
 	} 
 } 
  

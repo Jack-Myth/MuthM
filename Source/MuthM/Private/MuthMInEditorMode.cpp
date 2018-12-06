@@ -9,6 +9,7 @@
 #include "InstructionManager.h"
 #include "Components/AudioComponent.h"
 #include "VisualizableSoundWave.h"
+#include "EditorMainUIBase.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 

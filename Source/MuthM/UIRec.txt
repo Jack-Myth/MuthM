@@ -4,6 +4,7 @@
 # UIClass need to be named to UUINameBase
 # Other Attention:Don't Add any space before ',',I didn't trim the UI name in build.
 PauseUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/PauseUI.PauseUI_C'"
+DetailsList,"WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailsList.DetailsList_C'"
 DetailCategory, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailCategory.DetailCategory_C'"
 DetailInputNumber, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputNumber.DetailInputNumber_C'"
 DetailInputString, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputString.DetailInputString_C'"

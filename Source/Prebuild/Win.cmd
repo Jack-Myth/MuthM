@@ -16,9 +16,10 @@ echo #include "UIProvider.h" >> "%temp%/UIProvider.cpp"
 for /f "eol=# tokens=1,2 delims=," %%a in (%~1\Source\MuthM\UIRec.txt) do (
 echo #include "%%aBase.h" >> "%temp%/UIProvider.cpp"
 )
+echo #pragma once>>"%temp%/UIProvider.h"
 echo #include "CoreMinimal.h" >> "%temp%/UIProvider.h"
 echo #include "UObject/NoExportTypes.h" >> "%temp%/UIProvider.h"
-echo #include "SubclassOf.h">>"%temp%/UIProvider.h"
+echo #include "Object.h">>"%temp%/UIProvider.h"
 echo #include "UIProvider.generated.h" >> "%temp%/UIProvider.h"
 echo: >> "%temp%/UIProvider.cpp"
 echo: >> "%temp%/UIProvider.h"

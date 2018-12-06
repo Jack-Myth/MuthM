@@ -5,9 +5,9 @@
 
 void AMuthMMainMenuMode::LoadWelcome()
 {
-	auto LogoAnimationClass = UUIProvider::Get()->GetWelcomeUI();
-	auto* LogoAnimation = UUserWidget::CreateWidgetInstance(*GetWorld(), LogoAnimationClass, "LogoAnimation");
-	LogoAnimation->AddToViewport();
+	//auto LogoAnimationClass = UUIProvider::Get()->GetWelcomeUI();
+	//auto* LogoAnimation = UUserWidget::CreateWidgetInstance(*GetWorld(), LogoAnimationClass, "LogoAnimation");
+	//LogoAnimation->AddToViewport();
 }
 
 void AMuthMMainMenuMode::BeginPlay()

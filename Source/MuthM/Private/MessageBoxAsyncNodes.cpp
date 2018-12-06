@@ -3,6 +3,7 @@
 #include "MessageBoxAsyncNodes.h"
 #include "UIProvider.h"
 #include "QuestionBoxBase.h"
+#include "MessageBoxBase.h"
 
 void UPupopMessage::Activate()
 {
