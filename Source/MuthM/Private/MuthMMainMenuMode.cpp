@@ -3,11 +3,14 @@
 #include "MuthMMainMenuMode.h"
 #include "UIProvider.h"
 
-
-void AMuthMMainMenuMode::LoadWelcomeUI()
+void AMuthMMainMenuMode::LoadWelcome()
 {
-	auto WelcomeUIClass = UUIProvider::Get()->GetWelcomeUI();
-	auto* WelcomeUI = Cast<UWelcomeUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), WelcomeUIClass, "WelcomeUI"));
-	if (WelcomeUI)
-		WelcomeUI->AddToViewport(100);
+	auto LogoAnimationClass = UUIProvider::Get()->GetWelcomeUI();
+	auto* LogoAnimation = UUserWidget::CreateWidgetInstance(*GetWorld(), LogoAnimationClass, "LogoAnimation");
+	LogoAnimation->AddToViewport();
+}
+
+void AMuthMMainMenuMode::BeginPlay()
+{
+	
 }

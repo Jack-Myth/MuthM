@@ -3,7 +3,6 @@
   
 #include "CoreMinimal.h" 
 #include "UObject/NoExportTypes.h" 
-#include "SubclassOf.h"
 #include "UIProvider.generated.h" 
  
 DECLARE_DYNAMIC_DELEGATE_OneParam(FPauseUIDelegate, TSubclassOf<class UPauseUIBase>&, _returnV);
@@ -23,105 +22,92 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FMessageBoxDelegate, TSubclassOf<class UMessag
 DECLARE_DYNAMIC_DELEGATE_OneParam(FQuestionBoxDelegate, TSubclassOf<class UQuestionBoxBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
-UCLASS(NotBlueprintable)
-class MUTHM_API UUIProvider : public UObject
+UCLASS(NotBlueprintable) 
+class MUTHM_API UUIProvider : public UObject 
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintPure,DisplayName="Get UI Provider")
-	static UUIProvider* Get()
+	UFUNCTION(BlueprintPure,DisplayName="Get UI Provider") 
+static UUIProvider* Get()
 	{
-		return GetMutableDefault<UUIProvider>();
 	}
- 
+:echo static UUIProvider* Get()
+	{
+	}
+:
 	UPROPERTY(BlueprintReadWrite)
 		FPauseUIDelegate PauseUI;
 	UFUNCTION(BlueprintCallable)
 		void ClearPauseUI() { PauseUI.Unbind(); }
-	TSubclassOf<class UPauseUIBase> GetPauseUI(); 
- 
+	TSubclassOf<UPauseUIBase> GetPauseUI(); 
 	UPROPERTY(BlueprintReadWrite)
 		FDetailCategoryDelegate DetailCategory;
 	UFUNCTION(BlueprintCallable)
 		void ClearDetailCategory() { DetailCategory.Unbind(); }
-	TSubclassOf<class UDetailCategoryBase> GetDetailCategory(); 
- 
+	TSubclassOf<UDetailCategoryBase> GetDetailCategory(); 
 	UPROPERTY(BlueprintReadWrite)
 		FDetailInputNumberDelegate DetailInputNumber;
 	UFUNCTION(BlueprintCallable)
 		void ClearDetailInputNumber() { DetailInputNumber.Unbind(); }
-	TSubclassOf<class UDetailInputNumberBase> GetDetailInputNumber(); 
- 
+	TSubclassOf<UDetailInputNumberBase> GetDetailInputNumber(); 
 	UPROPERTY(BlueprintReadWrite)
 		FDetailInputStringDelegate DetailInputString;
 	UFUNCTION(BlueprintCallable)
 		void ClearDetailInputString() { DetailInputString.Unbind(); }
-	TSubclassOf<class UDetailInputStringBase> GetDetailInputString(); 
- 
+	TSubclassOf<UDetailInputStringBase> GetDetailInputString(); 
 	UPROPERTY(BlueprintReadWrite)
 		FEditorMainUIDelegate EditorMainUI;
 	UFUNCTION(BlueprintCallable)
 		void ClearEditorMainUI() { EditorMainUI.Unbind(); }
-	TSubclassOf<class UEditorMainUIBase> GetEditorMainUI(); 
- 
+	TSubclassOf<UEditorMainUIBase> GetEditorMainUI(); 
 	UPROPERTY(BlueprintReadWrite)
 		FEditorPanelDelegate EditorPanel;
 	UFUNCTION(BlueprintCallable)
 		void ClearEditorPanel() { EditorPanel.Unbind(); }
-	TSubclassOf<class UEditorPanelBase> GetEditorPanel(); 
- 
+	TSubclassOf<UEditorPanelBase> GetEditorPanel(); 
 	UPROPERTY(BlueprintReadWrite)
 		FInstructionWidgetDelegate InstructionWidget;
 	UFUNCTION(BlueprintCallable)
 		void ClearInstructionWidget() { InstructionWidget.Unbind(); }
-	TSubclassOf<class UInstructionWidgetBase> GetInstructionWidget(); 
- 
+	TSubclassOf<UInstructionWidgetBase> GetInstructionWidget(); 
 	UPROPERTY(BlueprintReadWrite)
 		FGameUIDelegate GameUI;
 	UFUNCTION(BlueprintCallable)
 		void ClearGameUI() { GameUI.Unbind(); }
-	TSubclassOf<class UGameUIBase> GetGameUI(); 
- 
+	TSubclassOf<UGameUIBase> GetGameUI(); 
 	UPROPERTY(BlueprintReadWrite)
 		FGameResultUIDelegate GameResultUI;
 	UFUNCTION(BlueprintCallable)
 		void ClearGameResultUI() { GameResultUI.Unbind(); }
-	TSubclassOf<class UGameResultUIBase> GetGameResultUI(); 
- 
+	TSubclassOf<UGameResultUIBase> GetGameResultUI(); 
 	UPROPERTY(BlueprintReadWrite)
 		FWelcomeUIDelegate WelcomeUI;
 	UFUNCTION(BlueprintCallable)
 		void ClearWelcomeUI() { WelcomeUI.Unbind(); }
-	TSubclassOf<class UWelcomeUIBase> GetWelcomeUI(); 
- 
+	TSubclassOf<UWelcomeUIBase> GetWelcomeUI(); 
 	UPROPERTY(BlueprintReadWrite)
 		FMainMenuUIDelegate MainMenuUI;
 	UFUNCTION(BlueprintCallable)
 		void ClearMainMenuUI() { MainMenuUI.Unbind(); }
-	TSubclassOf<class UMainMenuUIBase> GetMainMenuUI(); 
- 
+	TSubclassOf<UMainMenuUIBase> GetMainMenuUI(); 
 	UPROPERTY(BlueprintReadWrite)
 		FScoreSelectionUIDelegate ScoreSelectionUI;
 	UFUNCTION(BlueprintCallable)
 		void ClearScoreSelectionUI() { ScoreSelectionUI.Unbind(); }
-	TSubclassOf<class UScoreSelectionUIBase> GetScoreSelectionUI(); 
- 
+	TSubclassOf<UScoreSelectionUIBase> GetScoreSelectionUI(); 
 	UPROPERTY(BlueprintReadWrite)
 		FGenericSelectionItemDelegate GenericSelectionItem;
 	UFUNCTION(BlueprintCallable)
 		void ClearGenericSelectionItem() { GenericSelectionItem.Unbind(); }
-	TSubclassOf<class UGenericSelectionItemBase> GetGenericSelectionItem(); 
- 
+	TSubclassOf<UGenericSelectionItemBase> GetGenericSelectionItem(); 
 	UPROPERTY(BlueprintReadWrite)
 		FMessageBoxDelegate MessageBox;
 	UFUNCTION(BlueprintCallable)
 		void ClearMessageBox() { MessageBox.Unbind(); }
-	TSubclassOf<class UMessageBoxBase> GetMessageBox(); 
- 
+	TSubclassOf<UMessageBoxBase> GetMessageBox(); 
 	UPROPERTY(BlueprintReadWrite)
 		FQuestionBoxDelegate QuestionBox;
 	UFUNCTION(BlueprintCallable)
 		void ClearQuestionBox() { QuestionBox.Unbind(); }
-	TSubclassOf<class UQuestionBoxBase> GetQuestionBox(); 
- 
+	TSubclassOf<UQuestionBoxBase> GetQuestionBox(); 
 }; 

@@ -1,0 +1,20 @@
+# This file will contain the UI class that is included by MuthM,
+# The list UI will be consider to generate code for modding.
+# use UIName, UIPath to declare the UIClass
+# UIClass need to be named to UUINameBase
+# Other Attention:Don't Add any space before ',',I didn't trim the UI name in build.
+PauseUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/PauseUI.PauseUI_C'"
+DetailCategory, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailCategory.DetailCategory_C'"
+DetailInputNumber, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputNumber.DetailInputNumber_C'"
+DetailInputString, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputString.DetailInputString_C'"
+EditorMainUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/EditorMainUI.EditorMainUI_C'"
+EditorPanel, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/EditorPanel.EditorPanel_C'"
+InstructionWidget, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/InstructionWidget.InstructionWidget_C'"
+GameUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GameUI.GameUI_C'"
+GameResultUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GameResultUI.GameResultUI_C'"
+WelcomeUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/WelcomeUI.WelcomeUI_C'"
+MainMenuUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MainMenuUI.MainMenuUI_C'"
+ScoreSelectionUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ScoreSelectionUI.ScoreSelectionUI_C'"
+GenericSelectionItem, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GenericSelectionItem.GenericSelectionItem_C'"
+MessageBox, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MessageBox.MessageBox_C'"
+QuestionBox, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/QuestionBox.QuestionBox_C'"

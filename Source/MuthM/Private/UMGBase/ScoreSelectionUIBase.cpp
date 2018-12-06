@@ -126,14 +126,10 @@ void UScoreSelectionUIBase::NativeConstruct()
 void UScoreSelectionUIBase::SelectCurrentScore()
 {
 	if (SelectedScoreArrayIndex != INDEX_NONE)
-	{
 		OnScoreSelected.Broadcast(ScoreSelectionCollection[SelectedScoreArrayIndex]);
-		RemoveFromParent();
-	}
 }
 
 void UScoreSelectionUIBase::CancelSelection()
 {
 	OnSelectionCancelled.Broadcast();
-	RemoveFromParent();
 }

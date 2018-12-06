@@ -15,5 +15,8 @@ class MUTHM_API AMuthMMainMenuMode : public AMuthMGameModeBase
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintCallable)
-		void LoadWelcomeUI();
+		void LoadWelcome();
+protected:
+	virtual void BeginPlay() override;
+
 };
