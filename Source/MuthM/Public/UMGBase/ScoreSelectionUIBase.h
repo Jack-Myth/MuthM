@@ -52,6 +52,8 @@ class MUTHM_API UScoreSelectionUIBase : public UUserWidget
 	int SelectedMDATIndex = INDEX_NONE;
 	int SelectedScoreArrayIndex = INDEX_NONE;
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnRestoreScoreSelection(const FString& MDATFilePath, int ScoreIndex);
 	UPROPERTY(BlueprintAssignable)
 		FOnScoreSelected OnScoreSelected;
 	UPROPERTY(BlueprintAssignable)

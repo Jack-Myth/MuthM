@@ -31,6 +31,13 @@ void UMuthMGameInstance::PostInitProperties()
 	FCoreDelegates::ApplicationHasEnteredForegroundDelegate.AddUObject(this, &UMuthMGameInstance::OnApplicationSwitchForeground);
 }
 
+void UMuthMGameInstance::GetLastScoreInfo(FString& MDATFilePath, int& ScoreIndex, bool& IsEditorMode)
+{
+	MDATFilePath = _GameArgs.MMSFileName;
+	ScoreIndex = _GameArgs.ScoreIndex;
+	IsEditorMode = _GameArgs.bIsEditorMode;
+}
+
 void UMuthMGameInstance::OnApplicationDeactive()
 {
 	auto* GameMode=Cast<AMuthMGameModeBase>(UGameplayStatics::GetGameMode(this));

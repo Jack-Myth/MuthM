@@ -18,5 +18,7 @@ public:
 		void LoadWelcome();
 protected:
 	virtual void BeginPlay() override;
-
+public:
+	class UScoreSelectionUIBase* SelectGameScore();
+	class UScoreSelectionUIBase* SelectEditorScore();
 };

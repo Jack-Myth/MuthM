@@ -3,6 +3,9 @@
 #include "MuthMMainMenuMode.h"
 #include "UIProvider.h"
 #include "WelcomeUIBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "MuthMGameInstance.h"
+#include "ScoreSelectionUIBase.h"
 
 void AMuthMMainMenuMode::LoadWelcome()
 {
@@ -13,5 +16,40 @@ void AMuthMMainMenuMode::LoadWelcome()
 
 void AMuthMMainMenuMode::BeginPlay()
 {
-	
+	auto* GameInstance =  Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	FString MDATFile;
+	int ScoreIndex;
+	bool bIsEditorMode;
+	GameInstance->GetLastScoreInfo(MDATFile,ScoreIndex,bIsEditorMode);
+	if (MDATFile!="")
+	{
+		// Need to restore Selection UI;
+		if (bIsEditorMode)
+			SelectEditorScore()->OnRestoreScoreSelection(MDATFile, ScoreIndex);
+		else
+			SelectGameScore()->OnRestoreScoreSelection(MDATFile, ScoreIndex);
+	}
+	else
+	{
+		// At the first time start the Game.
+		LoadWelcome();
+	}
+}
+
+class UScoreSelectionUIBase* AMuthMMainMenuMode::SelectGameScore()
+{
+	auto ScoreSelectionUIClass = UUIProvider::Get()->GetScoreSelectionUI();
+	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, "ScoreSelectionUI"));
+	ScoreSelectionUI->AddToViewport();
+	return ScoreSelectionUI;
+	//TODO:Bind Delegate.
+}
+
+class UScoreSelectionUIBase* AMuthMMainMenuMode::SelectEditorScore()
+{
+	auto ScoreSelectionUIClass = UUIProvider::Get()->GetScoreSelectionUI();
+	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, "ScoreSelectionUI"));
+	ScoreSelectionUI->AddToViewport();
+	return ScoreSelectionUI;
+	//TODO: Bind Delegate
 }

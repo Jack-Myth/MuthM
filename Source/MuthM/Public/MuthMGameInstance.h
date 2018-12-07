@@ -16,6 +16,9 @@ struct FGameArgs
 	//Relative to MDAT
 	FString MMSFileName;
 	FMusicInfo MainMusicInfo;
+	FString MDATFilePath;
+	int ScoreIndex = 0;
+	bool bIsEditorMode = false;
 };
 
 /**
@@ -35,9 +38,12 @@ public:
 
 	//Once the GameArgs is exchanged, the ref to object sush as _MDAT will be clear
 	//It's designed to recycle the objects.
+	//but the 
 	FGameArgs ExchangeGameArgs();
 
 	virtual void PostInitProperties() override;
+
+	void GetLastScoreInfo(FString& MDATFilePath, int& ScoreIndex,bool& IsEditorMode);
 
 	void OnApplicationDeactive();
 	void OnApplicationReactive();

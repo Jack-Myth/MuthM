@@ -21,6 +21,7 @@ public class MuthM : ModuleRules
             "BeatDetektor",
             "Kiss_FFT",
             "Json",
+            "PakFile",
             "BlueprintJson" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
