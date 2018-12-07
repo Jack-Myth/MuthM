@@ -16,6 +16,7 @@ void AMuthMMainMenuMode::LoadWelcome()
 
 void AMuthMMainMenuMode::BeginPlay()
 {
+	UGameplayStatics::GetPlayerController(this, 0)->bShowMouseCursor=true;
 	auto* GameInstance =  Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	FString MDATFile;
 	int ScoreIndex;

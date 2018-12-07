@@ -14,8 +14,8 @@ class MUTHM_API UWelcomeUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		bool FindAndLoadMods();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void LoadMainMenuUI();
 };

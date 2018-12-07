@@ -2,6 +2,7 @@
 
 #include "MuthMGameModeBase.h"
 
-
-
-
+AMuthMGameModeBase::AMuthMGameModeBase()
+{
+	DefaultPawnClass = APawn::StaticClass();
+}

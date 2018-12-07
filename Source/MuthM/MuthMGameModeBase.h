@@ -14,6 +14,7 @@ class MUTHM_API AMuthMGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 public:
+	AMuthMGameModeBase();
 	UFUNCTION(BlueprintCallable)
 		virtual void PauseGame() {};
 	UFUNCTION(BlueprintCallable)
