@@ -21,6 +21,6 @@ public:
 	void ValueInit(TSharedPtr<struct FDetailItemNumber> DetailItemInfo);
 	UFUNCTION(BlueprintImplementableEvent)
 		float GetInputNumber();
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnValueInit"))
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Value Init"))
 		void K2_OnValueInit(const FText& DisplayName, class UInstruction* InstructionInstance,float NumberValue);
 };

@@ -18,7 +18,7 @@ DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackStr, class UInstruction*, In
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackNumber, class UInstruction*, InstructionInstance, FName, PropertyName, float, NumberValue);
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FDetailCallbackCustom, class UInstruction*, InstructionInstance, FName, PropertyName, class UDetailInputCustomBase*, CustomWidget);
 
-USTRUCT(BlueprintType)
+USTRUCT(BlueprintType,BlueprintInternalUseOnly)
 struct FDetailItem
 {
 	GENERATED_BODY()
@@ -29,6 +29,9 @@ public:
 		FText DisplayName;
 	UPROPERTY(BlueprintReadWrite)
 		class UInstruction* InstructionInstance;
+
+	//Use to determine the type of input.
+	//Just for read only,Do not change it.
 	EDetailInputType InputType;
 };
 
@@ -37,6 +40,7 @@ struct FDetailItemString :public FDetailItem
 {
 	GENERATED_BODY()
 public:
+	FDetailItemString();
 	UPROPERTY(BlueprintReadWrite)
 		FString StrValue;
 	UPROPERTY(BlueprintReadWrite)
@@ -48,6 +52,7 @@ struct FDetailItemNumber :public FDetailItem
 {
 	GENERATED_BODY()
 public:
+	FDetailItemNumber();
 	UPROPERTY(BlueprintReadWrite)
 		float NumberValue;
 	UPROPERTY(BlueprintReadWrite)
@@ -59,6 +64,7 @@ struct FDetailItemCustom :public FDetailItem
 {
 	GENERATED_BODY()
 public:
+	FDetailItemCustom();
 	UPROPERTY(BlueprintReadWrite)
 		TSubclassOf<UDetailInputCustomBase> CustomWidgetClass;
 	UPROPERTY(BlueprintReadWrite)
@@ -72,5 +78,7 @@ struct FDetailCategoryStruct
 
 	UPROPERTY(BlueprintReadWrite)
 		FName Title;
+	UPROPERTY(BlueprintReadWrite)
+		FText DisplayTitle;
 	TArray<TSharedPtr<FDetailItem>> ItemList;
 };

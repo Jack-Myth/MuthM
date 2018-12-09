@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MuthMGameModeBase.h"
+#include "ScoreSelectionUIBase.h"
 #include "MuthMMainMenuMode.generated.h"
 
 /**
@@ -16,6 +17,12 @@ class MUTHM_API AMuthMMainMenuMode : public AMuthMGameModeBase
 public:
 	UFUNCTION(BlueprintCallable)
 		void LoadWelcome();
+	UFUNCTION()
+		void OnGameScoreSelected(FScoreSelectionInfo ScoreSelectionInfo);
+	UFUNCTION()
+		void OnEditorScoreSelected(FScoreSelectionInfo ScoreSelectionInfo);
+	UFUNCTION()
+		void OnScoreSelectionCanceled();
 protected:
 	virtual void BeginPlay() override;
 public:

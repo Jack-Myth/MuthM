@@ -15,21 +15,18 @@ class MUTHM_API UEditorPanelBase : public UUserWidget
 	GENERATED_BODY()
 
 	UPROPERTY()
-		class UTextureRenderTarget2D* _SpectrumRenderTarget;
+		class UTextureRenderTarget2D* _SpectrumRenderTarget=nullptr;
 	UPROPERTY()
 		TArray<class UInstructionWidgetBase*> InstructionWidgets;
 	UPROPERTY()
-		class UInstructionWidgetBase* _SelectedWidget;
+		class UInstructionWidgetBase* _SelectedWidget=nullptr;
+	UPROPERTY()
+		class UDetailsListBase* ActivedDetailsWidget=nullptr;
 	bool _NextToAdd;
 protected:
-	UPROPERTY(BlueprintReadOnly)
-		float PanelLBorder;
-	UPROPERTY(BlueprintReadOnly)
-		float PanelRBorder;
-
 	//default widget(R-L)=30 seconds
-	UPROPERTY(BlueprintReadOnly)
-		float ScaleRatio;
+	UPROPERTY(BlueprintReadWrite)
+		float ScaleRatio=1.f;
 	UPROPERTY(BlueprintReadOnly)
 		float TimeAxis;
 public:
@@ -45,20 +42,17 @@ public:
 		bool bFastAddMode = false;
 	UPROPERTY(BlueprintReadWrite)
 		FName _FastAddInstructionName;
-	UFUNCTION(BlueprintCallable)
-		void SetSpectrumRes(int ResX, int ResY);
-	UFUNCTION(BlueprintCallable)
-		void RefreshSpectrum();
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent,meta=(ToolTip="Notice:This event may be fired before construct event."))
 		void OnSpectrumUpdate(class UTextureRenderTarget2D* Spectrum);
-	UFUNCTION(BlueprintCallable)
-		void SetTimelineScale(float NewScaleRatio);
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnPanelBoundChanged(float LBorder,float RBorder);
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE TArray<UInstructionWidgetBase*> GetInstructionWidgets()
+	{
+		return InstructionWidgets;
+	}
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInstructionWidgetAdded(class UInstructionWidgetBase* InstructionWidget);
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnInstructionWidgetTimeChanged(class UInstructionWidgetBase* InstructionWidget);
+		void OnInstructionWidgetTimeChanged(class UInstructionWidgetBase* InstructionWidget,float LastTime,float CurrentTime);
 	UFUNCTION(BlueprintCallable)
 		void SetTimeAxis(float NewTime);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -85,6 +79,8 @@ public:
 		void OnInstructionSelected(class UInstructionWidgetBase* SelectedWidget);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInstructionDeselected(class UInstructionWidgetBase* DeselectedWidget);
+	UFUNCTION()
+		void OnInstructionTimeInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 	UFUNCTION(BlueprintCallable)
 		void RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove);
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Set if Next click on panel will add an instruction widget"))
@@ -92,6 +88,10 @@ public:
 	{
 		_NextToAdd = newNextAdd;
 	}
+	UFUNCTION(BlueprintPure)
+		float GetMusicLength();
+	UFUNCTION(BlueprintCallable)
+		void PupopDetails(class UInstructionWidgetBase* InstructionWidgetBase);
 protected:
 	virtual void NativeConstruct() override;
 

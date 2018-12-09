@@ -25,12 +25,9 @@ void UInstructionWidgetBase::ClickEventHandler()
 	InEditorMode->GetEditorMainUI()->GetEditorPanel()->ClickWidget(this);
 }
 
-void UInstructionWidgetBase::PupopDetails()
+void UInstructionWidgetBase::OnWidgetSelected_Implementation()
 {
-	if (GetInstructionInstance()->GetClass()->ImplementsInterface(UHasDetails::StaticClass()))
-	{
-		auto DetailsBuilder = IDetailsBuilder::GenNewBuilder();
-		DetailsBuilder->SetDetailsHolder(GetInstructionInstance());
-		DetailsBuilder->GenDetails()->AddToViewport(100);
-	}
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	check(InEditorMode);
+	InEditorMode->GetEditorMainUI()->GetEditorPanel()->PupopDetails(this);
 }

@@ -12,7 +12,16 @@
 
 void UDetailsBuilderImpl::AddCategory(FDetailCategoryStruct Category)
 {
-	_DetailCategorylist.FindOrAdd(Category.Title).ItemList.Append(Category.ItemList);
+	for (int i=0;i<_DetailCategorylist.Num();i++)
+	{
+		if (_DetailCategorylist[i].Title==Category.Title)
+		{
+			_DetailCategorylist[i].ItemList.Append(Category.ItemList);
+			return;
+		}
+	}
+	//If Category hasn't added.
+	_DetailCategorylist.Add(Category);
 }
 
 UDetailsListBase* UDetailsBuilderImpl::GenDetails()
@@ -23,14 +32,15 @@ UDetailsListBase* UDetailsBuilderImpl::GenDetails()
 	DetailsHolder->OnBuildingDetails(this);
 	for (auto it = _DetailCategorylist.CreateIterator(); it; ++it)
 	{
-		auto* CategoryWidget = Cast<UDetailCategoryBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailCategory(), "DetailCategory"));
-		for (int i=0;i<it->Value.ItemList.Num();i++)
+		auto* CategoryWidget = Cast<UDetailCategoryBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailCategory(), *("DetailCategory_"+it->Title.ToString())));
+		CategoryWidget->SetHeaderText(it->DisplayTitle);
+		for (int i=0;i<it->ItemList.Num();i++)
 		{
-			switch (it->Value.ItemList[i]->InputType)
+			switch (it->ItemList[i]->InputType)
 			{
 				case EDetailInputType::DIT_String:
 					{
-						TSharedPtr<FDetailItemString> pDetailItemStr = StaticCastSharedPtr<FDetailItemString>(it->Value.ItemList[i]);
+						TSharedPtr<FDetailItemString> pDetailItemStr = StaticCastSharedPtr<FDetailItemString>(it->ItemList[i]);
 						auto* DetailInputStrWidget = Cast<UDetailInputStringBase>(
 							UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailInputString(), "DetailInputStr"));
 						DetailInputStrWidget->ValueInit(pDetailItemStr);
@@ -39,7 +49,7 @@ UDetailsListBase* UDetailsBuilderImpl::GenDetails()
 					break;
 				case EDetailInputType::DIT_Number:
 					{
-						TSharedPtr<FDetailItemNumber> pDetailItemNumber = StaticCastSharedPtr<FDetailItemNumber>(it->Value.ItemList[i]);
+						TSharedPtr<FDetailItemNumber> pDetailItemNumber = StaticCastSharedPtr<FDetailItemNumber>(it->ItemList[i]);
 						auto* DetailInputNumberWidget = Cast<UDetailInputNumberBase>(
 							UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailInputNumber(), "DetailInputNumber"));
 						DetailInputNumberWidget->ValueInit(pDetailItemNumber);
@@ -48,7 +58,7 @@ UDetailsListBase* UDetailsBuilderImpl::GenDetails()
 					break;
 				case EDetailInputType::DIT_Custom:
 					{
-						TSharedPtr<FDetailItemCustom> pDetailItemCustom = StaticCastSharedPtr<FDetailItemCustom>(it->Value.ItemList[i]);
+						TSharedPtr<FDetailItemCustom> pDetailItemCustom = StaticCastSharedPtr<FDetailItemCustom>(it->ItemList[i]);
 						auto* DetailInputCustomWidget = Cast<UDetailInputCustomBase>(
 							UUserWidget::CreateWidgetInstance(*GetWorld(), pDetailItemCustom->CustomWidgetClass, "DetailInputCustom"));
 						DetailInputCustomWidget->ValueInit(pDetailItemCustom);
@@ -70,4 +80,17 @@ class UWorld* UDetailsBuilderImpl::GetWorld() const
 void UDetailsBuilderImpl::SetDetailsHolder(TScriptInterface<IHasDetails> _DetailsHolder)
 {
 	DetailsHolder = _DetailsHolder;
+}
+
+void UDetailsBuilderImpl::AddCategoryBefore(FDetailCategoryStruct Category, FName Before)
+{
+	for (int i = 0; i < _DetailCategorylist.Num(); i++)
+	{
+		if (_DetailCategorylist[i].Title == Before)
+		{
+			_DetailCategorylist.Insert(Category, i);
+			return;
+		}
+	}
+	_DetailCategorylist.Add(Category);
 }

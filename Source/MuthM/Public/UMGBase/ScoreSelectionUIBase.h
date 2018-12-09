@@ -26,7 +26,7 @@ struct FScoreSelectionInfo
 	FString MDATPath;
 	FString MMSPath;
 	int MusicID;
-	int ScoreNumber;
+	int ScoreIndex;
 	FText DisplayName;
 	FText Subtitle;
 	class UTexture2D* Img;
@@ -35,10 +35,12 @@ struct FScoreSelectionInfo
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreSelected, FScoreSelectionInfo, SelectedScoreInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMusicNotDownloadWarning, int,NeededMusicID);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSelectionCancelled);
 
 /**
- * 
+ * It may contained Design Mistakes.
+ * Should be more configurable,instead of using fixed ExpandableArea.
  */
 UCLASS()
 class MUTHM_API UScoreSelectionUIBase : public UUserWidget
@@ -58,6 +60,8 @@ public:
 		FOnScoreSelected OnScoreSelected;
 	UPROPERTY(BlueprintAssignable)
 		FOnSelectionCancelled OnSelectionCancelled;
+	UPROPERTY(BlueprintAssignable)
+		FOnMusicNotDownloadWarning OnMusicNotDownloadWarning;
 	TArray<FString> CollectMDAT();
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnAddMDATItem(class UExpandableArea* ItemCategoryWidget);
@@ -71,6 +75,8 @@ protected:
 		void DisplayMDATInfo(const FText& DisplayName,const FText& Author,const FText& Description, class UTexture2D* Cover);
 	UFUNCTION(BlueprintImplementableEvent)
 		void DisplayScoreInfo(const FText& DisplayName, const FText& Subtitle, int MusicID,class UTexture2D* Img, const TArray<FName>& RequestMods, const TArray<FName>& OptionalMods);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnNeedRemove();
 	UFUNCTION(BlueprintCallable)
 		void SelectCurrentScore();
 	UFUNCTION(BlueprintCallable)

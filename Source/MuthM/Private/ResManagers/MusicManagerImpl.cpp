@@ -32,3 +32,8 @@ bool UMusicManagerImpl::IsMusicExistInLocal(int MusicID)
 {
 	return false;
 }
+
+bool UMusicManagerImpl::FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo)
+{
+	return false;
+}

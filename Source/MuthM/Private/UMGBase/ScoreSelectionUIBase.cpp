@@ -9,6 +9,7 @@
 #include "VerticalBox.h"
 #include "Paths.h"
 #include "FileManager.h"
+#include "MusicManager.h"
 
 TArray<FString> UScoreSelectionUIBase::CollectMDAT()
 {
@@ -41,6 +42,7 @@ void UScoreSelectionUIBase::OnMDATSelectedHandler(class UGenericSelectionItemBas
 	{
 		FScoreSelectionInfo CurScoreSelectionInfo;
 		TSharedPtr<FJsonObject> ScoreInfo = MainJsonObj->GetObjectField(FString::Printf(TEXT("Score%d"), i));
+		CurScoreSelectionInfo.ScoreIndex = i;
 		CurScoreSelectionInfo.DisplayName = FText::FromString(ScoreInfo->GetStringField("ScoreName"));
 		CurScoreSelectionInfo.Subtitle = FText::FromString(ScoreInfo->GetStringField("Subtitle"));
 		const TArray<TSharedPtr<FJsonValue>> RequestModsArray = ScoreInfo->GetArrayField("RequestMods");
@@ -86,6 +88,7 @@ void UScoreSelectionUIBase::OnScoreSelectedHandler(class UGenericSelectionItemBa
 
 void UScoreSelectionUIBase::NativeConstruct()
 {
+	Super::NativeConstruct();
 	MDATSelectionCollection.Empty(); //No use, because it always empty at first.
 	ScoreSelectionCollection.Empty();
 	TArray<FString> MDATCollection;
@@ -112,7 +115,7 @@ void UScoreSelectionUIBase::NativeConstruct()
 		class UExpandableArea* MDATSelectionHost = NewObject<UExpandableArea>();
 		MDATSelectionHost->BorderBrush.DrawAs = ESlateBrushDrawType::NoDrawType;
 		MDATSelectionHost->AreaPadding = 10;
-		MDATSelectionHost->Style.SetRolloutAnimationSeconds(1);
+		MDATSelectionHost->Style.SetRolloutAnimationSeconds(1.f);
 		auto* SelectionItem = Cast<UGenericSelectionItemBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetGenericSelectionItem(), NAME_None));
 		SelectionItem->SetDataIndex(i);
 		SelectionItem->OnSelected.AddDynamic(this, &UScoreSelectionUIBase::OnMDATSelectedHandler);
@@ -126,10 +129,22 @@ void UScoreSelectionUIBase::NativeConstruct()
 void UScoreSelectionUIBase::SelectCurrentScore()
 {
 	if (SelectedScoreArrayIndex != INDEX_NONE)
-		OnScoreSelected.Broadcast(ScoreSelectionCollection[SelectedScoreArrayIndex]);
+	{
+		FMusicInfo tmpMusicInfo;
+		if (IMusicManager::Get()->FindMusicLocalByID(ScoreSelectionCollection[SelectedScoreArrayIndex].MusicID,tmpMusicInfo))
+		{
+			OnScoreSelected.Broadcast(ScoreSelectionCollection[SelectedScoreArrayIndex]);
+			OnNeedRemove();
+		}
+		else
+		{
+			OnMusicNotDownloadWarning.Broadcast(ScoreSelectionCollection[SelectedScoreArrayIndex].MusicID);
+		}
+	}
 }
 
 void UScoreSelectionUIBase::CancelSelection()
 {
 	OnSelectionCancelled.Broadcast();
+	OnNeedRemove();
 }

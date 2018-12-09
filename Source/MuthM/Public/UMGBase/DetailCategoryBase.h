@@ -16,7 +16,7 @@ class MUTHM_API UDetailCategoryBase : public UUserWidget
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintImplementableEvent)
-		void SetHeaderText(const FString& HeaderText);
+		void SetHeaderText(const FText& HeaderText);
 	UFUNCTION(BlueprintImplementableEvent)
 		void AddDetailItemWidget(UUserWidget* DetailItem);
 };

@@ -46,6 +46,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual bool FindMusicOnlineByID(int MusicID, FMusicInfo& MusicInfo) = 0;
 	UFUNCTION(BlueprintCallable)
+		virtual bool FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo) = 0;
+	UFUNCTION(BlueprintCallable)
 		virtual bool DownloadMusicByID(int MusicID) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual bool IsMusicExistInLocal(int MusicID) = 0;

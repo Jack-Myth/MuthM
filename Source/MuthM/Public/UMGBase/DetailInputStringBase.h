@@ -20,7 +20,7 @@ public:
 		void FireOnValueChanged();
 	void ValueInit(TSharedPtr<struct FDetailItemString> DetailItemInfo);
 	UFUNCTION(BlueprintImplementableEvent)
-		float GetInputNumber();
-	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "OnValueInit"))
+		FString GetInputString();
+	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "On Value Init"))
 		void K2_OnValueInit(const FText& DisplayName, class UInstruction* InstructionInstance, const FString& StrValue);
 };

@@ -21,8 +21,7 @@ public:
 	//Network Interface haven't been designed yet.
 	virtual bool FindMusicOnlineByID(int MusicID, FMusicInfo& MusicInfo) override;
 	virtual bool DownloadMusicByID(int MusicID) override;
-
-
 	virtual bool IsMusicExistInLocal(int MusicID) override;
+	virtual bool FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo) override;
 
 };

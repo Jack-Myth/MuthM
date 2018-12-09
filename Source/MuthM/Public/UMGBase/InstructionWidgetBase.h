@@ -28,12 +28,10 @@ public:
 		float GetInstructionTime();
 	UFUNCTION(BlueprintCallable)
 		void ClickEventHandler();
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent,meta=(ToolTip="Native Implementation is to show the Detail."))
 		void OnWidgetSelected();
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnWidgetDeselected();
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTwikleWidget();
-	UFUNCTION(BlueprintCallable)
-		void PupopDetails();
 };

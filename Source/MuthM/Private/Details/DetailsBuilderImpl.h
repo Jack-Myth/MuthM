@@ -19,11 +19,12 @@ class UDetailsBuilderImpl : public UObject,public IDetailsBuilder
 		TScriptInterface<class IHasDetails> DetailsHolder;		//the Details Holder should provider the UWorld for Details Builder.
 
 	UPROPERTY()
-	TMap<FName, FDetailCategoryStruct> _DetailCategorylist;
+	TArray<FDetailCategoryStruct> _DetailCategorylist;
 public:
 	virtual void AddCategory(FDetailCategoryStruct Category) override;
 	virtual class UDetailsListBase* GenDetails() override;
 	virtual class UWorld* GetWorld() const override;
 	virtual void SetDetailsHolder(TScriptInterface<class IHasDetails> _DetailsHolder) override;
+	virtual void AddCategoryBefore(FDetailCategoryStruct Category, FName Before) override;
 
 };

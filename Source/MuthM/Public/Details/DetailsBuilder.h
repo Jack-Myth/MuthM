@@ -25,6 +25,8 @@ public:
 	static TScriptInterface<IDetailsBuilder> GenNewBuilder();
 	UFUNCTION(BlueprintCallable)
 		virtual void AddCategory(FDetailCategoryStruct Category) = 0;
+	UFUNCTION(BlueprintCallable,meta=(ToolTip="Notice:This function will not merge the same category."))
+		virtual void AddCategoryBefore(FDetailCategoryStruct Category, FName Before) = 0;
 	virtual class UDetailsListBase* GenDetails() = 0;
 	virtual void SetDetailsHolder(TScriptInterface<class IHasDetails> _DetailsHolder) = 0;
 };
