@@ -14,6 +14,9 @@
 #include "BlueprintJsonLibrary.h"
 #include "JsonObject.h"
 #include "FileManager.h"
+#include "Kismet/GameplayStatics.h"
+#include "MuthMGameInstance.h"
+#include "MusicSaveGame.h"
 
 DEFINE_LOG_CATEGORY(MuthMMusicManager)
 
@@ -60,10 +63,33 @@ bool UMusicManagerImpl::DownloadMusicByID(int MusicID)
 
 bool UMusicManagerImpl::IsMusicExistInLocal(int MusicID) const
 {
-	return IFileManager::Get().FileExists(*ConstructMusicFileName(MusicID));
+	if (IFileManager::Get().FileExists(*ConstructMusicFileName(MusicID)))
+	{
+		auto pSaveGame = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->GetMusicSaveGame();
+		for (int i=0;i<pSaveGame->MusicInfoCollection.Num();i++)
+		{
+			if (pSaveGame->MusicInfoCollection[i].ID == MusicID)
+				return true;
+		}
+		//return false;
+	}
+	return false;
 }
 
 bool UMusicManagerImpl::FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo) const
 {
+	if (IFileManager::Get().FileExists(*ConstructMusicFileName(MusicID)))
+	{
+		auto pSaveGame = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->GetMusicSaveGame();
+		for (int i = 0; i < pSaveGame->MusicInfoCollection.Num(); i++)
+		{
+			if (pSaveGame->MusicInfoCollection[i].ID == MusicID)
+			{
+				MusicInfo = pSaveGame->MusicInfoCollection[i];
+				return true;
+			}
+		}
+		//return false;
+	}
 	return false;
 }

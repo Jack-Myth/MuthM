@@ -65,26 +65,26 @@ void UMuthMGameInstance::OnApplicationSwitchForeground()
 {
 }
 
-TWeakPtr<class UUserSaveGame> UMuthMGameInstance::GetUserSaveGame()
+TSharedPtr<class UUserSaveGame> UMuthMGameInstance::GetUserSaveGame()
 {
 	if (UserSaveGame.IsValid())
-		return UserSaveGame;
+		return UserSaveGame.Pin();
 	else
 	{
 		TSharedPtr<UUserSaveGame> tmpUserSaveGame = MakeShareable(Cast<UUserSaveGame>(UGameplayStatics::LoadGameFromSlot("GlobalUserSaveGame", 0)));
 		UserSaveGame = tmpUserSaveGame;
-		return UserSaveGame;
+		return UserSaveGame.Pin();
 	}
 }
 
-TWeakPtr<class UMusicSaveGame> UMuthMGameInstance::GetMusicSaveGame()
+TSharedPtr<class UMusicSaveGame> UMuthMGameInstance::GetMusicSaveGame()
 {
 	if (MusicSaveGame.IsValid())
-		return MusicSaveGame;
+		return MusicSaveGame.Pin();
 	else
 	{
 		TSharedPtr<UMusicSaveGame> tmpMusicSaveGame= MakeShareable(Cast<UMusicSaveGame>(UGameplayStatics::LoadGameFromSlot("GlobalMusicSaveGame", 0)));
 		MusicSaveGame = tmpMusicSaveGame;
-		return MusicSaveGame;
+		return MusicSaveGame.Pin();
 	}
 }

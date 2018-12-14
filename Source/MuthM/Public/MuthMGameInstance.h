@@ -66,6 +66,6 @@ public:
 	void OnApplicationSwitchBackground();
 	void OnApplicationSwitchForeground();
 
-	TWeakPtr<class UUserSaveGame> GetUserSaveGame();
-	TWeakPtr<class UMusicSaveGame> GetMusicSaveGame();
+	TSharedPtr<class UUserSaveGame> GetUserSaveGame();
+	TSharedPtr<class UMusicSaveGame> GetMusicSaveGame();
 };
