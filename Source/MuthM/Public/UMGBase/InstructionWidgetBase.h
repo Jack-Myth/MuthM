@@ -34,4 +34,6 @@ public:
 		void OnWidgetDeselected();
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnTwikleWidget();
+	UFUNCTION(BlueprintCallable)
+		void DestroyInstruction();
 };

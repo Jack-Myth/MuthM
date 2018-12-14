@@ -22,6 +22,7 @@ public class MuthM : ModuleRules
             "Kiss_FFT",
             "Json",
             "PakFile",
+            "HTTP",
             "BlueprintJson" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

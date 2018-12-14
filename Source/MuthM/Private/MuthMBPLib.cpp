@@ -16,12 +16,43 @@
 #include "OpusAudioInfo.h"
 #include "JsonReader.h"
 #include "JsonSerializer.h"
+#include "InstructionManager.h"
+#include "ModManager.h"
+#include "MusicManager.h"
+#include "DownloadManager.h"
+#include "NetworkManager.h"
+#include "UserManager.h"
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 
 TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager()
 {
 	return IInstructionManager::Get();
+}
+
+TScriptInterface<IModManager> UMuthMBPLib::GetModManager()
+{
+	return IModManager::Get();
+}
+
+TScriptInterface<class INetworkManager> UMuthMBPLib::GetNetworkManager()
+{
+	return INetworkManager::Get();
+}
+
+TScriptInterface<class IDownloadManager> UMuthMBPLib::GetDownloadManager()
+{
+	return IDownloadManager::Get();
+}
+
+TScriptInterface<class IMusicManager> UMuthMBPLib::GetMusicManager()
+{
+	return IMusicManager::Get();
+}
+
+TScriptInterface<class IUserManager> UMuthMBPLib::GetUserManager()
+{
+	return IUserManager::Get();
 }
 
 class UTexture2D* UMuthMBPLib::LoadTextureInGame(UObject* WorldContextObj, FString FileName)

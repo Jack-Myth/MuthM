@@ -88,6 +88,8 @@ public:
 	{
 		_NextToAdd = newNextAdd;
 	}
+	UFUNCTION(BlueprintCallable)
+		void DeleteCurrentInstruction();
 	UFUNCTION(BlueprintPure)
 		float GetMusicLength();
 	UFUNCTION(BlueprintCallable)

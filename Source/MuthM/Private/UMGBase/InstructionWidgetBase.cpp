@@ -25,6 +25,13 @@ void UInstructionWidgetBase::ClickEventHandler()
 	InEditorMode->GetEditorMainUI()->GetEditorPanel()->ClickWidget(this);
 }
 
+void UInstructionWidgetBase::DestroyInstruction()
+{
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	check(InEditorMode);
+	InEditorMode->GetEditorMainUI()->GetEditorPanel()->RemoveInstruction(this);
+}
+
 void UInstructionWidgetBase::OnWidgetSelected_Implementation()
 {
 	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));

@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "InstructionManager.h"
 #include "DetailStructures.h"
 #include "MuthMBPLib.generated.h"
 
@@ -19,7 +18,17 @@ class MUTHM_API UMuthMBPLib : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintPure)
-		static TScriptInterface<IInstructionManager> GetInstructionManager();
+		static TScriptInterface<class IInstructionManager> GetInstructionManager();
+	UFUNCTION(BlueprintPure)
+		static TScriptInterface<class IModManager> GetModManager();
+	UFUNCTION(BlueprintPure)
+		static TScriptInterface<class INetworkManager> GetNetworkManager();
+	UFUNCTION(BlueprintPure)
+		static TScriptInterface<class IDownloadManager> GetDownloadManager();
+	UFUNCTION(BlueprintPure)
+		static TScriptInterface<class IMusicManager> GetMusicManager();
+	UFUNCTION(BlueprintPure)
+		static TScriptInterface<class IUserManager> GetUserManager();
 
 	UFUNCTION(BlueprintPure,meta=(WorldContext = "WorldContextObj",ToolTip="Load UTexture2D from the MDAT file that is using in the game."))
 		static class UTexture2D* LoadTextureInGame(UObject* WorldContextObj,FString FileName);

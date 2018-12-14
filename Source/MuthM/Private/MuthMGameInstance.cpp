@@ -4,6 +4,8 @@
 #include "CoreDelegates.h"
 #include "Kismet/GameplayStatics.h"
 #include "MuthMGameModeBase.h"
+#include "ResManagers/MusicSaveGame.h"
+#include "ResManagers/UserSaveGame.h"
 
 UMuthMGameInstance::UMuthMGameInstance()
 {
@@ -61,4 +63,28 @@ void UMuthMGameInstance::OnApplicationSwitchBackground()
 
 void UMuthMGameInstance::OnApplicationSwitchForeground()
 {
+}
+
+TWeakPtr<class UUserSaveGame> UMuthMGameInstance::GetUserSaveGame()
+{
+	if (UserSaveGame.IsValid())
+		return UserSaveGame;
+	else
+	{
+		TSharedPtr<UUserSaveGame> tmpUserSaveGame = MakeShareable(Cast<UUserSaveGame>(UGameplayStatics::LoadGameFromSlot("GlobalUserSaveGame", 0)));
+		UserSaveGame = tmpUserSaveGame;
+		return UserSaveGame;
+	}
+}
+
+TWeakPtr<class UMusicSaveGame> UMuthMGameInstance::GetMusicSaveGame()
+{
+	if (MusicSaveGame.IsValid())
+		return MusicSaveGame;
+	else
+	{
+		TSharedPtr<UMusicSaveGame> tmpMusicSaveGame= MakeShareable(Cast<UMusicSaveGame>(UGameplayStatics::LoadGameFromSlot("GlobalMusicSaveGame", 0)));
+		MusicSaveGame = tmpMusicSaveGame;
+		return MusicSaveGame;
+	}
 }

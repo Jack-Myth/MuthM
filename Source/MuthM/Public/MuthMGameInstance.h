@@ -30,6 +30,8 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 	GENERATED_BODY()
 	UPROPERTY()
 		FGameArgs _GameArgs;
+	TWeakPtr<class UUserSaveGame> UserSaveGame;
+	TWeakPtr<class UMusicSaveGame> MusicSaveGame;
 public:
 	UMuthMGameInstance();
 
@@ -49,4 +51,7 @@ public:
 	void OnApplicationReactive();
 	void OnApplicationSwitchBackground();
 	void OnApplicationSwitchForeground();
+
+	TWeakPtr<class UUserSaveGame> GetUserSaveGame();
+	TWeakPtr<class UMusicSaveGame> GetMusicSaveGame();
 };

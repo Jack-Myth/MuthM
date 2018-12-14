@@ -28,6 +28,6 @@ public:
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) override;
 	virtual UObject* GetWorldProvider() override;
 	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) override;
-	virtual FName GetInstructionName(FInstructionRef InstructionRef) override;
-	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) override;
+	virtual FName GetInstructionName(FInstructionRef InstructionRef) const override;
+	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) const override;
 };

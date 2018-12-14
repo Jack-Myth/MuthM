@@ -8,6 +8,8 @@
 #include "InstructionManager.h"
 #include "MuthMInGameMode.h"
 #include "DetailsListBase.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -86,6 +88,14 @@ void UEditorPanelBase::RemoveInstruction(class UInstructionWidgetBase* WidgetToR
 		WidgetToRemove->RemoveFromParent();
 		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
 		InEditorMode->GetEditorMMS()->RemoveInstruction(WidgetToRemove->GetInstructionInstance(), EInstructionDestroyReason::IDR_Editing);
+	}
+}
+
+void UEditorPanelBase::DeleteCurrentInstruction()
+{
+	if (_SelectedWidget)
+	{
+		RemoveInstruction(_SelectedWidget);
 	}
 }
 

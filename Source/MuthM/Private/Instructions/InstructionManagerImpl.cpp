@@ -129,14 +129,14 @@ TScriptInterface<IMMScript> UInstructionManagerImpl::GenMMScript(bool bIsEditorM
 	return pMMScript;
 }
 
-FName UInstructionManagerImpl::GetInstructionName(FInstructionRef InstructionRef)
+FName UInstructionManagerImpl::GetInstructionName(FInstructionRef InstructionRef) const
 {
 	return InstructionRef.InstructionName;
 }
 
-FName UInstructionManagerImpl::GetInstructionName(TSubclassOf<UInstruction> InstructionClass)
+FName UInstructionManagerImpl::GetInstructionName(TSubclassOf<UInstruction> InstructionClass) const
 {
-	for (auto it=_InstructionMap.CreateIterator();it;++it)
+	for (auto it=_InstructionMap.CreateConstIterator();it;++it)
 	{
 		if (it->Value.ClassStack.Find(InstructionClass) != INDEX_NONE)
 			return it->Key;

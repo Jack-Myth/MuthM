@@ -7,19 +7,49 @@
 #include "Sound/SoundWave.h"
 #include "OpusAudioInfo.h"
 #include "TargetPlatform/Public/Interfaces/IAudioFormat.h"
+#include "NetworkManager.h"
+#include "IHttpRequest.h"
+#include "IHttpResponse.h"
+#include "MuthMBPLib.h"
+#include "BlueprintJsonLibrary.h"
+#include "JsonObject.h"
+#include "FileManager.h"
 
 DEFINE_LOG_CATEGORY(MuthMMusicManager)
 
 bool UMusicManagerImpl::LoadMusicDataByID(int MusicID, TArray<uint8>& MusicData)
 {
-	FString MusicFileName = FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), "/__Music/",FString::FromInt(MusicID)+".Opus");
-	return FFileHelper::LoadFileToArray(MusicData,*MusicFileName);
+	return FFileHelper::LoadFileToArray(MusicData,*ConstructMusicFileName(MusicID));
 }
 
-bool UMusicManagerImpl::FindMusicOnlineByID(int MusicID, FMusicInfo& MusicInfo)
+void UMusicManagerImpl::FindMusicOnlineByID(int MusicID, FOnMusicQueryFinished QueryDelegate)
 {
-	//TODO: FindMusicOnlineByID
-	return false;
+	//Maybe Use Lambda is more convenience
+	auto Request = INetworkManager::Get()->GenRequest();
+	Request->SetVerb("GET");
+	Request->SetURL(FString(MUTHM_URL_ROOT) + "/query_music_byid.php?MusicID="+FString::FromInt(MusicID));
+	Request->OnProcessRequestComplete().CreateLambda([MusicID, QueryDelegate](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
+		{
+			if (bConnectedSuccessfully)
+			{
+				FBlueprintJsonObject JsonObj = UMuthMBPLib::LoadJsonFromStr(Response->GetContentAsString());
+				int ErrCode = JsonObj.Object->GetIntegerField("ErrCode");
+				if (ErrCode == 0)
+				{
+					FMusicInfo tmpMusicInfo;
+					tmpMusicInfo.ID = JsonObj.Object->GetIntegerField("ID");
+					tmpMusicInfo.Title = JsonObj.Object->GetStringField("Title");
+					tmpMusicInfo.Musician = JsonObj.Object->GetStringField("Musician");
+					tmpMusicInfo.FormatType = "Opus";
+					//TODO:Still have a size and description,Are they really needed?
+					QueryDelegate.ExecuteIfBound(MusicID, true, tmpMusicInfo);
+				}
+				else
+					QueryDelegate.ExecuteIfBound(MusicID, false, FMusicInfo());
+			}
+			else
+				QueryDelegate.ExecuteIfBound(MusicID, false,FMusicInfo());
+		});
 }
 
 bool UMusicManagerImpl::DownloadMusicByID(int MusicID)
@@ -28,12 +58,12 @@ bool UMusicManagerImpl::DownloadMusicByID(int MusicID)
 	return false;
 }
 
-bool UMusicManagerImpl::IsMusicExistInLocal(int MusicID)
+bool UMusicManagerImpl::IsMusicExistInLocal(int MusicID) const
 {
-	return false;
+	return IFileManager::Get().FileExists(*ConstructMusicFileName(MusicID));
 }
 
-bool UMusicManagerImpl::FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo)
+bool UMusicManagerImpl::FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo) const
 {
 	return false;
 }
