@@ -17,18 +17,18 @@ class MUTHM_API UMuthMBPLib : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintPure)
-		static TScriptInterface<class IInstructionManager> GetInstructionManager();
-	UFUNCTION(BlueprintPure)
-		static TScriptInterface<class IModManager> GetModManager();
-	UFUNCTION(BlueprintPure)
-		static TScriptInterface<class INetworkManager> GetNetworkManager();
-	UFUNCTION(BlueprintPure)
-		static TScriptInterface<class IDownloadManager> GetDownloadManager();
-	UFUNCTION(BlueprintPure)
-		static TScriptInterface<class IMusicManager> GetMusicManager();
-	UFUNCTION(BlueprintPure)
-		static TScriptInterface<class IUserManager> GetUserManager();
+	UFUNCTION(BlueprintPure,meta=(WorldContext="WorldContextObj"))
+		static TScriptInterface<class IInstructionManager> GetInstructionManager(const UObject* WorldContextObj);
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObj"))
+		static TScriptInterface<class IModManager> GetModManager(const UObject* WorldContextObj);
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObj"))
+		static TScriptInterface<class INetworkManager> GetNetworkManager(const UObject* WorldContextObj);
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObj"))
+		static TScriptInterface<class IDownloadManager> GetDownloadManager(const UObject* WorldContextObj);
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObj"))
+		static TScriptInterface<class IMusicManager> GetMusicManager(const UObject* WorldContextObj);
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObj"))
+		static TScriptInterface<class IUserManager> GetUserManager(const UObject* WorldContextObj);
 
 	UFUNCTION(BlueprintPure,meta=(WorldContext = "WorldContextObj",ToolTip="Load UTexture2D from the MDAT file that is using in the game."))
 		static class UTexture2D* LoadTextureInGame(UObject* WorldContextObj,FString FileName);

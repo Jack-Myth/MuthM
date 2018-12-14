@@ -51,7 +51,7 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 		});
 	for (int i = 0; i < tmpICollection.Num(); i++)
 	{
-		UInstruction* InstructionInstance = IInstructionManager::Get()->GenInstruction(
+		UInstruction* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(
 			tmpICollection[i].InstructionName, tmpICollection[i].Time, tmpICollection[i].Args);
 		_InstructionInstances.Push(InstructionInstance);
 	}
@@ -191,7 +191,7 @@ float UMMScriptImpl::GetRemainingInstructionCount()
 void UMMScriptImpl::Destroy()
 {
 	_Internal_CleanInstructions();
-	IInstructionManager::Get()->DestroyMMScriptInstance(this);
+	IInstructionManager::Get(this)->DestroyMMScriptInstance(this);
 }
 
 TArray<uint8> UMMScriptImpl::Serialize()
@@ -200,7 +200,7 @@ TArray<uint8> UMMScriptImpl::Serialize()
 	MMSData.Append((const uint8*)"_MMS", 4);
 	MMSData.SetNum(4 + sizeof(uint32)); //"_MMS" and Instruction Count(sizeof(uint32)=4)
 	//Reserve 4 byte for Instruction Count.
-	TScriptInterface<IInstructionManager> InstructionManager=IInstructionManager::Get();
+	TScriptInterface<IInstructionManager> InstructionManager=IInstructionManager::Get(this);
 	//Get Args form Each Instructions.
 	for (int i=0;i<_InstructionInstances.Num();i++)
 	{

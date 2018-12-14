@@ -40,7 +40,7 @@ void UEditorPanelBase::OnClickHandler(float Time)
 		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
 		check(InEditorMode);
 		FJsonObject EmptyJsonObj;
-		auto* InstructionInstance = IInstructionManager::Get()->GenInstruction(_FastAddInstructionName, TimeAxis, EmptyJsonObj);
+		auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(_FastAddInstructionName, TimeAxis, EmptyJsonObj);
 		auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
 		InstructionWidget->Init(InstructionInstance);
 		InstructionWidgets.Add(InstructionWidget);

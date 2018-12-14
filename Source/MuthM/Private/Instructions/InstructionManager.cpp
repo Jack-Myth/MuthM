@@ -4,11 +4,14 @@
 #include "InstructionManagerImpl.h"
 #include "Kismet/GameplayStatics.h"
 #include "MuthMInEditorMode.h"
+#include "MuthMGameInstance.h"
 
-
-TScriptInterface<IInstructionManager> IInstructionManager::Get()
+TScriptInterface<IInstructionManager> IInstructionManager::Get(const UObject* WorldContextObj)
 {
-	return GetMutableDefault<UInstructionManagerImpl>();
+	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObj));
+	if (!GameInstance->InstructionManager.GetObject())
+		GameInstance->InstructionManager = NewObject<UInstructionManagerImpl>(GameInstance);
+	return GameInstance->InstructionManager;
 }
 
 TScriptInterface<IMMScript> IInstructionManager::K2_GenMMScript()

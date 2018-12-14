@@ -22,5 +22,5 @@ class MUTHM_API IDownloadManager
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	static TScriptInterface<IDownloadManager> Get();
+	static TScriptInterface<IDownloadManager> Get(const UObject* WorldContextObj);
 };

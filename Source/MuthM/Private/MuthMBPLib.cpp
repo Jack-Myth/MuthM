@@ -25,34 +25,34 @@
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 
-TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager()
+TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager(const UObject* WorldContextObj)
 {
-	return IInstructionManager::Get();
+	return IInstructionManager::Get(WorldContextObj);
 }
 
-TScriptInterface<IModManager> UMuthMBPLib::GetModManager()
+TScriptInterface<IModManager> UMuthMBPLib::GetModManager(const UObject* WorldContextObj)
 {
-	return IModManager::Get();
+	return IModManager::Get(WorldContextObj);
 }
 
-TScriptInterface<class INetworkManager> UMuthMBPLib::GetNetworkManager()
+TScriptInterface<class INetworkManager> UMuthMBPLib::GetNetworkManager(const UObject* WorldContextObj)
 {
-	return INetworkManager::Get();
+	return INetworkManager::Get(WorldContextObj);
 }
 
-TScriptInterface<class IDownloadManager> UMuthMBPLib::GetDownloadManager()
+TScriptInterface<class IDownloadManager> UMuthMBPLib::GetDownloadManager(const UObject* WorldContextObj)
 {
-	return IDownloadManager::Get();
+	return IDownloadManager::Get(WorldContextObj);
 }
 
-TScriptInterface<class IMusicManager> UMuthMBPLib::GetMusicManager()
+TScriptInterface<class IMusicManager> UMuthMBPLib::GetMusicManager(const UObject* WorldContextObj)
 {
-	return IMusicManager::Get();
+	return IMusicManager::Get(WorldContextObj);
 }
 
-TScriptInterface<class IUserManager> UMuthMBPLib::GetUserManager()
+TScriptInterface<class IUserManager> UMuthMBPLib::GetUserManager(const UObject* WorldContextObj)
 {
-	return IUserManager::Get();
+	return IUserManager::Get(WorldContextObj);
 }
 
 class UTexture2D* UMuthMBPLib::LoadTextureInGame(UObject* WorldContextObj, FString FileName)

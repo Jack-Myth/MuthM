@@ -17,7 +17,7 @@ void AMuthMInEditorMode::BeginPlay()
 {
 	Super::BeginPlay();
 	GetMainMMSInstance()->SetPlayType(PT_PIE);
-	_EditorMMSInstance = IInstructionManager::Get()->GenMMScript(true);
+	_EditorMMSInstance = IInstructionManager::Get(this)->GenMMScript(true);
 	auto EditorMainUIClass = UUIProvider::Get()->GetEditorMainUI();
 	EditorMainUI = Cast<UEditorMainUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), EditorMainUIClass, "EditorMainUI"));
 	EditorMainUI->Init(GetMusicInfo(), _EditorMMSInstance);

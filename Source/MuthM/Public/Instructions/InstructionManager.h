@@ -43,7 +43,7 @@ class MUTHM_API IInstructionManager
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	
-	static TScriptInterface<IInstructionManager> Get();
+	static TScriptInterface<IInstructionManager> Get(const UObject* WorldContextObj);
 
 	UFUNCTION(BlueprintCallable)
 		virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) = 0;

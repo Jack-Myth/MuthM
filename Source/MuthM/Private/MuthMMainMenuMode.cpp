@@ -24,7 +24,7 @@ void AMuthMMainMenuMode::OnGameScoreSelected(FScoreSelectionInfo ScoreSelectionI
 	newGameArgs.bIsEditorMode = false;
 	newGameArgs.MDATFilePath = ScoreSelectionInfo.MDATPath;
 	FMusicInfo MusicInfo;
-	IMusicManager::Get()->FindMusicLocalByID(ScoreSelectionInfo.MusicID, MusicInfo);
+	IMusicManager::Get(this)->FindMusicLocalByID(ScoreSelectionInfo.MusicID, MusicInfo);
 	newGameArgs.MainMusicInfo = MusicInfo;
 	newGameArgs.MMSFileName = ScoreSelectionInfo.MMSPath;
 	newGameArgs.ScoreIndex = ScoreSelectionInfo.ScoreIndex;
@@ -40,7 +40,7 @@ void AMuthMMainMenuMode::OnEditorScoreSelected(FScoreSelectionInfo ScoreSelectio
 	newGameArgs.bIsEditorMode = true;
 	newGameArgs.MDATFilePath = ScoreSelectionInfo.MDATPath;
 	FMusicInfo MusicInfo;
-	IMusicManager::Get()->FindMusicLocalByID(ScoreSelectionInfo.MusicID, MusicInfo);
+	IMusicManager::Get(this)->FindMusicLocalByID(ScoreSelectionInfo.MusicID, MusicInfo);
 	newGameArgs.MainMusicInfo = MusicInfo;
 	newGameArgs.MMSFileName = ScoreSelectionInfo.MMSPath;
 	newGameArgs.ScoreIndex = ScoreSelectionInfo.ScoreIndex;

@@ -41,7 +41,7 @@ class MUTHM_API IMusicManager
 	GENERATED_BODY()
 
 public:
-	static TScriptInterface<IMusicManager> Get();
+	static TScriptInterface<IMusicManager> Get(const UObject* WorldContextObj);
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Get MusicData By ID,return Opus format Music"))
 		virtual bool LoadMusicDataByID(int MusicID, TArray<uint8>& MusicData) = 0;
 	UFUNCTION(BlueprintCallable)

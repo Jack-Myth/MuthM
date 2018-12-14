@@ -33,6 +33,20 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 	TWeakPtr<class UUserSaveGame> UserSaveGame;
 	TWeakPtr<class UMusicSaveGame> MusicSaveGame;
 public:
+	//Hold Reference of Managers.
+	UPROPERTY()
+		TScriptInterface<class IInstructionManager> InstructionManager;
+	UPROPERTY()
+		TScriptInterface<class IMusicManager> MusicManager;
+	UPROPERTY()
+		TScriptInterface<class INetworkManager> NetworkManager;
+	UPROPERTY()
+		TScriptInterface<class IDownloadManager> DownloadManager;
+	UPROPERTY()
+		TScriptInterface<class IModManager> ModManager;
+	UPROPERTY()
+		TScriptInterface<class IUserManager> UserManager;
+
 	UMuthMGameInstance();
 
 	//Fill GameArgs for Level change

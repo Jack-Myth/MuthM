@@ -44,11 +44,11 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 {
 	_CachedMusicInfo = MusicInfo;
 	_CachedMMSData = MMSData;
-	_MainMMSInstance = IInstructionManager::Get()->GenMMScript(false);
+	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MainMMSInstance->LoadFromData(MMSData);
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
 	TArray<uint8> OpusData;
-	IMusicManager::Get()->LoadMusicDataByID(MusicInfo.ID, OpusData);
+	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OpusData);
 	_GameMainMusic =UMuthMBPLib::DecodeVisualizableWaveFromOpus(OpusData);
 	//_GameMainMusic = IMusicManager::Get()->GenSoundWaveByOpus(OpusData);
 	MusicPlaybackTime = -SuitDelay;

@@ -27,7 +27,7 @@ class MUTHM_API INetworkManager
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	static TScriptInterface<INetworkManager> Get();
+	static TScriptInterface<INetworkManager> Get(const UObject* WorldContextObj);
 	virtual TSharedPtr<class IHttpRequest> GenRequest() = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual void SimpleGetRequestJson(FString URL, FOnJsonRespond OnJsonRespond) = 0;

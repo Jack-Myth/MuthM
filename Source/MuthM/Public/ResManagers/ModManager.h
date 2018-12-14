@@ -23,7 +23,7 @@ class MUTHM_API IModManager
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	static TScriptInterface<IModManager> Get();
+	static TScriptInterface<IModManager> Get(const UObject* WorldContextObj);
 	virtual void InitLoadMods() = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual bool LoadModFromPath(FString ModFileName) = 0;

@@ -35,7 +35,7 @@ class MUTHM_API IUserManager
 	GENERATED_BODY()
 
 public:
-	static TScriptInterface<IUserManager> Get();
+	static TScriptInterface<IUserManager> Get(const UObject* WorldContextObj);
 	UFUNCTION(BlueprintCallable)
 		virtual void Login() = 0;
 	UFUNCTION(BlueprintCallable)

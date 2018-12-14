@@ -25,7 +25,7 @@ bool UMusicManagerImpl::LoadMusicDataByID(int MusicID, TArray<uint8>& MusicData)
 void UMusicManagerImpl::FindMusicOnlineByID(int MusicID, FOnMusicQueryFinished QueryDelegate)
 {
 	//Maybe Use Lambda is more convenience
-	auto Request = INetworkManager::Get()->GenRequest();
+	auto Request = INetworkManager::Get(this)->GenRequest();
 	Request->SetVerb("GET");
 	Request->SetURL(FString(MUTHM_URL_ROOT) + "/query_music_byid.php?MusicID="+FString::FromInt(MusicID));
 	Request->OnProcessRequestComplete().CreateLambda([MusicID, QueryDelegate](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
