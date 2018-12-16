@@ -17,7 +17,7 @@ bool UDownloadTask::CheckIfDownloadRecordExist(const FString& DestFileName)
 	return IFileManager::Get().FileExists(*(DestFileName + ".mmdownloadrecord"));
 }
 
-UDownloadTask* UDownloadTask::Internal_ParseDownloadTask(const UObject*& WorldContextObj,const FString& DestFileName)
+UDownloadTask* UDownloadTask::Internal_ParseDownloadTask(const UObject* WorldContextObj,const FString& DestFileName)
 {
 	TArray<uint8> DownloadRecordData;
 	int RecordDataIndex=0;
@@ -55,6 +55,7 @@ void UDownloadTask::OnConnected(FHttpRequestPtr Request, FHttpResponsePtr Respon
 	if (Response->GetResponseCode() == 302||Response->GetResponseCode()==301)
 	{
 		FString RedirectURL = Response->GetHeader("Location");
+		DownloadRecord.TargetURL = RedirectURL;
 		Request->SetURL(RedirectURL);
 		Request->ProcessRequest();
 	}
@@ -272,7 +273,7 @@ void UDownloadTask::SaveDownloadState(int Contribution)
 	CurInfoFile.Reset();
 }
 
-UDownloadTask* UDownloadTask::CreateDownloadTask(const UObject*& WorldContextObj,const FString& TargetURL, const FString& DestFileName)
+UDownloadTask* UDownloadTask::CreateDownloadTask(const UObject* WorldContextObj,const FString& TargetURL, const FString& DestFileName)
 {
 	if (CheckIfDownloadRecordExist(DestFileName))
 		return Internal_ParseDownloadTask(WorldContextObj,DestFileName);
@@ -283,7 +284,7 @@ UDownloadTask* UDownloadTask::CreateDownloadTask(const UObject*& WorldContextObj
 	return CurDownloadTask;
 }
 
-UDownloadTask* UDownloadTask::ParseDownloadTask(const UObject*& WorldContextObj,const FString& DestFileName)
+UDownloadTask* UDownloadTask::ParseDownloadTask(const UObject* WorldContextObj,const FString& DestFileName)
 {
 	if (CheckIfDownloadRecordExist(DestFileName))
 		return Internal_ParseDownloadTask(WorldContextObj,DestFileName);

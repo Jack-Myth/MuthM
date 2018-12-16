@@ -49,7 +49,7 @@ class UDownloadTask : public UObject
 
 	FDownloadRecord DownloadRecord;
 	static bool CheckIfDownloadRecordExist(const FString& DestFileName);
-	static UDownloadTask* Internal_ParseDownloadTask(const UObject*& WorldContextObj,const FString& DestFileName);
+	static UDownloadTask* Internal_ParseDownloadTask(const UObject* WorldContextObj,const FString& DestFileName);
 	FCriticalSection CS_Mutex;
 	TMap<TSharedPtr<class IHttpRequest>,FDownloadThreadData> DownloadingRequests;
 	TSharedPtr<class IFileHandle> CurFile;
@@ -77,8 +77,8 @@ public:
 		FOnDownloadFinished OnDownloadFinished;
 	UPROPERTY(BlueprintAssignable)
 		FOnDownloadStateChanged OnDownloadStateChanged;
-	static UDownloadTask* CreateDownloadTask(const UObject*& WorldContextObj,const FString& TargetURL, const FString& DestFileName);
-	static UDownloadTask* ParseDownloadTask(const UObject*& WorldContextObj,const FString& DestFileName);
+	static UDownloadTask* CreateDownloadTask(const UObject* WorldContextObj,const FString& TargetURL, const FString& DestFileName);
+	static UDownloadTask* ParseDownloadTask(const UObject* WorldContextObj,const FString& DestFileName);
 	UFUNCTION(BlueprintCallable)
 		void Start();
 	UFUNCTION(BlueprintCallable)

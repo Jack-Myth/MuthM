@@ -1,34 +1,38 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 #include "DownloadManagerImpl.h"
+#include "DownloadTask.h"
 
 class UDownloadTask* UDownloadManagerImpl::SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName)
 {
-	//TODO:
-	return nullptr;
+	UDownloadTask* DownloadTask = UDownloadTask::CreateDownloadTask(this, DownloadURL, DestFileName);
+	DownloadList.Add(DownloadTask);
+	return DownloadTask;
 }
 
 TArray<class UDownloadTask *> UDownloadManagerImpl::GetDownloadTasks() const
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return DownloadList;
 }
 
 void UDownloadManagerImpl::PauseAllDownloadTasks()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	for (int i=0;i<DownloadList.Num();i++)
+		DownloadList[i]->Stop();
 }
 
 void UDownloadManagerImpl::ResumeAllDownloadTasks()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	for (int i = 0; i < DownloadList.Num(); i++)
+		DownloadList[i]->Start();
 }
 
 FDownloadConfig UDownloadManagerImpl::GetDownloadConfig() const
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	return DownloadConfig;
 }
 
 void UDownloadManagerImpl::SetDownloadConfig(const FDownloadConfig& NewDownloadConfig)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	DownloadConfig = NewDownloadConfig;
 }

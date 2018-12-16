@@ -14,7 +14,10 @@ UCLASS()
 class UDownloadManagerImpl : public UObject,public IDownloadManager
 {
 	GENERATED_BODY()
-	
+
+	UPROPERTY()
+		TArray<class UDownloadTask*> DownloadList;
+	FDownloadConfig DownloadConfig;
 public:
 	virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName) override;
 
