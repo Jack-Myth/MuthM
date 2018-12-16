@@ -18,6 +18,9 @@
 #include "GenericSelectionItemBase.h" 
 #include "MessageBoxBase.h" 
 #include "QuestionBoxBase.h" 
+#include "DownloadItemBase.h" 
+#include "UploadItemBase.h" 
+#include "DownloadListBase.h" 
  
 TSubclassOf<UPauseUIBase> UUIProvider::GetPauseUI() 
 { 
@@ -240,6 +243,48 @@ TSubclassOf<UQuestionBoxBase> UUIProvider::GetQuestionBox()
 	else
 	{
 		return LoadClass<UQuestionBoxBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/QuestionBox.QuestionBox_C'"));
+	} 
+} 
+ 
+TSubclassOf<UDownloadItemBase> UUIProvider::GetDownloadItem() 
+{ 
+	if(DownloadItem.IsBound()) 
+	{ 
+		TSubclassOf<UDownloadItemBase> _uclass; 
+		DownloadItem.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UDownloadItemBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadItem.DownloadItem'"));
+	} 
+} 
+ 
+TSubclassOf<UUploadItemBase> UUIProvider::GetUploadItem() 
+{ 
+	if(UploadItem.IsBound()) 
+	{ 
+		TSubclassOf<UUploadItemBase> _uclass; 
+		UploadItem.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UUploadItemBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/UploadItem.UploadItem'"));
+	} 
+} 
+ 
+TSubclassOf<UDownloadListBase> UUIProvider::GetDownloadList() 
+{ 
+	if(DownloadList.IsBound()) 
+	{ 
+		TSubclassOf<UDownloadListBase> _uclass; 
+		DownloadList.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UDownloadListBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadList.DownloadList'"));
 	} 
 } 
  

@@ -23,6 +23,9 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreSelectionUIDelegate, TSubclassOf<class U
 DECLARE_DYNAMIC_DELEGATE_OneParam(FGenericSelectionItemDelegate, TSubclassOf<class UGenericSelectionItemBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMessageBoxDelegate, TSubclassOf<class UMessageBoxBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FQuestionBoxDelegate, TSubclassOf<class UQuestionBoxBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FDownloadItemDelegate, TSubclassOf<class UDownloadItemBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FUploadItemDelegate, TSubclassOf<class UUploadItemBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FDownloadListDelegate, TSubclassOf<class UDownloadListBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
 UCLASS(NotBlueprintable)
@@ -131,5 +134,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearQuestionBox() { QuestionBox.Unbind(); }
 	TSubclassOf<class UQuestionBoxBase> GetQuestionBox(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FDownloadItemDelegate DownloadItem;
+	UFUNCTION(BlueprintCallable)
+		void ClearDownloadItem() { DownloadItem.Unbind(); }
+	TSubclassOf<class UDownloadItemBase> GetDownloadItem(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FUploadItemDelegate UploadItem;
+	UFUNCTION(BlueprintCallable)
+		void ClearUploadItem() { UploadItem.Unbind(); }
+	TSubclassOf<class UUploadItemBase> GetUploadItem(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FDownloadListDelegate DownloadList;
+	UFUNCTION(BlueprintCallable)
+		void ClearDownloadList() { DownloadList.Unbind(); }
+	TSubclassOf<class UDownloadListBase> GetDownloadList(); 
  
 }; 

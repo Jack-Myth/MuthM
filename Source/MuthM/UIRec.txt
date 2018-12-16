@@ -19,3 +19,6 @@ ScoreSelectionUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/Score
 GenericSelectionItem, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/GenericSelectionItem.GenericSelectionItem_C'"
 MessageBox, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MessageBox.MessageBox_C'"
 QuestionBox, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/QuestionBox.QuestionBox_C'"
+DownloadItem,"WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadItem.DownloadItem'"
+UploadItem,"WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/UploadItem.UploadItem'"
+DownloadList,"WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadList.DownloadList'"
