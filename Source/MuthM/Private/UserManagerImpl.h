@@ -21,6 +21,7 @@ public:
 
 	virtual void Logout() override;
 
+	virtual void IsLoggedIn() const override;
 
 	virtual int GetUserID() const override;
 
@@ -41,5 +42,6 @@ public:
 
 
 	virtual FString GetAvatarURL(int UserID) override;
+
 
 };

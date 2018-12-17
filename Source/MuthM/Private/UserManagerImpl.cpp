@@ -12,6 +12,11 @@ void UUserManagerImpl::Logout()
 
 }
 
+void UUserManagerImpl::IsLoggedIn() const
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 int UUserManagerImpl::GetUserID() const
 {
 	return 0;

@@ -20,6 +20,8 @@ struct FUserInfo
 		FString LastLoginDate;
 };
 
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOnUserQueryResult, int, UserID, bool, IsQuerySuccessful, const FUserInfo&, UserInfo);
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI,meta=(CannotImplementInterfaceInBlueprint))
 class UUserManager : public UInterface
@@ -41,18 +43,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void Logout() = 0;
 	UFUNCTION(BlueprintCallable)
+		virtual void IsLoggedIn() const = 0;
+	UFUNCTION(BlueprintCallable)
 		virtual int GetUserID() const = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual bool QueryPlayerAccount(FUserInfo& UserInfo) = 0;
+		virtual bool QueryPlayerAccount(FOnUserQueryResult SelfQueryResult) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual void QueryAccountByID(int UserID, FUserInfo& UserInfo) = 0;
+		virtual void QueryAccountByID(int UserID, FOnUserQueryResult UserQueryResult) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual bool UploadPlayerAvatar() = 0;
+		virtual bool UploadPlayerAvatar(const TArray<uint8>& AvatarData) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual bool UploadMDAT(const TArray<uint8>& MDATData) = 0;
+		virtual bool AddMDATUploadTask(const TArray<uint8>& MDATData) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual bool UploadMusic(const TArray<uint8>& OpusData) = 0;
+		virtual bool AddMusicUploadTask(const TArray<uint8>& OpusData) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual FString GetAvatarURL(int UserID) = 0;
-	
+		
 };
