@@ -66,4 +66,5 @@ public:
 	void OnApplicationSwitchForeground();
 
 	TSharedPtr<class UGlobalSaveGame> GetGlobalSaveGame();
+	void SaveGlobalSaveGame();
 };

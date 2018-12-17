@@ -75,3 +75,9 @@ TSharedPtr<class UGlobalSaveGame> UMuthMGameInstance::GetGlobalSaveGame()
 		return GlobalSaveGame.Pin();
 	}
 }
+
+void UMuthMGameInstance::SaveGlobalSaveGame()
+{
+	if (GlobalSaveGame.IsValid())
+		UGameplayStatics::SaveGameToSlot(GlobalSaveGame.Pin().Get(), "GlobalSaveGame", 0);
+}

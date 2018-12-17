@@ -25,4 +25,6 @@ public:
 		TArray<FString> LoginNameCollection;
 	UPROPERTY()
 		TArray<FMusicInfo> MusicInfoCollection;
+	UPROPERTY()
+		TArray<FString> LocalDownloadFileCollection;
 };

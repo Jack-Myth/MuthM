@@ -39,7 +39,7 @@ class MUTHM_API IDownloadManager
 public:
 	static TScriptInterface<IDownloadManager> Get(const UObject* WorldContextObj);
 	UFUNCTION(BlueprintCallable)
-		virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName) = 0;
+		virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName, const FString& DisplayName = FString("")) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual TArray<class UDownloadTask*> GetDownloadTasks() const = 0;
 	UFUNCTION(BlueprintCallable)
@@ -50,4 +50,6 @@ public:
 		virtual FDownloadConfig GetDownloadConfig() const = 0;
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="It doesn't work until the Download task paused and resume."))
 		virtual void SetDownloadConfig(const FDownloadConfig& NewDownloadConfig) = 0;
+	UFUNCTION()
+		virtual void OnTaskFinishd() = 0;
 };

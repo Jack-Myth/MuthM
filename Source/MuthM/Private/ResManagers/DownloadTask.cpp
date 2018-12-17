@@ -24,10 +24,15 @@ UDownloadTask* UDownloadTask::Internal_ParseDownloadTask(const UObject* WorldCon
 	if (FFileHelper::LoadFileToArray(DownloadRecordData, *(DestFileName + ".mmdownloadrecord")))
 	{
 		UDownloadTask* CurDownloadTask = NewObject<UDownloadTask>(IDownloadManager::Get(WorldContextObj).GetObject());
-		FUTF8ToTCHAR URLConvertion((const ANSICHAR*)DownloadRecordData.GetData());
+		//Get Download Name
+		FUTF8ToTCHAR DownloadNameConvertion((const ANSICHAR*)DownloadRecordData.GetData());
+		RecordDataIndex += DownloadNameConvertion.Length() + 1;  //Terminal Character.
+		CurDownloadTask->DownloadName = DownloadNameConvertion.Get();
+		//Get Target URL
+		FUTF8ToTCHAR URLConvertion((const ANSICHAR*)(DownloadRecordData.GetData() + RecordDataIndex));
 		CurDownloadTask->DownloadRecord.DestFileName = DestFileName;
 		CurDownloadTask->DownloadRecord.TargetURL = URLConvertion.Get();
-		RecordDataIndex += URLConvertion.Length()+1; //Terminal Character.
+		RecordDataIndex += URLConvertion.Length()+1; 
 		//Get FileSize.
 		CurDownloadTask->DownloadRecord.FileSize = MuthMTypeHelper::LoadIntFromData(DownloadRecordData.GetData() + RecordDataIndex);
 		RecordDataIndex += sizeof(int32);
@@ -249,31 +254,33 @@ void UDownloadTask::CreateFile()
 void UDownloadTask::SaveDownloadState(int Contribution)
 {
 	SaveStateThreshold += Contribution;
-	TSharedPtr<IFileHandle> CurInfoFile = MakeShareable<IFileHandle>(FPlatformFileManager::Get().GetPlatformFile().OpenWrite(*(DownloadRecord.DestFileName + ".mmdownloadrecord")));
-	//Save URL
-	if (SaveStateThreshold>IDownloadManager::Get(this)->GetDownloadConfig().SaveStateThreshold)
+	if (SaveStateThreshold > IDownloadManager::Get(this)->GetDownloadConfig().SaveStateThreshold)
 	{
-		CurInfoFile->Seek(0);
+		TSharedPtr<IFileHandle> CurInfoFile = MakeShareable<IFileHandle>(FPlatformFileManager::Get().GetPlatformFile().OpenWrite(*(DownloadRecord.DestFileName + ".mmdownloadrecord")));
+		//Save DownloadName
+		FTCHARToUTF8 DownloadNameConversion(*DownloadName);
+		CurInfoFile->Write((const uint8*)DownloadNameConversion.Get(), DownloadNameConversion.Length() + 1); //Include Terminal Character
+		//Save URL
 		FTCHARToUTF8 tmpConversion(*DownloadRecord.TargetURL);
-		CurInfoFile->Write((const uint8*)tmpConversion.Get(), tmpConversion.Length() + 1); //Include Terminal Character
-	}
-	//Save FileSize
-	TArray<uint8> IntBytes = MuthMTypeHelper::SaveIntToData((uint32)DownloadRecord.FileSize);
-	CurInfoFile->Write(IntBytes.GetData(), sizeof(int32));
-	for (int i=0;i<DownloadRecord.DownloadedBlocks.Num();i++)
-	{
-		TArray<uint8> IntBytes = MuthMTypeHelper::SaveIntToData((uint32)DownloadRecord.DownloadedBlocks[i].Key);
+		CurInfoFile->Write((const uint8*)tmpConversion.Get(), tmpConversion.Length() + 1); 
+		//Save FileSize
+		TArray<uint8> IntBytes = MuthMTypeHelper::SaveIntToData((uint32)DownloadRecord.FileSize);
 		CurInfoFile->Write(IntBytes.GetData(), sizeof(int32));
-		IntBytes = MuthMTypeHelper::SaveIntToData((uint32)DownloadRecord.DownloadedBlocks[i].Value);
-		CurInfoFile->Write(IntBytes.GetData(), sizeof(int32));
+		for (int i = 0; i < DownloadRecord.DownloadedBlocks.Num(); i++)
+		{
+			TArray<uint8> IntBytes = MuthMTypeHelper::SaveIntToData((uint32)DownloadRecord.DownloadedBlocks[i].Key);
+			CurInfoFile->Write(IntBytes.GetData(), sizeof(int32));
+			IntBytes = MuthMTypeHelper::SaveIntToData((uint32)DownloadRecord.DownloadedBlocks[i].Value);
+			CurInfoFile->Write(IntBytes.GetData(), sizeof(int32));
+		}
+		//Close file will auto do flush.
+		//CurInfoFile->Flush();;
+		//Close File
+		CurInfoFile.Reset();
 	}
-	//Close file will auto do flush.
-	//CurInfoFile->Flush();;
-	//Close File
-	CurInfoFile.Reset();
 }
 
-UDownloadTask* UDownloadTask::CreateDownloadTask(const UObject* WorldContextObj,const FString& TargetURL, const FString& DestFileName)
+UDownloadTask* UDownloadTask::CreateDownloadTask(const UObject* WorldContextObj,const FString& TargetURL, const FString& DestFileName, const FString& DisplayName)
 {
 	if (CheckIfDownloadRecordExist(DestFileName))
 		return Internal_ParseDownloadTask(WorldContextObj,DestFileName);
@@ -281,6 +288,7 @@ UDownloadTask* UDownloadTask::CreateDownloadTask(const UObject* WorldContextObj,
 	UDownloadTask* CurDownloadTask = NewObject<UDownloadTask>(IDownloadManager::Get(WorldContextObj).GetObject());
 	CurDownloadTask->DownloadRecord.DestFileName = DestFileName;
 	CurDownloadTask->DownloadRecord.TargetURL = TargetURL;
+	CurDownloadTask->DownloadName = DisplayName;
 	return CurDownloadTask;
 }
 
@@ -318,6 +326,8 @@ void UDownloadTask::Start()
 
 void UDownloadTask::Stop()
 {
+	if (GetDownloadState() == EDownloadState::DS_Finished)
+		return;
 	CS_Mutex.Lock();
 	TArray<TSharedPtr<IHttpRequest>> ptrDownloadingRequests;
 	DownloadingRequests.GetKeys(ptrDownloadingRequests);

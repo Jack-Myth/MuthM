@@ -40,13 +40,15 @@ struct FDownloadThreadData
 };
 
 /**
- * 
+ * Hold Download Task,Each Download Task means a download item.
  */
 UCLASS()
 class UDownloadTask : public UObject
 {
 	GENERATED_BODY()
-
+		//TODO: Currently it can't detect the modification for remote file
+		//If the remote file changed,download may have unexpected action.
+		//Need fix it in future,use ETag or someting to detect modification.
 	FDownloadRecord DownloadRecord;
 	static bool CheckIfDownloadRecordExist(const FString& DestFileName);
 	static UDownloadTask* Internal_ParseDownloadTask(const UObject* WorldContextObj,const FString& DestFileName);
@@ -70,6 +72,7 @@ class UDownloadTask : public UObject
 		OnDownloadStateChanged.Broadcast(GetDownloadState());
 	}
 	EDownloadState DownloadState;
+	FString DownloadName;
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnDownloadProgress OnDownloadProgress;
@@ -77,7 +80,7 @@ public:
 		FOnDownloadFinished OnDownloadFinished;
 	UPROPERTY(BlueprintAssignable)
 		FOnDownloadStateChanged OnDownloadStateChanged;
-	static UDownloadTask* CreateDownloadTask(const UObject* WorldContextObj,const FString& TargetURL, const FString& DestFileName);
+	static UDownloadTask* CreateDownloadTask(const UObject* WorldContextObj,const FString& TargetURL, const FString& DestFileName, const FString& DisplayName);
 	static UDownloadTask* ParseDownloadTask(const UObject* WorldContextObj,const FString& DestFileName);
 	UFUNCTION(BlueprintCallable)
 		void Start();
@@ -92,5 +95,15 @@ public:
 		FORCEINLINE EDownloadState GetDownloadState()
 	{
 		return DownloadState;
+	}
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE FString GetDownloadName()
+	{
+		return DownloadName;
+	}
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE FString GetLocalFileName()
+	{
+		return DownloadRecord.DestFileName;
 	}
 };

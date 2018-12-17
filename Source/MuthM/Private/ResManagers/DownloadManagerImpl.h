@@ -20,22 +20,12 @@ class UDownloadManagerImpl : public UObject,public IDownloadManager
 	FDownloadConfig DownloadConfig;
 public:
 	void LoadDownloadList();
-
-	virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName) override;
-
-
+	virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName,const FString& DisplayName=FString("")) override;
 	virtual TArray<class UDownloadTask *> GetDownloadTasks() const override;
-
-
 	virtual void PauseAllDownloadTasks() override;
-
-
 	virtual void ResumeAllDownloadTasks() override;
-
-
 	virtual FDownloadConfig GetDownloadConfig() const override;
-
-
 	virtual void SetDownloadConfig(const FDownloadConfig& NewDownloadConfig) override;
+	virtual void OnTaskFinishd() override;
 
 };
