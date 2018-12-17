@@ -56,7 +56,6 @@ UDownloadTask* UDownloadTask::Internal_ParseDownloadTask(const UObject* WorldCon
 
 void UDownloadTask::OnConnected(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 {
-	CS_Mutex.Lock();
 	if (Response->GetResponseCode() == 302||Response->GetResponseCode()==301)
 	{
 		FString RedirectURL = Response->GetHeader("Location");
@@ -97,7 +96,6 @@ void UDownloadTask::OnConnected(FHttpRequestPtr Request, FHttpResponsePtr Respon
 		DownloadState = EDownloadState::DS_Downloading;
 		NotifyDownloadStateChanged();
 	}
-	CS_Mutex.Unlock();
 }
 
 void UDownloadTask::NotifyDownloadProgress()
@@ -112,7 +110,6 @@ void UDownloadTask::NotifyDownloadProgress()
 
 void UDownloadTask::DownloadProgress(FHttpRequestPtr Request, int32 BytesSent, int32 BytesReceived)
 {
-	CS_Mutex.Lock();
 	FDownloadThreadData* CurData = DownloadingRequests.Find(Request);
 	if (CurData->SaveFileImmediately)
 	{
@@ -124,10 +121,9 @@ void UDownloadTask::DownloadProgress(FHttpRequestPtr Request, int32 BytesSent, i
 		CurData->DownloadBlock->Value = FMath::Min(BytesReceived,CurData->BlockSize);
 	}
 	NotifyDownloadProgress();
-	CS_Mutex.Unlock();
 }
 
-void UDownloadTask::DownloadFinish()
+void UDownloadTask::DownloadFinish(bool bSuccessfully)
 {
 	//Flush and delete Info File.
 	CurFile->Flush();
@@ -135,12 +131,12 @@ void UDownloadTask::DownloadFinish()
 	IFileManager::Get().Delete(*(DownloadRecord.DestFileName + ".mmdownloadrecord"));
 	DownloadState = EDownloadState::DS_Finished;
 	NotifyDownloadStateChanged();
-	OnDownloadFinished.Broadcast(DownloadRecord.FileSize);
+	IDownloadManager::Get(this)->OnTaskFinishd();
+	OnDownloadFinished.Broadcast(bSuccessfully);
 }
 
 void UDownloadTask::ThreadFinished(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 {
-	CS_Mutex.Lock();
 	FDownloadThreadData* CurData = DownloadingRequests.Find(Request);
 	int BytesReceived = Response->GetContentLength();
 	int32 ReceivedBlockSize = BytesReceived - CurData->DownloadBlock->Value;
@@ -151,7 +147,6 @@ void UDownloadTask::ThreadFinished(FHttpRequestPtr Request, FHttpResponsePtr Res
 	SaveDownloadState(ReceivedBlockSize);
 	DownloadingRequests.Remove(Request);
 	ReProgressThreads();
-	CS_Mutex.Unlock();
 }
 
 void UDownloadTask::ReProgressThreads()
@@ -199,7 +194,7 @@ void UDownloadTask::ReProgressThreads()
 	if (!BlocksRemain.Num())
 	{
 		//If All Bytes are downloaded.
-		DownloadFinish();
+		DownloadFinish(true);
 		return;
 	}
 	while (BlocksRemain.Num()<MaxThreads-DownloadingRequests.Num())
@@ -328,7 +323,6 @@ void UDownloadTask::Stop()
 {
 	if (GetDownloadState() == EDownloadState::DS_Finished)
 		return;
-	CS_Mutex.Lock();
 	TArray<TSharedPtr<IHttpRequest>> ptrDownloadingRequests;
 	DownloadingRequests.GetKeys(ptrDownloadingRequests);
 	for (int i=0;i<ptrDownloadingRequests.Num();i++)
@@ -344,5 +338,14 @@ void UDownloadTask::Stop()
 	CurFile->Flush();
 	CurFile.Reset();
 	NotifyDownloadStateChanged();
-	CS_Mutex.Unlock();
+}
+
+void UDownloadTask::CancelTask()
+{
+	//Clear Downloaded File.
+	Stop();
+	IFileManager::Get().Delete(*(DownloadRecord.DestFileName + ".mmdownloadrecord"));
+	IFileManager::Get().Delete(*DownloadRecord.DestFileName);
+	DownloadRecord.DownloadedBlocks.Empty();
+	DownloadRecord.FileSize = 0;
 }

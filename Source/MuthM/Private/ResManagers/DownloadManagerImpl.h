@@ -17,6 +17,8 @@ class UDownloadManagerImpl : public UObject,public IDownloadManager
 
 	UPROPERTY()
 		TArray<class UDownloadTask*> DownloadList;
+	UPROPERTY()
+		TArray<class UUploadTask*> UploadList;
 	FDownloadConfig DownloadConfig;
 public:
 	void LoadDownloadList();
@@ -27,5 +29,9 @@ public:
 	virtual FDownloadConfig GetDownloadConfig() const override;
 	virtual void SetDownloadConfig(const FDownloadConfig& NewDownloadConfig) override;
 	virtual void OnTaskFinishd() override;
+	virtual class UUploadTask* SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL,const FString& DataName, const FString& DisplayName = FString("")) override;
+	virtual void CancelDownloadTask(class UDownloadTask* DownloadTask) override;
+	virtual void RemoveDownloadTask(class UDownloadTask* DownloadTask) override;
+	virtual void RemoveUploadTask(class UUploadTask* UploadTask) override;
 
 };

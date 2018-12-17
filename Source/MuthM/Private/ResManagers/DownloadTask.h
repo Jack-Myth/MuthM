@@ -16,12 +16,10 @@ enum class EDownloadState :uint8
 	DS_Connecting UMETA(DisplayName = "Connecting"),
 	DS_Downloading UMETA(DisplayName = "Downloading"),
 	DS_Finished UMETA(DisplayName="Finished")
-	//Is Finished State Really Needed?
-	//,DS_Finished UMETA(DisplayName="Finished")
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDownloadProgress, int, DownloadedSize, int, TotalSize);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDownloadFinished,int,TotalSize);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDownloadFinished,int,bSuccessfully);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDownloadStateChanged, EDownloadState, DownloadState);
 
 struct FDownloadRecord
@@ -41,6 +39,7 @@ struct FDownloadThreadData
 
 /**
  * Hold Download Task,Each Download Task means a download item.
+ * Multi-Threads Download and Resume From Break-point are supported.
  */
 UCLASS()
 class UDownloadTask : public UObject
@@ -48,11 +47,10 @@ class UDownloadTask : public UObject
 	GENERATED_BODY()
 		//TODO: Currently it can't detect the modification for remote file
 		//If the remote file changed,download may have unexpected action.
-		//Need fix it in future,use ETag or someting to detect modification.
+		//Need fix it in future,use ETag or something to detect modification.
 	FDownloadRecord DownloadRecord;
 	static bool CheckIfDownloadRecordExist(const FString& DestFileName);
 	static UDownloadTask* Internal_ParseDownloadTask(const UObject* WorldContextObj,const FString& DestFileName);
-	FCriticalSection CS_Mutex;
 	TMap<TSharedPtr<class IHttpRequest>,FDownloadThreadData> DownloadingRequests;
 	TSharedPtr<class IFileHandle> CurFile;
 	bool bResumable = false;
@@ -60,7 +58,7 @@ class UDownloadTask : public UObject
 	void OnConnected(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
 	void NotifyDownloadProgress();
 	void DownloadProgress(FHttpRequestPtr Request, int32 BytesSent, int32 BytesReceived);
-	void DownloadFinish();
+	void DownloadFinish(bool bSuccessfully);
 	//Write data to disk and update the record.
 	//Analyze the DownloadedBlocks, create new thread if needed.
 	void ThreadFinished(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
@@ -86,8 +84,10 @@ public:
 		void Start();
 	UFUNCTION(BlueprintCallable)
 		void Stop();
+	UFUNCTION(BlueprintCallable)
+		void CancelTask();
 	UFUNCTION(BlueprintPure)
-	bool IsResumable() const
+	FORCEINLINE bool IsResumable() const
 	{
 		return bResumable;
 	}

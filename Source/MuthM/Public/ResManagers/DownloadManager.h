@@ -29,7 +29,7 @@ class UDownloadManager : public UInterface
 };
 
 /**
- * Notice:All Function In Download Manager is Thread-Safe.
+ * 
  */
 class MUTHM_API IDownloadManager
 {
@@ -40,6 +40,8 @@ public:
 	static TScriptInterface<IDownloadManager> Get(const UObject* WorldContextObj);
 	UFUNCTION(BlueprintCallable)
 		virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName, const FString& DisplayName = FString("")) = 0;
+	UFUNCTION(BlueprintCallable, meta = (ToolTip="Use HTML/FROM-DATA to upload task\nNotice:Upload Task is disposable, the upload record won't save and all unfinshed upload task will lost after exit game."))
+		virtual class UUploadTask* SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL,const FString& DataName, const FString& DisplayName = FString("")) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual TArray<class UDownloadTask*> GetDownloadTasks() const = 0;
 	UFUNCTION(BlueprintCallable)
@@ -52,4 +54,10 @@ public:
 		virtual void SetDownloadConfig(const FDownloadConfig& NewDownloadConfig) = 0;
 	UFUNCTION()
 		virtual void OnTaskFinishd() = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual void CancelDownloadTask(class UDownloadTask* DownloadTask) = 0;
+	UFUNCTION(BlueprintCallable, meta=(ToolTip = "Notice: Only allow to remove finished task."))
+		virtual void RemoveDownloadTask(class UDownloadTask* DownloadTask) = 0;
+	UFUNCTION(BlueprintCallable, meta=(ToolTip = "Notice: Only allow to remove finished task."))
+		virtual void RemoveUploadTask(class UUploadTask* UploadTask) = 0;
 };
