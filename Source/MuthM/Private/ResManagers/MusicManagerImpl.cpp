@@ -16,7 +16,7 @@
 #include "FileManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "MuthMGameInstance.h"
-#include "MusicSaveGame.h"
+#include "GlobalSaveGame.h"
 
 DEFINE_LOG_CATEGORY(MuthMMusicManager)
 
@@ -65,7 +65,7 @@ bool UMusicManagerImpl::IsMusicExistInLocal(int MusicID) const
 {
 	if (IFileManager::Get().FileExists(*ConstructMusicFileName(MusicID)))
 	{
-		auto pSaveGame = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->GetMusicSaveGame();
+		auto pSaveGame = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->GetGlobalSaveGame();
 		for (int i=0;i<pSaveGame->MusicInfoCollection.Num();i++)
 		{
 			if (pSaveGame->MusicInfoCollection[i].ID == MusicID)
@@ -80,7 +80,7 @@ bool UMusicManagerImpl::FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo) c
 {
 	if (IFileManager::Get().FileExists(*ConstructMusicFileName(MusicID)))
 	{
-		auto pSaveGame = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->GetMusicSaveGame();
+		auto pSaveGame = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->GetGlobalSaveGame();
 		for (int i = 0; i < pSaveGame->MusicInfoCollection.Num(); i++)
 		{
 			if (pSaveGame->MusicInfoCollection[i].ID == MusicID)

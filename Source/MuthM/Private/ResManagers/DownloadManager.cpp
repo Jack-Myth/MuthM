@@ -11,6 +11,10 @@ TScriptInterface<IDownloadManager> IDownloadManager::Get(const UObject* WorldCon
 {
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObj));
 	if (!GameInstance->DownloadManager.GetObject())
-		GameInstance->DownloadManager= NewObject<UDownloadManagerImpl>(GameInstance);
+	{
+		UDownloadManagerImpl* DownloadManagerImpl = NewObject<UDownloadManagerImpl>(GameInstance);
+		DownloadManagerImpl->LoadDownloadList();  //Download Manager should always hold download list.
+		GameInstance->DownloadManager = DownloadManagerImpl;
+	}
 	return GameInstance->DownloadManager;
 }

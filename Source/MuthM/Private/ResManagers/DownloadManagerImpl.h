@@ -19,6 +19,8 @@ class UDownloadManagerImpl : public UObject,public IDownloadManager
 		TArray<class UDownloadTask*> DownloadList;
 	FDownloadConfig DownloadConfig;
 public:
+	void LoadDownloadList();
+
 	virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName) override;
 
 

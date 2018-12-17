@@ -5,16 +5,24 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "MusicManager.h"
-#include "MusicSaveGame.generated.h"
+#include "GlobalSaveGame.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class UMusicSaveGame : public USaveGame
+class UGlobalSaveGame : public USaveGame
 {
 	GENERATED_BODY()
+		//Hold Global Info for Game, No need to split them up.
+
 public:
+	UPROPERTY()
+		int UserID;
+	UPROPERTY()
+		FString Token;
+	UPROPERTY()
+		TArray<FString> LoginNameCollection;
 	UPROPERTY()
 		TArray<FMusicInfo> MusicInfoCollection;
 };

@@ -30,8 +30,7 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 	GENERATED_BODY()
 	UPROPERTY()
 		FGameArgs _GameArgs;
-	TWeakPtr<class UUserSaveGame> UserSaveGame;
-	TWeakPtr<class UMusicSaveGame> MusicSaveGame;
+	TWeakPtr<class UGlobalSaveGame> GlobalSaveGame;
 public:
 	//Hold Reference of Managers.
 	UPROPERTY()
@@ -66,6 +65,5 @@ public:
 	void OnApplicationSwitchBackground();
 	void OnApplicationSwitchForeground();
 
-	TSharedPtr<class UUserSaveGame> GetUserSaveGame();
-	TSharedPtr<class UMusicSaveGame> GetMusicSaveGame();
+	TSharedPtr<class UGlobalSaveGame> GetGlobalSaveGame();
 };

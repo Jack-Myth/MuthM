@@ -4,8 +4,7 @@
 #include "CoreDelegates.h"
 #include "Kismet/GameplayStatics.h"
 #include "MuthMGameModeBase.h"
-#include "ResManagers/MusicSaveGame.h"
-#include "ResManagers/UserSaveGame.h"
+#include "ResManagers/GlobalSaveGame.h"
 
 UMuthMGameInstance::UMuthMGameInstance()
 {
@@ -65,26 +64,14 @@ void UMuthMGameInstance::OnApplicationSwitchForeground()
 {
 }
 
-TSharedPtr<class UUserSaveGame> UMuthMGameInstance::GetUserSaveGame()
+TSharedPtr<class UGlobalSaveGame> UMuthMGameInstance::GetGlobalSaveGame()
 {
-	if (UserSaveGame.IsValid())
-		return UserSaveGame.Pin();
+	if (GlobalSaveGame.IsValid())
+		return GlobalSaveGame.Pin();
 	else
 	{
-		TSharedPtr<UUserSaveGame> tmpUserSaveGame = MakeShareable(Cast<UUserSaveGame>(UGameplayStatics::LoadGameFromSlot("GlobalUserSaveGame", 0)));
-		UserSaveGame = tmpUserSaveGame;
-		return UserSaveGame.Pin();
-	}
-}
-
-TSharedPtr<class UMusicSaveGame> UMuthMGameInstance::GetMusicSaveGame()
-{
-	if (MusicSaveGame.IsValid())
-		return MusicSaveGame.Pin();
-	else
-	{
-		TSharedPtr<UMusicSaveGame> tmpMusicSaveGame= MakeShareable(Cast<UMusicSaveGame>(UGameplayStatics::LoadGameFromSlot("GlobalMusicSaveGame", 0)));
-		MusicSaveGame = tmpMusicSaveGame;
-		return MusicSaveGame.Pin();
+		TSharedPtr<UGlobalSaveGame> tmpUserSaveGame = MakeShareable(Cast<UGlobalSaveGame>(UGameplayStatics::LoadGameFromSlot("GlobalSaveGame", 0)));
+		GlobalSaveGame = tmpUserSaveGame;
+		return GlobalSaveGame.Pin();
 	}
 }

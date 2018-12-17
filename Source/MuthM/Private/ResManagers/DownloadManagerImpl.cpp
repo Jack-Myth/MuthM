@@ -3,6 +3,16 @@
 #include "DownloadManagerImpl.h"
 #include "DownloadTask.h"
 
+void UDownloadManagerImpl::LoadDownloadList()
+{
+	//If DownloadList not empty,The download list must already been loaded.
+	//It shouldn't be called second time.
+	//TODO: It may can be removed.
+	if (DownloadList.Num())
+		return;
+	
+}
+
 class UDownloadTask* UDownloadManagerImpl::SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName)
 {
 	UDownloadTask* DownloadTask = UDownloadTask::CreateDownloadTask(this, DownloadURL, DestFileName);
