@@ -10,6 +10,9 @@
 #include "Regex.h"
 #include "DownloadManager.h"
 #include "GenericPlatformHttp.h"
+#include "MuthMGameInstance.h"
+#include "ResManagers/GlobalSaveGame.h"
+#include "Kismet/GameplayStatics.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -52,6 +55,12 @@ void UUserManagerImpl::Login(FString LoginName, FString Passworld)
 				_UserID = FCString::Atoi(*UserIDStr);
 				_Token = TokenStr;
 				UserManagerDelegates->OnUserLoggedIn.Broadcast(_UserID);
+				//Save Login Infomation to save game.
+				auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+				auto pSaveGame = GameInstance->GetGlobalSaveGame();
+				pSaveGame->UserID = _UserID;
+				pSaveGame->Token = _Token;
+				pSaveGame->LoginNameCollection.AddUnique(LoginName);
 			}
 			else
 			{
@@ -179,7 +188,7 @@ bool UUserManagerImpl::AddMusicUploadTask(const FString& OpusFileName, const FSt
 
 FString UUserManagerImpl::GenCookies() const
 {
-	return FString::Printf(TEXT("UserID=%d;Token=%s"), _UserID, *_Token);
+	return IsLoggedIn()?FString::Printf(TEXT("UserID=%d;Token=%s"), _UserID, *_Token):"";
 }
 
 bool UUserManagerImpl::UploadMDATLinkOnly(const FString& MDATURL, const FString& Title, const FString& Description, int MDATID /*= 0*/)
