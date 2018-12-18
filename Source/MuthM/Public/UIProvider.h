@@ -26,6 +26,9 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FQuestionBoxDelegate, TSubclassOf<class UQuest
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDownloadItemDelegate, TSubclassOf<class UDownloadItemBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FUploadItemDelegate, TSubclassOf<class UUploadItemBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDownloadListDelegate, TSubclassOf<class UDownloadListBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FContentManagerUIDelegate, TSubclassOf<class UContentManagerUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicManagerUIDelegate, TSubclassOf<class UMusicManagerUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreManagerUIDelegate, TSubclassOf<class UScoreManagerUIBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
 UCLASS(NotBlueprintable)
@@ -152,5 +155,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearDownloadList() { DownloadList.Unbind(); }
 	TSubclassOf<class UDownloadListBase> GetDownloadList(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FContentManagerUIDelegate ContentManagerUI;
+	UFUNCTION(BlueprintCallable)
+		void ClearContentManagerUI() { ContentManagerUI.Unbind(); }
+	TSubclassOf<class UContentManagerUIBase> GetContentManagerUI(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FMusicManagerUIDelegate MusicManagerUI;
+	UFUNCTION(BlueprintCallable)
+		void ClearMusicManagerUI() { MusicManagerUI.Unbind(); }
+	TSubclassOf<class UMusicManagerUIBase> GetMusicManagerUI(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FScoreManagerUIDelegate ScoreManagerUI;
+	UFUNCTION(BlueprintCallable)
+		void ClearScoreManagerUI() { ScoreManagerUI.Unbind(); }
+	TSubclassOf<class UScoreManagerUIBase> GetScoreManagerUI(); 
  
 }; 

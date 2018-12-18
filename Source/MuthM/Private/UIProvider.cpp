@@ -21,6 +21,9 @@
 #include "DownloadItemBase.h" 
 #include "UploadItemBase.h" 
 #include "DownloadListBase.h" 
+#include "ContentManagerUIBase.h" 
+#include "MusicManagerUIBase.h" 
+#include "ScoreManagerUIBase.h" 
  
 TSubclassOf<UPauseUIBase> UUIProvider::GetPauseUI() 
 { 
@@ -256,7 +259,7 @@ TSubclassOf<UDownloadItemBase> UUIProvider::GetDownloadItem()
 	} 
 	else
 	{
-		return LoadClass<UDownloadItemBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadItem.DownloadItem'"));
+		return LoadClass<UDownloadItemBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadItem.DownloadItem_C'"));
 	} 
 } 
  
@@ -270,7 +273,7 @@ TSubclassOf<UUploadItemBase> UUIProvider::GetUploadItem()
 	} 
 	else
 	{
-		return LoadClass<UUploadItemBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/UploadItem.UploadItem'"));
+		return LoadClass<UUploadItemBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/UploadItem.UploadItem_C'"));
 	} 
 } 
  
@@ -284,7 +287,49 @@ TSubclassOf<UDownloadListBase> UUIProvider::GetDownloadList()
 	} 
 	else
 	{
-		return LoadClass<UDownloadListBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadList.DownloadList'"));
+		return LoadClass<UDownloadListBase>(NULL,TEXT("WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadList.DownloadList_C'"));
+	} 
+} 
+ 
+TSubclassOf<UContentManagerUIBase> UUIProvider::GetContentManagerUI() 
+{ 
+	if(ContentManagerUI.IsBound()) 
+	{ 
+		TSubclassOf<UContentManagerUIBase> _uclass; 
+		ContentManagerUI.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UContentManagerUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ContentManagerUI.ContentManagerUI_C'"));
+	} 
+} 
+ 
+TSubclassOf<UMusicManagerUIBase> UUIProvider::GetMusicManagerUI() 
+{ 
+	if(MusicManagerUI.IsBound()) 
+	{ 
+		TSubclassOf<UMusicManagerUIBase> _uclass; 
+		MusicManagerUI.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UMusicManagerUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MusicManagerUI.MusicManagerUI_C'"));
+	} 
+} 
+ 
+TSubclassOf<UScoreManagerUIBase> UUIProvider::GetScoreManagerUI() 
+{ 
+	if(ScoreManagerUI.IsBound()) 
+	{ 
+		TSubclassOf<UScoreManagerUIBase> _uclass; 
+		ScoreManagerUI.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UScoreManagerUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ScoreManagerUI.ScoreManagerUI_C'"));
 	} 
 } 
  
