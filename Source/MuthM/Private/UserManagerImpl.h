@@ -14,34 +14,58 @@ UCLASS()
 class UUserManagerImpl : public UObject,public IUserManager
 {
 	GENERATED_BODY()
-	
+		//;
+	UPROPERTY()
+		UUserManagerDelegates* UserManagerDelegates;
+	UPROPERTY()
+		int _UserID;
+	UPROPERTY()
+		FString _Token;
 public:
-	virtual void Login() override;
+	UUserManagerImpl();
+
+	virtual void Login(FString LoginName, FString Passworld) override;
+
+
+	virtual void LoginByToken(int UserID, FString Token) override;
 
 
 	virtual void Logout() override;
 
-	virtual void IsLoggedIn() const override;
+
+	virtual bool IsLoggedIn() const override;
+
 
 	virtual int GetUserID() const override;
 
 
-	virtual bool QueryPlayerAccount(FUserInfo& UserInfo) override;
+	virtual bool QueryPlayerAccount(FOnUserQueryResult SelfQueryResult) override;
 
 
-	virtual void QueryAccountByID(int UserID, FUserInfo& UserInfo) override;
+	virtual void QueryAccountByID(int UserID, FOnUserQueryResult UserQueryResult) override;
 
 
-	virtual bool UploadPlayerAvatar() override;
+	virtual FString GetAvatarURL(int UserID) const override;
 
 
-	virtual bool UploadMDAT(const TArray<uint8>& MDATData) override;
+	virtual UUserManagerDelegates* GetUserDelegate() const override;
 
 
-	virtual bool UploadMusic(const TArray<uint8>& OpusData) override;
+	virtual bool AddAvatarUploadTask(const FString& AvatarFileName) override;
 
 
-	virtual FString GetAvatarURL(int UserID) override;
+	virtual FString GenCookies() const override;
 
+
+	virtual bool UploadMDATLinkOnly(const FString& MDATURL, const FString& Title, const FString& Description, int MDATID = 0) override;
+
+
+	virtual bool AddMDATUploadTask(const FString& MDATFileName, const FString& Title, const FString& Description, int MDATID = 0) override;
+
+
+	virtual bool UploadMusicLinkOnly(const FString& OpusFileName, const FString& Title, const FString& Musician, int MusicID = 0) override;
+
+
+	virtual bool AddMusicUploadTask(const FString& OpusFileName, const FString& Title, const FString& Musician, int MusicID = 0) override;
 
 };
