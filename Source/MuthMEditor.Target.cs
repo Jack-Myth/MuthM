@@ -9,6 +9,6 @@ public class MuthMEditorTarget : TargetRules
 	{
 		Type = TargetType.Editor;
 
-		ExtraModuleNames.AddRange( new string[] { "MuthM" } );
+		ExtraModuleNames.AddRange( new string[] { "MuthM","GameHAL" } );
 	}
 }

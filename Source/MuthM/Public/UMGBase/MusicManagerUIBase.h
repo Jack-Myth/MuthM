@@ -14,4 +14,11 @@ class MUTHM_API UMusicManagerUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 	
+public:
+	UFUNCTION(BlueprintCallable)
+		TArray<FMusicInfo> GetLocalMusicInfo();
+	UFUNCTION(BlueprintCallable)
+		bool DeleteLocalMusic(int MusicID);
+	UFUNCTION(BlueprintCallable)
+		bool ImportMusic();
 };

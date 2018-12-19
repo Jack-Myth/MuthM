@@ -9,6 +9,6 @@ public class MuthMTarget : TargetRules
 	{
 		Type = TargetType.Game;
 
-		ExtraModuleNames.AddRange( new string[] { "MuthM" } );
+		ExtraModuleNames.AddRange( new string[] { "MuthM" ,"GameHAL" } );
 	}
 }

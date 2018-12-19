@@ -62,7 +62,8 @@ void UScoreSelectionUIBase::OnMDATSelectedHandler(class UGenericSelectionItemBas
 		GSI->SetDataIndex(ScoreSelectionCollection.Add(CurScoreSelectionInfo));
 		GSI->OnSelected.AddDynamic(this, &UScoreSelectionUIBase::OnScoreSelectedHandler);
 		GSI->OnApplyAppearance(CurScoreSelectionInfo.DisplayName, CurScoreSelectionInfo.Subtitle, CurScoreSelectionInfo.Img);
-		if (!IMusicManager::Get(this)->IsMusicExistInLocal(CurScoreSelectionInfo.MusicID))
+		FMusicInfo tmpMusicInfo;
+		if (!IMusicManager::Get(this)->FindMusicLocalByID(CurScoreSelectionInfo.MusicID, tmpMusicInfo))
 			GSI->OnChangeIconBrightness(0.5f);
 		tmpVerticleBox->AddChildToVerticalBox(GSI);
 	}

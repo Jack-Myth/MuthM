@@ -20,13 +20,18 @@ struct FMusicInfo
 {
 	GENERATED_BODY()
 public:
-	int ID;
+	//For Offline Music,ID will be a Temporary ID,It will change after upload to server.
+	//Offline ID will always less than 0;
+	UPROPERTY(BlueprintReadWrite)
+		int ID;
 	UPROPERTY(BlueprintReadWrite)
 		FString Title;
 	UPROPERTY(BlueprintReadWrite)
 		FString Musician;
 	UPROPERTY(BlueprintReadWrite)
 		FString Description;
+	UPROPERTY(BlueprintReadWrite,meta=(ToolTip="Mark Music is or not exist on remote server."))
+		bool IsOffline=false;
 	int Size;
 	FName FormatType;
 };
@@ -43,13 +48,13 @@ class MUTHM_API IMusicManager
 public:
 	static TScriptInterface<IMusicManager> Get(const UObject* WorldContextObj);
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Get MusicData By ID,return Opus format Music"))
-		virtual bool LoadMusicDataByID(int MusicID, TArray<uint8>& MusicData) = 0;
+		virtual bool LoadMusicDataByID(int ID, TArray<uint8>& MusicData) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual void FindMusicOnlineByID(int MusicID, FOnMusicQueryFinished QueryDelegate) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual bool FindMusicLocalByID(int MusicID, FMusicInfo& MusicInfo) const = 0;
+		virtual bool FindMusicLocalByID(int ID, FMusicInfo& MusicInfo) const = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual bool DownloadMusicByID(int MusicID) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual bool IsMusicExistInLocal(int MusicID) const = 0;
+		virtual TArray<FMusicInfo> GetLocalMusicList() const =0;
 };

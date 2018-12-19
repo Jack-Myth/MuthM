@@ -13,6 +13,22 @@
 				"CoreUObject",
 				"UMG"
 			]
+		},
+		{
+			"Name": "GameHAL",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"CoreUObject",
+				"Core"
+			]
+		},
+		{
+			"Name": "BeatDetektor",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": ["Core"]
 		}
 	],
 	"Plugins": [

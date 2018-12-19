@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MusicManager.h"
 #include "Engine/GameInstance.h"
+#include "ResManagers/GlobalSaveGame.h"
 #include "MuthMGameInstance.generated.h"
 
 USTRUCT()
