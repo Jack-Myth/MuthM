@@ -33,7 +33,7 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 		FGameArgs _GameArgs;
 	TWeakPtr<class UGlobalSaveGame> GlobalSaveGame;
 public:
-	//Hold Reference of Managers.
+	//Hold Reference of Managers and UIProvider.
 	UPROPERTY()
 		TScriptInterface<class IInstructionManager> InstructionManager;
 	UPROPERTY()
@@ -46,6 +46,8 @@ public:
 		TScriptInterface<class IModManager> ModManager;
 	UPROPERTY()
 		TScriptInterface<class IUserManager> UserManager;
+	UPROPERTY()
+		class UUIProvider* UIProvider;
 
 	UMuthMGameInstance();
 

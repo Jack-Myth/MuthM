@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MusicManager.h"
 #include "MusicManagerUIBase.generated.h"
 
 /**
@@ -14,11 +15,12 @@ class MUTHM_API UMusicManagerUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 	
+		
 public:
 	UFUNCTION(BlueprintCallable)
 		TArray<FMusicInfo> GetLocalMusicInfo();
 	UFUNCTION(BlueprintCallable)
-		bool DeleteLocalMusic(int MusicID);
+		void DeleteMusic(int ID);
 	UFUNCTION(BlueprintCallable)
 		bool ImportMusic();
 };

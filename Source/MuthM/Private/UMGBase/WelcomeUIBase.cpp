@@ -2,6 +2,7 @@
 
 #include "WelcomeUIBase.h"
 #include "UIProvider.h"
+#include "MainMenuUIBase.h"
 
 bool UWelcomeUIBase::FindAndLoadMods()
 {
@@ -11,7 +12,7 @@ bool UWelcomeUIBase::FindAndLoadMods()
 
 void UWelcomeUIBase::LoadMainMenuUI()
 {
-		auto MainMenuUIClass = UUIProvider::Get()->GetMainMenuUI();
+		auto MainMenuUIClass = UUIProvider::Get(this)->GetMainMenuUI();
 		auto* MainMenuUI = Cast<UMainMenuUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), MainMenuUIClass, "MainMenuUI"));
 		if (MainMenuUI)
 			MainMenuUI->AddToViewport(100);

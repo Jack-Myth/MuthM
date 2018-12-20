@@ -25,3 +25,4 @@ DownloadList,"WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DownloadLi
 ContentManagerUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ContentManagerUI.ContentManagerUI_C'"
 MusicManagerUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MusicManagerUI.MusicManagerUI_C'"
 ScoreManagerUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ScoreManagerUI.ScoreManagerUI_C'"
+MusicImportationUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MusicImportationUI.MusicImportationUI_C'"

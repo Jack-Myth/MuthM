@@ -30,7 +30,7 @@ void UInstruction::DestroySelf()
 
 class UInstructionWidgetBase* UInstruction::GenInstructionWidget_Implementation()
 {
-	auto InstructionWidgetClass = UUIProvider::Get()->GetInstructionWidget();
+	auto InstructionWidgetClass = UUIProvider::Get(this)->GetInstructionWidget();
 	return Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));
 }
 

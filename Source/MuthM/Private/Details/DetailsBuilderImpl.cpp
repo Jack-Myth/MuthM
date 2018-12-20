@@ -26,13 +26,13 @@ void UDetailsBuilderImpl::AddCategory(FDetailCategoryStruct Category)
 
 UDetailsListBase* UDetailsBuilderImpl::GenDetails()
 {
-	auto* TargetUserWidget = Cast<UDetailsListBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailsList(), "Details"));
+	auto* TargetUserWidget = Cast<UDetailsListBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetDetailsList(), "Details"));
 	if (!TargetUserWidget)
 		return nullptr;
 	DetailsHolder->OnBuildingDetails(this);
 	for (auto it = _DetailCategorylist.CreateIterator(); it; ++it)
 	{
-		auto* CategoryWidget = Cast<UDetailCategoryBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailCategory(), *("DetailCategory_"+it->Title.ToString())));
+		auto* CategoryWidget = Cast<UDetailCategoryBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetDetailCategory(), *("DetailCategory_"+it->Title.ToString())));
 		CategoryWidget->SetHeaderText(it->DisplayTitle);
 		for (int i=0;i<it->ItemList.Num();i++)
 		{
@@ -42,7 +42,7 @@ UDetailsListBase* UDetailsBuilderImpl::GenDetails()
 					{
 						TSharedPtr<FDetailItemString> pDetailItemStr = StaticCastSharedPtr<FDetailItemString>(it->ItemList[i]);
 						auto* DetailInputStrWidget = Cast<UDetailInputStringBase>(
-							UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailInputString(), "DetailInputStr"));
+							UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetDetailInputString(), "DetailInputStr"));
 						DetailInputStrWidget->ValueInit(pDetailItemStr);
 						CategoryWidget->AddDetailItemWidget(DetailInputStrWidget);
 					}
@@ -51,7 +51,7 @@ UDetailsListBase* UDetailsBuilderImpl::GenDetails()
 					{
 						TSharedPtr<FDetailItemNumber> pDetailItemNumber = StaticCastSharedPtr<FDetailItemNumber>(it->ItemList[i]);
 						auto* DetailInputNumberWidget = Cast<UDetailInputNumberBase>(
-							UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetDetailInputNumber(), "DetailInputNumber"));
+							UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetDetailInputNumber(), "DetailInputNumber"));
 						DetailInputNumberWidget->ValueInit(pDetailItemNumber);
 						CategoryWidget->AddDetailItemWidget(DetailInputNumberWidget);
 					}

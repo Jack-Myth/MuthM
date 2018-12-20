@@ -22,6 +22,7 @@
 #include "DownloadManager.h"
 #include "NetworkManager.h"
 #include "UserManager.h"
+#include "GameHAL.h"
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 
@@ -272,4 +273,9 @@ void UMuthMBPLib::AddCustomItemToCategory(FDetailCategoryStruct& DetailCategory,
 	FDetailItemCustom* mDetail = new FDetailItemCustom();
 	*mDetail = CustomItem;
 	DetailCategory.ItemList.Add(MakeShareable<FDetailItem>(mDetail));
+}
+
+bool UMuthMBPLib::GetOpenFileName(const FText& Title, TArray<FString> Filters, bool AllowMultipleSelected, TArray<FString>& SelectedFileName, const FString& InitDir/*=""*/)
+{
+	return FGameHAL::Get().OpenFileDialog(Title.ToString(), InitDir, Filters, AllowMultipleSelected, SelectedFileName);
 }

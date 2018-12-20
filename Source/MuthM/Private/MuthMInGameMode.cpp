@@ -65,7 +65,7 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 				_MainSoundComponent->Play();
 			}, 0, false, SuitDelay);
 	}
-	TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get()->GetGameUI();
+	TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get(this)->GetGameUI();
 	_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, "GameUI"));
 	_MainGameUI->Init(MusicInfo);
 	_MainGameUI->AddToViewport(50);
@@ -80,7 +80,7 @@ void AMuthMInGameMode::PauseGame()
 	//And ensure the PauseUI has been generated.
 	if (!::IsValid(pPauseUI))
 	{
-		TSubclassOf<UPauseUIBase> PauseUIClass = UUIProvider::Get()->GetPauseUI();
+		TSubclassOf<UPauseUIBase> PauseUIClass = UUIProvider::Get(this)->GetPauseUI();
 		UPauseUIBase* PauseUIInstance = Cast<UPauseUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), PauseUIClass, "PauseUI"));
 		//It's ready for mod,Framework shouldn't load failed.
 		check(PauseUIInstance)
@@ -130,7 +130,7 @@ void AMuthMInGameMode::NativeOnGameEnded(FGameEndReason GameEndReason)
 void AMuthMInGameMode::ShowGameResult()
 {
 	GetScoreCore()->SaveScoreRecord();
-	auto GameResultUIClass = UUIProvider::Get()->GetGameResultUI();
+	auto GameResultUIClass = UUIProvider::Get(this)->GetGameResultUI();
 	auto* GameResultUI = Cast<UGameResultUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameResultUIClass, "GameResultUI"));
 	GameResultUI->Init();
 	GameResultUI->AddToViewport(120);

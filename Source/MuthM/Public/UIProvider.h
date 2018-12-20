@@ -29,6 +29,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FDownloadListDelegate, TSubclassOf<class UDown
 DECLARE_DYNAMIC_DELEGATE_OneParam(FContentManagerUIDelegate, TSubclassOf<class UContentManagerUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicManagerUIDelegate, TSubclassOf<class UMusicManagerUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreManagerUIDelegate, TSubclassOf<class UScoreManagerUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicImportationUIDelegate, TSubclassOf<class UMusicImportationUIBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
 UCLASS(NotBlueprintable)
@@ -37,10 +38,7 @@ class MUTHM_API UUIProvider : public UObject
 	GENERATED_BODY()
 public:
 	UFUNCTION(BlueprintPure,DisplayName="Get UI Provider")
-	static UUIProvider* Get()
-	{
-		return GetMutableDefault<UUIProvider>();
-	}
+	static UUIProvider* Get(const UObject* WorldContxtObj);
  
 	UPROPERTY(BlueprintReadWrite)
 		FPauseUIDelegate PauseUI;
@@ -173,5 +171,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearScoreManagerUI() { ScoreManagerUI.Unbind(); }
 	TSubclassOf<class UScoreManagerUIBase> GetScoreManagerUI(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FMusicImportationUIDelegate MusicImportationUI;
+	UFUNCTION(BlueprintCallable)
+		void ClearMusicImportationUI() { MusicImportationUI.Unbind(); }
+	TSubclassOf<class UMusicImportationUIBase> GetMusicImportationUI(); 
  
 }; 

@@ -135,3 +135,38 @@ TArray<FMusicInfo> UMusicManagerImpl::GetLocalMusicList() const
 	auto pSaveGame = GameInstance->GetGlobalSaveGame();
 	return pSaveGame->MusicInfoCollection;
 }
+
+bool UMusicManagerImpl::ImportMP3(const FString& LocalFileName, const FString& Title, const FString& Musician)
+{
+	TArray<uint8> MP3Data;
+	TArray<uint8> OpusData;
+	if (!FFileHelper::LoadFileToArray(MP3Data, *LocalFileName))
+		return false;
+	if (!UMuthMBPLib::ConvertMP3ToOpus(MP3Data, OpusData))
+		return false;
+	int ID;
+	FString OfflineMusicFileName;
+	do 
+	{
+		ID = -FMath::Rand();
+		OfflineMusicFileName = ConstructOfflineMusicFileName(ID);
+	} while (IFileManager::Get().FileExists(*OfflineMusicFileName));
+	FMusicInfo NewOfflineMusicInfo;
+	NewOfflineMusicInfo.ID = ID;
+	NewOfflineMusicInfo.IsOffline = true;
+	NewOfflineMusicInfo.Title = Title;
+	NewOfflineMusicInfo.Musician = Musician;
+	NewOfflineMusicInfo.Size = OpusData.Num();
+	if (!FFileHelper::SaveArrayToFile(OpusData, *OfflineMusicFileName))
+		return false;
+	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	auto pSaveGame = GameInstance->GetGlobalSaveGame();
+	pSaveGame->MusicInfoCollection.Add(NewOfflineMusicInfo);
+	GameInstance->SaveGlobalSaveGame();
+	return true;
+}
+
+void UMusicManagerImpl::DeleteMusic(int ID)
+{
+	//UNDONE: DeleteMusic 
+}

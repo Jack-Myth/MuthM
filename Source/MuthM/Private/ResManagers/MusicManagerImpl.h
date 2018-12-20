@@ -33,5 +33,7 @@ public:
 	virtual bool DownloadMusicByID(int MusicID) override;
 	virtual bool FindMusicLocalByID(int ID, FMusicInfo& MusicInfo) const override;
 	virtual TArray<FMusicInfo> GetLocalMusicList() const override;
+	virtual bool ImportMP3(const FString& LocalFileName,const FString& Title,const FString& Musician) override;
+	virtual void DeleteMusic(int ID) override;
 
 };

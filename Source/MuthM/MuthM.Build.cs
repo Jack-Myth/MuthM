@@ -7,8 +7,9 @@ public class MuthM : ModuleRules
 	public MuthM(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] {
+        MinFilesUsingPrecompiledHeaderOverride = 1;
+        bFasterWithoutUnity = true;
+        PublicDependencyModuleNames.AddRange(new string[] {
             "Core",
             "CoreUObject",
             "Engine",
@@ -23,6 +24,7 @@ public class MuthM : ModuleRules
             "Json",
             "PakFile",
             "HTTP",
+            "GameHAL",
             "BlueprintJson" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

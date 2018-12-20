@@ -57,4 +57,8 @@ public:
 		virtual bool DownloadMusicByID(int MusicID) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual TArray<FMusicInfo> GetLocalMusicList() const =0;
+	UFUNCTION()
+		virtual bool ImportMP3(const FString& LocalFileName, const FString& Title, const FString& Musician) = 0;
+	UFUNCTION()
+		virtual void DeleteMusic(int ID) = 0;
 };

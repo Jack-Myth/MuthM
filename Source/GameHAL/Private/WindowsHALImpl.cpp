@@ -6,6 +6,7 @@
 #if PLATFORM_WINDOWS
 #include "AllowWindowsPlatformTypes.h"
 #include "commdlg.h"
+#include "MIMEHelper.h"
 
 bool WindowsHALImpl::OpenFileDialog(const FString& Title, const FString& DefaultPath, const TArray<FString>& Filters, bool AllowMultipleSelected, TArray<FString> OpenFileName)
 {
@@ -17,9 +18,15 @@ bool WindowsHALImpl::OpenFileDialog(const FString& Title, const FString& Default
 	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST;
 	ofn.lpstrTitle = *Title;
 	ofn.lpstrInitialDir = *DefaultPath;
+	if (AllowMultipleSelected)
+		ofn.Flags = ofn.Flags | OFN_ALLOWMULTISELECT;
 	TArray<TCHAR> FiltersArray;
-	for (int i=0;i<Filters.Num();i++)
-		FiltersArray.Append(*Filters[i], Filters[i].Len() + 1);
+	TArray<FString> TargetFilters=Filters;
+	//TODO: a little performance issue.
+	if (TargetFilters[0].Contains("/"))
+		TargetFilters[0] = MIMEHelper::MIMETypeToExtension(TargetFilters[0]);
+	for (int i=0;i< TargetFilters.Num();i++)
+		FiltersArray.Append(*TargetFilters[i], TargetFilters[i].Len() + 1);
 	FiltersArray.Add(0);
 	ofn.lpstrFilter = FiltersArray.GetData();
 	if (GetOpenFileName(&ofn))

@@ -11,7 +11,7 @@
 
 void AMuthMMainMenuMode::LoadWelcome()
 {
-	auto WelcomeUIClass = UUIProvider::Get()->GetWelcomeUI();
+	auto WelcomeUIClass = UUIProvider::Get(this)->GetWelcomeUI();
 	auto* WelcomeUI = Cast<UWelcomeUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), WelcomeUIClass, "WelcomeUI"));
 	WelcomeUI->AddToViewport();
 }
@@ -79,7 +79,7 @@ void AMuthMMainMenuMode::BeginPlay()
 
 class UScoreSelectionUIBase* AMuthMMainMenuMode::SelectGameScore()
 {
-	auto ScoreSelectionUIClass = UUIProvider::Get()->GetScoreSelectionUI();
+	auto ScoreSelectionUIClass = UUIProvider::Get(this)->GetScoreSelectionUI();
 	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, "ScoreSelectionUI"));
 	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMuthMMainMenuMode::OnGameScoreSelected);
 	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMuthMMainMenuMode::OnScoreSelectionCanceled);
@@ -90,7 +90,7 @@ class UScoreSelectionUIBase* AMuthMMainMenuMode::SelectGameScore()
 
 class UScoreSelectionUIBase* AMuthMMainMenuMode::SelectEditorScore()
 {
-	auto ScoreSelectionUIClass = UUIProvider::Get()->GetScoreSelectionUI();
+	auto ScoreSelectionUIClass = UUIProvider::Get(this)->GetScoreSelectionUI();
 	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, "ScoreSelectionUI"));
 	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMuthMMainMenuMode::OnEditorScoreSelected);
 	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMuthMMainMenuMode::OnScoreSelectionCanceled);

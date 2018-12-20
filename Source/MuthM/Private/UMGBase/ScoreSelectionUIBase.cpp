@@ -58,7 +58,7 @@ void UScoreSelectionUIBase::OnMDATSelectedHandler(class UGenericSelectionItemBas
 			CurScoreSelectionInfo.Img = MDATSelectionCollection[SelectedMDATIndex].Cover;
 		CurScoreSelectionInfo.MusicID = ScoreInfo->GetIntegerField("MusicID");
 		UGenericSelectionItemBase* GSI = Cast<UGenericSelectionItemBase>(
-			UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetGenericSelectionItem(), NAME_None));
+			UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetGenericSelectionItem(), NAME_None));
 		GSI->SetDataIndex(ScoreSelectionCollection.Add(CurScoreSelectionInfo));
 		GSI->OnSelected.AddDynamic(this, &UScoreSelectionUIBase::OnScoreSelectedHandler);
 		GSI->OnApplyAppearance(CurScoreSelectionInfo.DisplayName, CurScoreSelectionInfo.Subtitle, CurScoreSelectionInfo.Img);
@@ -117,7 +117,7 @@ void UScoreSelectionUIBase::NativeConstruct()
 		MDATSelectionHost->BorderBrush.DrawAs = ESlateBrushDrawType::NoDrawType;
 		MDATSelectionHost->AreaPadding = 10;
 		MDATSelectionHost->Style.SetRolloutAnimationSeconds(1.f);
-		auto* SelectionItem = Cast<UGenericSelectionItemBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get()->GetGenericSelectionItem(), NAME_None));
+		auto* SelectionItem = Cast<UGenericSelectionItemBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetGenericSelectionItem(), NAME_None));
 		SelectionItem->SetDataIndex(i);
 		SelectionItem->OnSelected.AddDynamic(this, &UScoreSelectionUIBase::OnMDATSelectedHandler);
 		SelectionItem->OnApplyAppearance(MDATSelectionCollection[i].DisplayName, MDATSelectionCollection[i].Author, MDATSelectionCollection[i].Cover);

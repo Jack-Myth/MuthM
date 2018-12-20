@@ -18,7 +18,7 @@ void AMuthMInEditorMode::BeginPlay()
 	Super::BeginPlay();
 	GetMainMMSInstance()->SetPlayType(PT_PIE);
 	_EditorMMSInstance = IInstructionManager::Get(this)->GenMMScript(true);
-	auto EditorMainUIClass = UUIProvider::Get()->GetEditorMainUI();
+	auto EditorMainUIClass = UUIProvider::Get(this)->GetEditorMainUI();
 	EditorMainUI = Cast<UEditorMainUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), EditorMainUIClass, "EditorMainUI"));
 	EditorMainUI->Init(GetMusicInfo(), _EditorMMSInstance);
 	EditorMainUI->NativeOnFillBPMInfo(GetGameMainMusic()->CalculateBPM());

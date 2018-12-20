@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DetailStructures.h"
+#include "BlueprintJsonLibrary.h"
 #include "MuthMBPLib.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMBPLib, Log, All);
@@ -54,4 +55,8 @@ public:
 		static void AddNumberItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemNumber NumberItem);
 	UFUNCTION(BlueprintCallable)
 		static void AddCustomItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemCustom CustomItem);
+
+	//Fill Filter by file extension,if the first element include character '/',it will be treat as MIME Type.
+	UFUNCTION(BlueprintCallable)
+		static bool GetOpenFileName(const FText& Title, TArray<FString> Filters, bool AllowMultipleSelected, TArray<FString>& SelectedFileName, const FString& InitDir = "");
 };

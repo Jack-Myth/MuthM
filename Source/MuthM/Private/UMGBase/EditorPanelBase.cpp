@@ -10,6 +10,7 @@
 #include "DetailsListBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
+#include "Type/VisualizableSoundWave.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 

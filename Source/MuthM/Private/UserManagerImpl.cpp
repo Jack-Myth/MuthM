@@ -61,6 +61,7 @@ void UUserManagerImpl::Login(FString LoginName, FString Passworld)
 				pSaveGame->UserID = _UserID;
 				pSaveGame->Token = _Token;
 				pSaveGame->LoginNameCollection.AddUnique(LoginName);
+				GameInstance->SaveGlobalSaveGame();
 			}
 			else
 			{

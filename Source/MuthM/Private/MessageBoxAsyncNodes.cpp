@@ -7,7 +7,7 @@
 
 void UPupopMessage::Activate()
 {
-	auto MsgBoxClass = UUIProvider::Get()->GetMessageBox();
+	auto MsgBoxClass = UUIProvider::Get(this)->GetMessageBox();
 	UMessageBoxBase* MsgBoxUI = Cast<UMessageBoxBase>(UUserWidget::CreateWidgetInstance(*(_WorldContext->GetWorld()),MsgBoxClass,"MsgBox"));
 	MsgBoxUI->OnMessageBoxConfirmed.AddDynamic(this,&UPupopMessage::OnConfirmed);
 	MsgBoxUI->OnPupopMessage(Message, Title);
@@ -31,7 +31,7 @@ UPupopMessage* UPupopMessage::PupopMessage(UObject* WorldContextObj, FText Messa
 
 void UPupopQuestion::Activate()
 {
-	auto QuestionBoxClass = UUIProvider::Get()->GetQuestionBox();
+	auto QuestionBoxClass = UUIProvider::Get(this)->GetQuestionBox();
 	auto* QuestionBoxUI = Cast<UQuestionBoxBase>(UUserWidget::CreateWidgetInstance(*(_WorldContext->GetWorld()), QuestionBoxClass, "QuestionBox"));
 	QuestionBoxUI->OnYes.AddDynamic(this, &UPupopQuestion::OnYes);
 	QuestionBoxUI->OnNo.AddDynamic(this, &UPupopQuestion::OnNo);
