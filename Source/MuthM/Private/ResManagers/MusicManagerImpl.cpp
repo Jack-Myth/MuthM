@@ -168,5 +168,10 @@ bool UMusicManagerImpl::ImportMP3(const FString& LocalFileName, const FString& T
 
 void UMusicManagerImpl::DeleteMusic(int ID)
 {
-	//UNDONE: DeleteMusic 
+	if (IFileManager::Get().Delete(*(ID < 0 ? ConstructOfflineMusicFileName(ID) : ConstructMusicFileName(ID))))
+	{
+		auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+		auto pSaveGame = GameInstance->GetGlobalSaveGame();
+		pSaveGame->MusicInfoCollection.RemoveAll([=](const FMusicInfo& a) {return a.ID == ID; });
+	}
 }

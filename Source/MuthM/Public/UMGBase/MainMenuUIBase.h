@@ -16,4 +16,6 @@ class MUTHM_API UMainMenuUIBase : public UUserWidget
 public:
 	UFUNCTION(BlueprintCallable)
 		void PendingStartGame();
+	UFUNCTION(BlueprintCallable)
+		void ShowContentManagerUI();
 };

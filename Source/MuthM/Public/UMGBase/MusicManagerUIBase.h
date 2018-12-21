@@ -17,10 +17,12 @@ class MUTHM_API UMusicManagerUIBase : public UUserWidget
 	
 		
 public:
-	UFUNCTION(BlueprintCallable)
-		TArray<FMusicInfo> GetLocalMusicInfo();
+	UFUNCTION(BlueprintPure)
+		TArray<FMusicInfo> GetLocalMusicInfo() const;
 	UFUNCTION(BlueprintCallable)
 		void DeleteMusic(int ID);
 	UFUNCTION(BlueprintCallable)
 		bool ImportMusic();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInitMusicList();
 };

@@ -26,6 +26,7 @@
 #include "ContentManagerUIBase.h" 
 #include "MusicManagerUIBase.h" 
 #include "ScoreManagerUIBase.h" 
+#include "ModManagerUIBase.h" 
 #include "MusicImportationUIBase.h" 
  
 UUIProvider* UUIProvider::Get(const UObject* WorldContextObj)
@@ -341,6 +342,20 @@ TSubclassOf<UScoreManagerUIBase> UUIProvider::GetScoreManagerUI()
 	else
 	{
 		return LoadClass<UScoreManagerUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ScoreManagerUI.ScoreManagerUI_C'"));
+	} 
+} 
+ 
+TSubclassOf<UModManagerUIBase> UUIProvider::GetModManagerUI() 
+{ 
+	if(ModManagerUI.IsBound()) 
+	{ 
+		TSubclassOf<UModManagerUIBase> _uclass; 
+		ModManagerUI.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UModManagerUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ModManagerUI.ModManagerUI_C'"));
 	} 
 } 
  

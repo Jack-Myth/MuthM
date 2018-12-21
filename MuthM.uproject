@@ -28,7 +28,9 @@
 			"Name": "BeatDetektor",
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
-			"AdditionalDependencies": ["Core"]
+			"AdditionalDependencies": [
+				"Core"
+			]
 		}
 	],
 	"Plugins": [
@@ -44,6 +46,10 @@
 		},
 		{
 			"Name": "SoundVisualizations",
+			"Enabled": true
+		},
+		{
+			"Name": "WebBrowserWidget",
 			"Enabled": true
 		}
 	],

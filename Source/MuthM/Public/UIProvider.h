@@ -29,6 +29,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FDownloadListDelegate, TSubclassOf<class UDown
 DECLARE_DYNAMIC_DELEGATE_OneParam(FContentManagerUIDelegate, TSubclassOf<class UContentManagerUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicManagerUIDelegate, TSubclassOf<class UMusicManagerUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreManagerUIDelegate, TSubclassOf<class UScoreManagerUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FModManagerUIDelegate, TSubclassOf<class UModManagerUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicImportationUIDelegate, TSubclassOf<class UMusicImportationUIBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
@@ -171,6 +172,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ClearScoreManagerUI() { ScoreManagerUI.Unbind(); }
 	TSubclassOf<class UScoreManagerUIBase> GetScoreManagerUI(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FModManagerUIDelegate ModManagerUI;
+	UFUNCTION(BlueprintCallable)
+		void ClearModManagerUI() { ModManagerUI.Unbind(); }
+	TSubclassOf<class UModManagerUIBase> GetModManagerUI(); 
  
 	UPROPERTY(BlueprintReadWrite)
 		FMusicImportationUIDelegate MusicImportationUI;

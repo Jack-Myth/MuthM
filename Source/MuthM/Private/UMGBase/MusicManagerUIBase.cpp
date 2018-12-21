@@ -5,7 +5,7 @@
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
-TArray<FMusicInfo> UMusicManagerUIBase::GetLocalMusicInfo()
+TArray<FMusicInfo> UMusicManagerUIBase::GetLocalMusicInfo() const 
 {
 	return IMusicManager::Get(this)->GetLocalMusicList();
 }
