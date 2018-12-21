@@ -2,6 +2,8 @@
 
 #include "MusicManagerUIBase.h"
 #include "MuthMBPLib.h"
+#include "UIProvider.h"
+#include "MusicImportationUIBase.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -15,15 +17,21 @@ void UMusicManagerUIBase::DeleteMusic(int ID)
 	IMusicManager::Get(this)->DeleteMusic(ID);
 }
 
-bool UMusicManagerUIBase::ImportMusic()
+void UMusicManagerUIBase::ImportMusic(FOnMusicImported OnMusicImported)
 {
 	TArray<FString> Filters;
 	Filters.Add("MP3");
 	TArray<FString> SelectedFileName;
 	if (!UMuthMBPLib::GetOpenFileName(LOCTEXT("Select Music", "Select Music"), Filters, false, SelectedFileName))
-		return false;
+		return;
 	//Currently only support import one music at once.
-	return false;
+	auto UIClass = UUIProvider::Get(this)->GetMusicImportationUI();
+	auto* UIInstance = Cast<UMusicImportationUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UIClass, "MusicImportationUI"));
+	UIInstance->OnMusicImportFinished.CreateLambda([=]()
+		{
+			OnMusicImported.ExecuteIfBound();
+		});
+	UIInstance->AddToViewport(102);
 }
 
 #undef LOCTEXT_NAMESPACE

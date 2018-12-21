@@ -7,6 +7,8 @@
 #include "MusicManager.h"
 #include "MusicManagerUIBase.generated.h"
 
+DECLARE_DYNAMIC_DELEGATE(FOnMusicImported);
+
 /**
  * 
  */
@@ -15,14 +17,13 @@ class MUTHM_API UMusicManagerUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 	
-		
 public:
 	UFUNCTION(BlueprintPure)
 		TArray<FMusicInfo> GetLocalMusicInfo() const;
 	UFUNCTION(BlueprintCallable)
 		void DeleteMusic(int ID);
 	UFUNCTION(BlueprintCallable)
-		bool ImportMusic();
+		void ImportMusic(FOnMusicImported OnMusicImported);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInitMusicList();
 };

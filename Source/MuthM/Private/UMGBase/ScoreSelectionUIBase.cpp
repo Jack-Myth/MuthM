@@ -61,10 +61,10 @@ void UScoreSelectionUIBase::OnMDATSelectedHandler(class UGenericSelectionItemBas
 			UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetGenericSelectionItem(), NAME_None));
 		GSI->SetDataIndex(ScoreSelectionCollection.Add(CurScoreSelectionInfo));
 		GSI->OnSelected.AddDynamic(this, &UScoreSelectionUIBase::OnScoreSelectedHandler);
-		GSI->OnApplyAppearance(CurScoreSelectionInfo.DisplayName, CurScoreSelectionInfo.Subtitle, CurScoreSelectionInfo.Img);
+		GSI->ApplyAppearance(CurScoreSelectionInfo.DisplayName, CurScoreSelectionInfo.Subtitle, CurScoreSelectionInfo.Img);
 		FMusicInfo tmpMusicInfo;
 		if (!IMusicManager::Get(this)->FindMusicLocalByID(CurScoreSelectionInfo.MusicID, tmpMusicInfo))
-			GSI->OnChangeIconBrightness(0.5f);
+			GSI->ChangeIconBrightness(0.5f);
 		tmpVerticleBox->AddChildToVerticalBox(GSI);
 	}
 	SelectedScoreArrayIndex = INDEX_NONE;
@@ -120,7 +120,7 @@ void UScoreSelectionUIBase::NativeConstruct()
 		auto* SelectionItem = Cast<UGenericSelectionItemBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetGenericSelectionItem(), NAME_None));
 		SelectionItem->SetDataIndex(i);
 		SelectionItem->OnSelected.AddDynamic(this, &UScoreSelectionUIBase::OnMDATSelectedHandler);
-		SelectionItem->OnApplyAppearance(MDATSelectionCollection[i].DisplayName, MDATSelectionCollection[i].Author, MDATSelectionCollection[i].Cover);
+		SelectionItem->ApplyAppearance(MDATSelectionCollection[i].DisplayName, MDATSelectionCollection[i].Author, MDATSelectionCollection[i].Cover);
 		MDATSelectionHost->SetContentForSlot("Header",SelectionItem);
 		MDATSelectionCollection[i].HostWidget = MDATSelectionHost;
 		OnAddMDATItem(MDATSelectionHost);
