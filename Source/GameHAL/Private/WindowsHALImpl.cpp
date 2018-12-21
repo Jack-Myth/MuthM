@@ -25,8 +25,13 @@ bool WindowsHALImpl::OpenFileDialog(const FString& Title, const FString& Default
 	//TODO: a little performance issue.
 	if (TargetFilters[0].Contains("/"))
 		TargetFilters[0] = MIMEHelper::MIMETypeToExtension(TargetFilters[0]);
-	for (int i=0;i< TargetFilters.Num();i++)
-		FiltersArray.Append(*TargetFilters[i], TargetFilters[i].Len() + 1);
+	for (int i = 0; i < TargetFilters.Num(); i++)
+	{
+		FiltersArray.Append(*TargetFilters[i], TargetFilters[i].Len());
+		FiltersArray.Append(TEXT(" File"), 6); //Include Terminal Character.
+		FiltersArray.Append(TEXT("*."), 2);
+		FiltersArray.Append(*TargetFilters[i], TargetFilters[i].Len()+1); //Include Terminal Character.
+	}
 	FiltersArray.Add(0);
 	ofn.lpstrFilter = FiltersArray.GetData();
 	if (GetOpenFileName(&ofn))

@@ -26,6 +26,12 @@ FGameArgs UMuthMGameInstance::ExchangeGameArgs()
 void UMuthMGameInstance::PostInitProperties()
 {
 	Super::PostInitProperties();
+	if (!GetGlobalSaveGame())
+	{
+		TSharedPtr<UGlobalSaveGame> tmpSaveGame = MakeShareable(NewObject<UGlobalSaveGame>());
+		UGameplayStatics::SaveGameToSlot(tmpSaveGame.Get(), "GlobalSaveGame", 0);
+		GlobalSaveGame = tmpSaveGame;
+	}
 	FCoreDelegates::ApplicationWillDeactivateDelegate.AddUObject(this, &UMuthMGameInstance::OnApplicationDeactive);
 	FCoreDelegates::ApplicationHasReactivatedDelegate.AddUObject(this, &UMuthMGameInstance::OnApplicationReactive);
 	FCoreDelegates::ApplicationWillEnterBackgroundDelegate.AddUObject(this, &UMuthMGameInstance::OnApplicationSwitchBackground);
