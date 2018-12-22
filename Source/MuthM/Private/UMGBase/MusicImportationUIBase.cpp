@@ -2,10 +2,23 @@
 
 #include "MusicImportationUIBase.h"
 #include "MusicManager.h"
+#include "FileHelper.h"
+#include "MuthMBPLib.h"
 
 void UMusicImportationUIBase::BeginImportMusic(const FString& Title, const FString& Musician)
 {
 	//XXX:Treat all music file as MP3.
 	IMusicManager::Get(this)->ImportMP3(MusicFileName, Title, Musician);
 	OnMusicImportFinished.ExecuteIfBound();
+}
+
+class USoundWave* UMusicImportationUIBase::DebugCallConvert()
+{
+	TArray<uint8> MP3Data;
+	TArray<uint8> OpusData;
+	if (!FFileHelper::LoadFileToArray(MP3Data, *MusicFileName))
+		return nullptr;
+	if (!UMuthMBPLib::ConvertMP3ToOpus(MP3Data, OpusData))
+		return nullptr;
+	return UMuthMBPLib::DecodeWaveFromOpus(OpusData);
 }

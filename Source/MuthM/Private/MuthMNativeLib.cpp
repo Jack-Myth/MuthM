@@ -10,6 +10,7 @@
 #include "BeatDetektor.h"
 #include "tools/kiss_fftnd.h"
 #include <vector>
+#include "OpusAudioInfo.h"
 
 DEFINE_LOG_CATEGORY(MuthMNativeLib)
 //Copy from Unreal Engine 4 Internal Resample function :P
@@ -73,41 +74,44 @@ static void ResampleWaveData(TArray<uint8>& WaveData, size_t& NumBytes, int32 Nu
 	UE_LOG(MuthMNativeLib, Display, TEXT("Resampling file from %f to %f took %f seconds."), SourceSampleRate, DestinationSampleRate, TimeDelta);
 }
 
+/*int MP3_DebugLambda(void *user_data, const uint8_t *frame, int frame_size, size_t offset, mp3dec_frame_info_t *info)
+{
+	FtmpItData* user_data_it = (FtmpItData*)user_data;
+	mp3dec_frame_info_t thisFrameInfo;
+	mp3dec_decode_frame(user_data_it->Mp3dec, frame, frame_size, user_data_it->pFrameBuffer->GetData(), &thisFrameInfo);
+	user_data_it->pOriginalPCMData->Append((uint8*)user_data_it->pFrameBuffer->GetData(), thisFrameInfo.frame_bytes);
+	return 0; //Return 1 will break the decode loop
+}*/
+
 bool MuthMNativeLib::NativeDecodeMP3ToStdPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputStdPCM)
 {
 	constexpr opus_int32 samplingRate = 48000;
 	OutputStdPCM.Empty();
 	//Begin MP3 Decode
 	mp3dec_file_info_t mp3FileInfo;
-	struct FtmpItData
+	/*struct FtmpItData
 	{
 		mp3dec_t* Mp3dec;
 		TArray<uint8>* pOriginalPCMData;
 		TArray<mp3d_sample_t>* pFrameBuffer;
 		mp3dec_file_info_t* pFileInfo;
-	};
-	FtmpItData tmpItData;
-	TArray<mp3d_sample_t> FrameBuffer;
-	FrameBuffer.SetNum(MINIMP3_MAX_SAMPLES_PER_FRAME);
+	};*/
+	//FtmpItData tmpItData;
+	//TArray<mp3d_sample_t> FrameBuffer;
+	//FrameBuffer.SetNum(MINIMP3_MAX_SAMPLES_PER_FRAME);
 	mp3dec_t MiniMp3Dec;
 	mp3dec_init(&MiniMp3Dec);
-	tmpItData.Mp3dec = &MiniMp3Dec;
+	/*tmpItData.Mp3dec = &MiniMp3Dec;
 	tmpItData.pOriginalPCMData = &OutputStdPCM;
-	tmpItData.pFrameBuffer = &FrameBuffer;
+	tmpItData.pFrameBuffer = &FrameBuffer;*/
 	mp3dec_load_buf(&MiniMp3Dec, _MP3Data.GetData(), _MP3Data.Num(), &mp3FileInfo, nullptr, nullptr);
-	tmpItData.pFileInfo = &mp3FileInfo;
-	mp3dec_iterate_buf(_MP3Data.GetData(), _MP3Data.Num(),
-		[](void *user_data, const uint8_t *frame, int frame_size, size_t offset, mp3dec_frame_info_t *info)->int
-		{
-			FtmpItData* user_data_it = (FtmpItData*)user_data;
-			mp3dec_frame_info_t thisFrameInfo;
-			mp3dec_decode_frame(user_data_it->Mp3dec, frame, frame_size, user_data_it->pFrameBuffer->GetData(), &thisFrameInfo);
-			user_data_it->pOriginalPCMData->Append((uint8*)user_data_it->pFrameBuffer->GetData(), thisFrameInfo.frame_bytes);
-			return 1;
-		}, nullptr);
+	//tmpItData.pFileInfo = &mp3FileInfo;
+	//mp3dec_iterate_buf(_MP3Data.GetData(), _MP3Data.Num(), &MP3_DebugLambda, &tmpItData);
 	//Resample
+	OutputStdPCM.Append((const uint8*)mp3FileInfo.buffer, mp3FileInfo.samples * 2); //sizeof(int16_t)==2*sizeof(uint8)
+	free(mp3FileInfo.buffer);
 	size_t SampleDataLength = OutputStdPCM.Num();
-	ResampleWaveData(OutputStdPCM, SampleDataLength, mp3FileInfo.channels, mp3FileInfo.samples, samplingRate);
+	ResampleWaveData(OutputStdPCM, SampleDataLength, mp3FileInfo.channels, mp3FileInfo.hz, samplingRate);
 	OutputStdPCM.SetNum(SampleDataLength);
 	if (mp3FileInfo.channels == 1)
 	{
@@ -145,6 +149,11 @@ bool MuthMNativeLib::NativeEncodeStdPCMToOpus(const TArray<uint8>& _StdPCM, TArr
 	constexpr int PerDecodeSampleNum = 480;
 	int PerDecodeSize = PerDecodeSampleNum * 2 * sizeof(uint16); //SampleNum*ChannelCount(2)*16Bit
 	int EncodedOpusSize;
+	int HeaderIndex = FCStringAnsi::Strlen(OPUS_ID_STRING);
+	OutputOpus.SetNum(HeaderIndex + 73); //Terminal Character and opus info data,See OpusAudioInfo.cpp:ParseHeader
+	FMemory::Memcpy(OutputOpus.GetData(), OPUS_ID_STRING,HeaderIndex+1);
+	HeaderIndex++;
+	uint32 SampleCount=0;
 	for (int i = 0; i < _StdPCM.Num(); i += PerDecodeSize)
 	{
 		EncodedOpusSize = opus_encode(_pOpusEncoder,
@@ -152,7 +161,15 @@ bool MuthMNativeLib::NativeEncodeStdPCMToOpus(const TArray<uint8>& _StdPCM, TArr
 			PerDecodeSampleNum, _MegabyteBuffer.GetData(),
 			_MegabyteBuffer.Num());
 		OutputOpus.Append(_MegabyteBuffer.GetData(), EncodedOpusSize);
+		SampleCount++;
 	}
+	*(uint16*)(OutputOpus.GetData() + HeaderIndex) = 48000;  //Sample rate.
+	HeaderIndex += sizeof(uint16);
+	*(uint32*)(OutputOpus.GetData() + HeaderIndex) = _StdPCM.Num()/4; //True sample count(Samples count /16bit/2channels).
+	HeaderIndex += sizeof(uint32);
+	*(uint8*)(OutputOpus.GetData() + HeaderIndex) = 2; //Num Channels
+	HeaderIndex += sizeof(uint8);
+	*(uint32*)(OutputOpus.GetData() + HeaderIndex) = SampleCount; //Frame Count
 	return true;
 	//End Opus Encode
 }

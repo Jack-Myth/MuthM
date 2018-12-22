@@ -203,7 +203,7 @@ TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
 class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& OpusData)
 {
 	USoundWave* TargetSoundWave = NewObject<USoundWave>();
-	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("Opus"));
+	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OPUS"));
 	bulkData->Lock(LOCK_READ_WRITE);
 	FMemory::Memcpy(bulkData->Realloc(OpusData.Num()), OpusData.GetData(), OpusData.Num());
 	bulkData->Unlock();
@@ -219,13 +219,15 @@ class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& OpusData)
 	TargetSoundWave->Duration = soundQualityInfo.Duration;
 	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
+	TargetSoundWave->bStreaming = true;
+	//TargetSoundWave->InitAudioResource("OPUS");
 	return TargetSoundWave;
 }
 
 class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOpus(const TArray<uint8>& OpusData)
 {
 	auto* TargetSoundWave = NewObject<UVisualizableSoundWave>();
-	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("Opus"));
+	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OPUS"));
 	bulkData->Lock(LOCK_READ_WRITE);
 	FMemory::Memcpy(bulkData->Realloc(OpusData.Num()), OpusData.GetData(), OpusData.Num());
 	bulkData->Unlock();
@@ -250,8 +252,10 @@ class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOpus(const 
 
 bool UMuthMBPLib::ConvertMP3ToOpus(const TArray<uint8>& MP3File, TArray<uint8>& OpusOutput)
 {
-	return false;
-	//return MuthMNativeLib::NativeConvertMP3ToOpus(MP3File, OpusOutput);
+	TArray<uint8> StdPCM;
+	if (!MuthMNativeLib::NativeDecodeMP3ToStdPCM(MP3File, StdPCM))
+		return false;
+	return MuthMNativeLib::NativeEncodeStdPCMToOpus(StdPCM, OpusOutput);
 }
 
 void UMuthMBPLib::AddStringItemToCategory(FDetailCategoryStruct& DetailCategory, FDetailItemString StringItem)

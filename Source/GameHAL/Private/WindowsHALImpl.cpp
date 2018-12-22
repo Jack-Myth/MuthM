@@ -8,13 +8,14 @@
 #include "commdlg.h"
 #include "MIMEHelper.h"
 
-bool WindowsHALImpl::OpenFileDialog(const FString& Title, const FString& DefaultPath, const TArray<FString>& Filters, bool AllowMultipleSelected, TArray<FString> OpenFileName)
+bool WindowsHALImpl::OpenFileDialog(const FString& Title, const FString& DefaultPath, const TArray<FString>& Filters, bool AllowMultipleSelected, TArray<FString>& OpenFileName)
 {
 	OPENFILENAME ofn = {NULL};
 	TArray<TCHAR> FileName;
 	FileName.SetNum(AllowMultipleSelected?20480:512); //Buffer Should be longer when select multiple files.
 	ofn.lStructSize = sizeof(ofn);
 	ofn.lpstrFile = FileName.GetData();
+	ofn.nMaxFile = FileName.Num();
 	ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST;
 	ofn.lpstrTitle = *Title;
 	ofn.lpstrInitialDir = *DefaultPath;
