@@ -109,7 +109,7 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 	ogg_packet op;
 	ogg_page og;
 	vorbis_info_init(&vi);
-	vorbis_encode_init(&vi, 2, SampleRate, 192*1024, 168*1024, 0);
+	vorbis_encode_init(&vi, 2, SampleRate, -1, 192000, -1);
 	vorbis_analysis_init(&vd, &vi);
 	vorbis_comment_init(&vc);
 	vorbis_block_init(&vd, &vb);
@@ -124,34 +124,43 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 		OutputOGG.Append(og.body, og.body_len);
 	}
 	int sampleCount = PCMData.Num() / Channels / sizeof(uint16);
-	float** PCMBuffer = vorbis_analysis_buffer(&vd, sampleCount);
-	for (int i=0;i<sampleCount;i++)
+	int targetSampleCount; 
+	int processedSample = 0;
+	constexpr int BlockSize = 102400;
+	while (sampleCount)
 	{
-		for (int c=0;c<Channels;c++)
+		targetSampleCount = sampleCount > BlockSize ? BlockSize : sampleCount;
+		float** PCMBuffer = vorbis_analysis_buffer(&vd, targetSampleCount);
+		for (int i = 0; i < targetSampleCount; i++)
 		{
-			//XXX: Big-Little endian waring
-			PCMBuffer[c][i] = *(uint16*)(PCMData.GetData() + (i *Channels + c)* (sizeof(uint16)));
-		}
-	}
-	vorbis_analysis_wrote(&vd, sampleCount);
-	while (vorbis_analysis_blockout(&vd,&vb)==1)
-	{
-		vorbis_analysis(&vb, &op);
-		vorbis_bitrate_addblock(&vb);
-		while (vorbis_bitrate_flushpacket(&vd,&op))
-		{
-			ogg_stream_packetin(&os, &op);
-			while (ogg_stream_pageout(&os,&og))
+			for (int c = 0; c < Channels; c++)
 			{
-				OutputOGG.Append(og.header, og.header_len);
-				OutputOGG.Append(og.body, og.body_len);
+				//XXX: Big-Little endian waring
+				PCMBuffer[c][i] = (*(int16*)(PCMData.GetData() + ((i + processedSample) *Channels + c)* (sizeof(uint16))))/32768.f;
 			}
 		}
+		vorbis_analysis_wrote(&vd, targetSampleCount);
+		/*while (vorbis_analysis_blockout(&vd, &vb) == 1)
+		{
+			vorbis_analysis(&vb, &op);
+			vorbis_bitrate_addblock(&vb);
+			while (vorbis_bitrate_flushpacket(&vd, &op))
+			{
+				ogg_stream_packetin(&os, &op);
+				while (ogg_stream_pageout(&os, &og))
+				{
+					OutputOGG.Append(og.header, og.header_len);
+					OutputOGG.Append(og.body, og.body_len);
+				}
+			}
+		}*/
+		sampleCount -= targetSampleCount;
+		processedSample += targetSampleCount;
 	}
 	vorbis_analysis_wrote(&vd, 0);
 	while (vorbis_analysis_blockout(&vd, &vb) == 1)
 	{
-		vorbis_analysis(&vb, &op);
+		vorbis_analysis(&vb, NULL);
 		vorbis_bitrate_addblock(&vb);
 		while (vorbis_bitrate_flushpacket(&vd, &op))
 		{
@@ -160,14 +169,11 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 			{
 				OutputOGG.Append(og.header, og.header_len);
 				OutputOGG.Append(og.body, og.body_len);
+				if (ogg_page_eos(&og)) break;
 			}
 		}
 	}
 	//Clean Resources
-	ogg_packet_clear(&op);
-	ogg_packet_clear(&header);
-	ogg_packet_clear(&header_comment);
-	ogg_packet_clear(&header_code);
 	ogg_stream_clear(&os);
 	vorbis_block_clear(&vb);
 	vorbis_dsp_clear(&vd);

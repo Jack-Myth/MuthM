@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MusicImportationUIBase.generated.h"
 
-DECLARE_DELEGATE(FOnMusicImportFinished);
+DECLARE_DELEGATE(FUIOnMusicImportFinished);
 
 /**
  * 
@@ -16,7 +16,7 @@ class MUTHM_API UMusicImportationUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	FOnMusicImportFinished OnMusicImportFinished;
+	FUIOnMusicImportFinished OnMusicImportFinished;
 	FString MusicFileName;
 	UFUNCTION(BlueprintCallable)
 		void BeginImportMusic(const FString& Title, const FString& Musician);
@@ -24,4 +24,8 @@ public:
 		void InitMusicInfo(const FString& MusicFileName,const FString& Title, const FString& Musician);
 	UFUNCTION(BlueprintCallable)
 		class USoundWave* DebugCallConvert();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnAsyncImportStarted();
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnAsyncImportEnd();
 };

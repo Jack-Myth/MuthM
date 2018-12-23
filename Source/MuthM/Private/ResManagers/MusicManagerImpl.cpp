@@ -18,6 +18,8 @@
 #include "MuthMGameInstance.h"
 #include "GlobalSaveGame.h"
 #include "DownloadManager.h"
+#include "Runnable.h"
+#include "Async.h"
 
 DEFINE_LOG_CATEGORY(MuthMMusicManager)
 
@@ -146,7 +148,7 @@ bool UMusicManagerImpl::ImportMP3(const FString& LocalFileName, const FString& T
 		return false;
 	int ID;
 	FString OfflineMusicFileName;
-	do 
+	do
 	{
 		ID = -FMath::Rand();
 		OfflineMusicFileName = ConstructOfflineMusicFileName(ID);
@@ -164,6 +166,64 @@ bool UMusicManagerImpl::ImportMP3(const FString& LocalFileName, const FString& T
 	pSaveGame->MusicInfoCollection.Add(NewOfflineMusicInfo);
 	GameInstance->SaveGlobalSaveGame();
 	return true;
+}
+
+void UMusicManagerImpl::ImportMP3Async(const FString& LocalFileName, const FString& Title, const FString& Musician, FOnMusicImportFinished OnImportFinishedDelegate)
+{
+	AsyncTask(ENamedThreads::NormalTaskPriority, [=]()
+		{
+			TArray<uint8> MP3Data;
+			TArray<uint8> OGGData;
+			if (!FFileHelper::LoadFileToArray(MP3Data, *LocalFileName))
+			{
+				AsyncTask(ENamedThreads::GameThread, [=]()
+					{
+						FMusicInfo tmp;
+						OnImportFinishedDelegate.ExecuteIfBound(false, tmp);
+					});
+				return 0;
+			}
+			if (!UMuthMBPLib::ConvertMP3ToOGG(MP3Data, OGGData))
+			{
+				AsyncTask(ENamedThreads::GameThread, [=]()
+					{
+						FMusicInfo tmp;
+						OnImportFinishedDelegate.ExecuteIfBound(false, tmp);
+					});
+				return 0;
+			}
+			int ID;
+			FString OfflineMusicFileName;
+			do
+			{
+				ID = -FMath::Rand();
+				OfflineMusicFileName = UMusicManagerImpl::ConstructOfflineMusicFileName(ID);
+			} while (IFileManager::Get().FileExists(*OfflineMusicFileName));
+			FMusicInfo NewOfflineMusicInfo;
+			NewOfflineMusicInfo.ID = ID;
+			NewOfflineMusicInfo.IsOffline = true;
+			NewOfflineMusicInfo.Title = Title;
+			NewOfflineMusicInfo.Musician = Musician;
+			NewOfflineMusicInfo.Size = OGGData.Num();
+			if (!FFileHelper::SaveArrayToFile(OGGData, *OfflineMusicFileName))
+			{
+				AsyncTask(ENamedThreads::GameThread, [=]()
+					{
+						FMusicInfo tmp;
+						OnImportFinishedDelegate.ExecuteIfBound(false, tmp);
+					});
+				return 0;
+			}
+			AsyncTask(ENamedThreads::GameThread, [=]()
+				{
+					auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+					auto pSaveGame = GameInstance->GetGlobalSaveGame();
+					pSaveGame->MusicInfoCollection.Add(NewOfflineMusicInfo);
+					GameInstance->SaveGlobalSaveGame();
+					return true;
+				});
+			return 0;
+		});
 }
 
 void UMusicManagerImpl::DeleteMusic(int ID)

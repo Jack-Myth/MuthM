@@ -15,13 +15,13 @@ class UMusicManagerImpl : public UObject,public IMusicManager
 {
 	GENERATED_BODY()
 		//
-	FORCEINLINE FString ConstructMusicFileName(int MusicID) const
+	static FString ConstructMusicFileName(int MusicID)
 	{
-		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), "/Music/", FString::FromInt(MusicID) + ".Ogg");
+		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), TEXT("/Music/"), FString::FromInt(MusicID) + ".Ogg");
 	}
-	FORCEINLINE FString ConstructOfflineMusicFileName(int ID) const
+	static FString ConstructOfflineMusicFileName(int ID)
 	{
-		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), "/Music/Offline/", FString::FromInt(ID) + ".Ogg");
+		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), TEXT("/Music/Offline/"), FString::FromInt(ID) + ".Ogg");
 	}
 	UFUNCTION()
 		void PrepareDownloadMusic(int MusicID, bool IsMusicExist, const FMusicInfo& MusicInfo);
@@ -34,6 +34,7 @@ public:
 	virtual bool FindMusicLocalByID(int ID, FMusicInfo& MusicInfo) const override;
 	virtual TArray<FMusicInfo> GetLocalMusicList() const override;
 	virtual bool ImportMP3(const FString& LocalFileName,const FString& Title,const FString& Musician) override;
+	virtual void ImportMP3Async(const FString& LocalFileName, const FString& Title, const FString& Musician, FOnMusicImportFinished OnImportFinishedDelegate) override;
 	virtual void DeleteMusic(int ID) override;
 
 };

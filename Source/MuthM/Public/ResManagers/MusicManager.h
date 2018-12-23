@@ -37,6 +37,7 @@ public:
 };
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FOnMusicQueryFinished, int, MusicID, bool, IsMusicExist,const FMusicInfo&, MusicInfo);
+DECLARE_DELEGATE_TwoParams(FOnMusicImportFinished,bool, const FMusicInfo&);
 
 /**
  * Control Music's Search,Load etc.
@@ -59,6 +60,8 @@ public:
 		virtual TArray<FMusicInfo> GetLocalMusicList() const =0;
 	UFUNCTION()
 		virtual bool ImportMP3(const FString& LocalFileName, const FString& Title, const FString& Musician) = 0;
+	//Async Import MP3
+	virtual void ImportMP3Async(const FString& LocalFileName, const FString& Title, const FString& Musician, FOnMusicImportFinished OnImportFinishedDelegate) = 0;
 	UFUNCTION()
 		virtual void DeleteMusic(int ID) = 0;
 };

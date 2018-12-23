@@ -8,8 +8,13 @@
 void UMusicImportationUIBase::BeginImportMusic(const FString& Title, const FString& Musician)
 {
 	//XXX:Treat all music file as MP3.
-	IMusicManager::Get(this)->ImportMP3(MusicFileName, Title, Musician);
-	OnMusicImportFinished.ExecuteIfBound();
+	OnAsyncImportStarted();
+	IMusicManager::Get(this)->ImportMP3Async(MusicFileName, Title, Musician,
+		FOnMusicImportFinished::CreateLambda([=](bool IsFinished, const FMusicInfo& MusicInfo) 
+			{
+				OnMusicImportFinished.ExecuteIfBound();
+				OnAsyncImportEnd();
+			}));
 }
 
 class USoundWave* UMusicImportationUIBase::DebugCallConvert()
