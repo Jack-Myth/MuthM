@@ -47,10 +47,9 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MainMMSInstance->LoadFromData(MMSData);
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
-	TArray<uint8> OpusData;
-	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OpusData);
-	_GameMainMusic =UMuthMBPLib::DecodeVisualizableWaveFromOpus(OpusData);
-	//_GameMainMusic = IMusicManager::Get()->GenSoundWaveByOpus(OpusData);
+	TArray<uint8> OGGData;
+	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OGGData);
+	_GameMainMusic =UMuthMBPLib::DecodeVisualizableWaveFromOGG(OGGData);
 	MusicPlaybackTime = -SuitDelay;
 	if (!::IsValid(_GameMainMusic))
 	{

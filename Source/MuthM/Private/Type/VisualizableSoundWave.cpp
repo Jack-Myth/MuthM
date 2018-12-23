@@ -5,7 +5,7 @@
 
 void UVisualizableSoundWave::CalculateFrequencySpectrum(bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums)
 {
-	MuthMNativeLib::NativeCalculateFrequencySpectrum(_CachedStdPCM, SplitChannels, BeginTime, SampleTimeLength, SpectrumWidth, OutSpectrums);
+	MuthMNativeLib::NativeCalculateFrequencySpectrum(_CachedStdPCM, this->NumChannels, SplitChannels, BeginTime, SampleTimeLength, SpectrumWidth, OutSpectrums);
 }
 
 void UVisualizableSoundWave::CalculateFrequencySpectrumSplit(const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<float>& LSpectrum, TArray<float>& RSpectrum)
@@ -25,5 +25,5 @@ void UVisualizableSoundWave::CalculateFrequencySpectrumMixed(const float BeginTi
 
 float UVisualizableSoundWave::CalculateBPM()
 {
-	return MuthMNativeLib::NativeDetectBPMFromPCM(_CachedStdPCM);
+	return MuthMNativeLib::NativeDetectBPMFromPCM(_CachedStdPCM,SampleRate, this->NumChannels);
 }

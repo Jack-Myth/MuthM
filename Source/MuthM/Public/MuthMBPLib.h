@@ -44,11 +44,11 @@ public:
 	static TSharedPtr<FJsonObject> DeserializeJsonFromUTF8(TArray<uint8> CharArray);
 	static TSharedPtr<FJsonObject> DeserializeJsonFromStr(FString JsonStr);
 	UFUNCTION(BlueprintCallable)
-		static class USoundWave* DecodeWaveFromOpus(const TArray<uint8>& OpusData);
+		static class USoundWave* DecodeWaveFromOGG(const TArray<uint8>& OGGData);
 	UFUNCTION(BlueprintCallable)
-		static class UVisualizableSoundWave* DecodeVisualizableWaveFromOpus(const TArray<uint8>& OpusData);
+		static class UVisualizableSoundWave* DecodeVisualizableWaveFromOGG(const TArray<uint8>& OGGData);
 	UFUNCTION(BlueprintCallable)
-		static bool ConvertMP3ToOpus(const TArray<uint8>& MP3File,TArray<uint8>& OpusOutput);
+		static bool ConvertMP3ToOGG(const TArray<uint8>& MP3File,TArray<uint8>& OGGOutput);
 	UFUNCTION(BlueprintCallable)
 		static void AddStringItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemString StringItem);
 	UFUNCTION(BlueprintCallable)

@@ -13,7 +13,6 @@
 #include "MuthMNativeLib.h"
 #include "Type/VisualizableSoundWave.h"
 #include "TargetPlatform/Public/Interfaces/IAudioFormat.h"
-#include "OpusAudioInfo.h"
 #include "JsonReader.h"
 #include "JsonSerializer.h"
 #include "InstructionManager.h"
@@ -23,6 +22,9 @@
 #include "NetworkManager.h"
 #include "UserManager.h"
 #include "GameHAL.h"
+#include "VorbisAudioInfo.h"
+#include "Engine/Engine.h"
+#include "AudioDevice.h"
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 
@@ -200,16 +202,16 @@ TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
 	return JsonObj;
 }
 
-class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& OpusData)
+class USoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 {
 	USoundWave* TargetSoundWave = NewObject<USoundWave>();
-	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OPUS"));
+	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
 	bulkData->Lock(LOCK_READ_WRITE);
-	FMemory::Memcpy(bulkData->Realloc(OpusData.Num()), OpusData.GetData(), OpusData.Num());
+	FMemory::Memcpy(bulkData->Realloc(OGGData.Num()), OGGData.GetData(), OGGData.Num());
 	bulkData->Unlock();
 	FSoundQualityInfo soundQualityInfo;
-	FOpusAudioInfo opusAudioInfo;
-	if (!opusAudioInfo.ReadCompressedInfo(OpusData.GetData(), OpusData.Num(), &soundQualityInfo))
+	FVorbisAudioInfo oggAudioInfo;
+	if (!oggAudioInfo.ReadCompressedInfo(OGGData.GetData(), OGGData.Num(), &soundQualityInfo))
 	{
 		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read Opus Info"));
 		return nullptr;
@@ -220,20 +222,19 @@ class USoundWave* UMuthMBPLib::DecodeWaveFromOpus(const TArray<uint8>& OpusData)
 	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
 	TargetSoundWave->bStreaming = true;
-	//TargetSoundWave->InitAudioResource("OPUS");
 	return TargetSoundWave;
 }
 
-class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOpus(const TArray<uint8>& OpusData)
+class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOGG(const TArray<uint8>& OGGData)
 {
 	auto* TargetSoundWave = NewObject<UVisualizableSoundWave>();
-	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OPUS"));
+	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
 	bulkData->Lock(LOCK_READ_WRITE);
-	FMemory::Memcpy(bulkData->Realloc(OpusData.Num()), OpusData.GetData(), OpusData.Num());
+	FMemory::Memcpy(bulkData->Realloc(OGGData.Num()), OGGData.GetData(), OGGData.Num());
 	bulkData->Unlock();
 	FSoundQualityInfo soundQualityInfo;
-	IStreamedCompressedInfo* opusAudioInfo=new FOpusAudioInfo();
-	if (!opusAudioInfo->ReadCompressedInfo(OpusData.GetData(), OpusData.Num(), &soundQualityInfo))
+	FVorbisAudioInfo oggAudioInfo;
+	if (!oggAudioInfo.ReadCompressedInfo(OGGData.GetData(), OGGData.Num(), &soundQualityInfo))
 	{
 		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read Opus Info"));
 		return nullptr;
@@ -244,18 +245,19 @@ class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOpus(const 
 	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
 	//Gen PCM Data
-	TargetSoundWave->_CachedStdPCM.SetNum(soundQualityInfo.Duration*48000*2*sizeof(int16));
-	opusAudioInfo->Decode(OpusData.GetData(), OpusData.Num(), TargetSoundWave->_CachedStdPCM.GetData(), TargetSoundWave->_CachedStdPCM.Num());
-	delete opusAudioInfo;
+	TargetSoundWave->_CachedStdPCM.SetNum(soundQualityInfo.SampleDataSize);
+	oggAudioInfo.ExpandFile(TargetSoundWave->_CachedStdPCM.GetData(), &soundQualityInfo);
 	return TargetSoundWave;
 }
 
-bool UMuthMBPLib::ConvertMP3ToOpus(const TArray<uint8>& MP3File, TArray<uint8>& OpusOutput)
+bool UMuthMBPLib::ConvertMP3ToOGG(const TArray<uint8>& MP3File, TArray<uint8>& OGGOutput)
 {
-	TArray<uint8> StdPCM;
-	if (!MuthMNativeLib::NativeDecodeMP3ToStdPCM(MP3File, StdPCM))
+	TArray<uint8> AudioPCM;
+	int32 SampleRate;
+	int32 Channels;
+	if (!MuthMNativeLib::NativeDecodeMP3ToPCM(MP3File, AudioPCM,SampleRate, Channels))
 		return false;
-	return MuthMNativeLib::NativeEncodeStdPCMToOpus(StdPCM, OpusOutput);
+	return MuthMNativeLib::NativeEncodePCMToOGG(AudioPCM,SampleRate,Channels,OGGOutput);
 }
 
 void UMuthMBPLib::AddStringItemToCategory(FDetailCategoryStruct& DetailCategory, FDetailItemString StringItem)

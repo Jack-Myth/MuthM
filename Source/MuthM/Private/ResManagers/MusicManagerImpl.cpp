@@ -139,10 +139,10 @@ TArray<FMusicInfo> UMusicManagerImpl::GetLocalMusicList() const
 bool UMusicManagerImpl::ImportMP3(const FString& LocalFileName, const FString& Title, const FString& Musician)
 {
 	TArray<uint8> MP3Data;
-	TArray<uint8> OpusData;
+	TArray<uint8> OGGData;
 	if (!FFileHelper::LoadFileToArray(MP3Data, *LocalFileName))
 		return false;
-	if (!UMuthMBPLib::ConvertMP3ToOpus(MP3Data, OpusData))
+	if (!UMuthMBPLib::ConvertMP3ToOGG(MP3Data, OGGData))
 		return false;
 	int ID;
 	FString OfflineMusicFileName;
@@ -156,8 +156,8 @@ bool UMusicManagerImpl::ImportMP3(const FString& LocalFileName, const FString& T
 	NewOfflineMusicInfo.IsOffline = true;
 	NewOfflineMusicInfo.Title = Title;
 	NewOfflineMusicInfo.Musician = Musician;
-	NewOfflineMusicInfo.Size = OpusData.Num();
-	if (!FFileHelper::SaveArrayToFile(OpusData, *OfflineMusicFileName))
+	NewOfflineMusicInfo.Size = OGGData.Num();
+	if (!FFileHelper::SaveArrayToFile(OGGData, *OfflineMusicFileName))
 		return false;
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	auto pSaveGame = GameInstance->GetGlobalSaveGame();

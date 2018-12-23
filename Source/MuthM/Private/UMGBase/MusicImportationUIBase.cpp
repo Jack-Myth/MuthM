@@ -15,10 +15,10 @@ void UMusicImportationUIBase::BeginImportMusic(const FString& Title, const FStri
 class USoundWave* UMusicImportationUIBase::DebugCallConvert()
 {
 	TArray<uint8> MP3Data;
-	TArray<uint8> OpusData;
+	TArray<uint8> OGGData;
 	if (!FFileHelper::LoadFileToArray(MP3Data, *MusicFileName))
 		return nullptr;
-	if (!UMuthMBPLib::ConvertMP3ToOpus(MP3Data, OpusData))
+	if (!UMuthMBPLib::ConvertMP3ToOGG(MP3Data, OGGData))
 		return nullptr;
-	return UMuthMBPLib::DecodeWaveFromOpus(OpusData);
+	return UMuthMBPLib::DecodeWaveFromOGG(OGGData);
 }

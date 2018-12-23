@@ -76,20 +76,6 @@ static void ResampleWaveData(TArray<uint8>& WaveData, size_t& NumBytes, int32 Nu
 	UE_LOG(MuthMNativeLib, Display, TEXT("Resampling file from %f to %f took %f seconds."), SourceSampleRate, DestinationSampleRate, TimeDelta);
 }
 
-/*int MP3_DebugLambda(void *user_data, const uint8_t *frame, int frame_size, size_t offset, mp3dec_frame_info_t *info)
-{
-	FtmpItData* user_data_it = (FtmpItData*)user_data;
-	mp3dec_frame_info_t thisFrameInfo;
-	mp3dec_decode_frame(user_data_it->Mp3dec, frame, frame_size, user_data_it->pFrameBuffer->GetData(), &thisFrameInfo);
-	user_data_it->pOriginalPCMData->Append((uint8*)user_data_it->pFrameBuffer->GetData(), thisFrameInfo.frame_bytes);
-	return 0; //Return 1 will break the decode loop
-}*/
-
-bool MuthMNativeLib::NativeDecodeMP3ToStdPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputStdPCM)
-{
-	return false;
-}
-
 bool MuthMNativeLib::NativeDecodeMP3ToPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputPCM, int32& SampleRate, int32& Channels)
 {
 	if (!_MP3Data.Num())
@@ -190,48 +176,42 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 	return true;
 }
 
-bool MuthMNativeLib::NativeEncodeStdPCMToOpus(const TArray<uint8>& _StdPCM, TArray<uint8>& OutputOpus)
-{
-	return false;
-}
-
-void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& _StdPCMInput, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums)
+void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMInput, int Channels, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums)
 {
 	OutSpectrums.Empty();
 	constexpr int SampleRate = 48000;
 	int BeginSampleIndex = BeginTime * SampleRate;
 	int EndSampleIndex = (BeginTime + SampleTimeLength)*SampleRate;
 	int SampleCount = EndSampleIndex - BeginSampleIndex;
-	TArray<int16> StdSampleData;
-	StdSampleData.SetNum(SampleCount * 2);
-	FMemory::Memcpy(StdSampleData.GetData(), _StdPCMInput.GetData() + BeginSampleIndex, SampleCount * sizeof(uint16) * 2);
-	int ChannelCount = 2;
+	TArray<int16> OriginalSampleData;
+	OriginalSampleData.SetNum(SampleCount * 2);
+	FMemory::Memcpy(OriginalSampleData.GetData(), PCMInput.GetData() + BeginSampleIndex, SampleCount * sizeof(uint16) * 2);
 	if (SplitChannels)
 	{
-		for (int i = 0; i < StdSampleData.Num()*0.5f; i++)
-			StdSampleData[i] = ((int)StdSampleData[2 * i] + StdSampleData[2 * i + 1])*0.5f;
-		StdSampleData.SetNum(StdSampleData.Num()*0.5f);
-		ChannelCount = 1;
+		for (int i = 0; i < OriginalSampleData.Num()*0.5f; i++)
+			OriginalSampleData[i] = ((int)OriginalSampleData[2 * i] + OriginalSampleData[2 * i + 1])*0.5f;
+		OriginalSampleData.SetNum(OriginalSampleData.Num()*0.5f);
+		Channels = 1;
 	}
 	kiss_fft_cpx* inbuf[2] = { NULL };
 	kiss_fft_cpx* outbuf[2] = { NULL };
 	int32 Dims[1] = { SampleCount };
 	kiss_fftnd_cfg fftcfg = kiss_fftnd_alloc(Dims, 1, 0, NULL, NULL);
-	for (int i = 0; i < ChannelCount; i++)
+	for (int i = 0; i < Channels; i++)
 	{
 		inbuf[i] = (kiss_fft_cpx*)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx)*SampleCount);
 		outbuf[i] = (kiss_fft_cpx*)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx)*SampleCount);
 	}
 	for (int i = 0; i < SampleCount; i++)
 	{
-		for (int cc = 0; cc < ChannelCount; cc++)
+		for (int cc = 0; cc < Channels; cc++)
 		{
-			inbuf[cc][i].r = _FFTHannWindow(StdSampleData[i], i, SampleCount);
+			inbuf[cc][i].r = _FFTHannWindow(OriginalSampleData[i], i, SampleCount);
 			inbuf[cc][i].i = 0.f;
 		}
 	}
-	OutSpectrums.SetNum(ChannelCount);
-	for (int cc = 0; cc < ChannelCount; cc++)
+	OutSpectrums.SetNum(Channels);
+	for (int cc = 0; cc < Channels; cc++)
 	{
 		kiss_fftnd(fftcfg, inbuf[cc], outbuf[cc]);
 		int32 SamplesPerSpectrum = SampleCount / (2 * SpectrumWidth);
@@ -257,18 +237,17 @@ void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& _StdP
 	KISS_FFT_FREE(fftcfg);
 }
 
-float MuthMNativeLib::NativeDetectBPMFromPCM(const TArray<uint8>& _StdPCMInput)
+float MuthMNativeLib::NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32 SampleRate, int32 Channels)
 {
-	constexpr int StdSampleRate = 48000;
 	//Because <³õÒô¥ß¥¯¤ÎÏûÊ§> is far beyond 200BPM,so set a higher value
 	//Maybe is not necessary.
 	BeatDetektor m_BeatDetektor(100.f,300.f);
 	m_BeatDetektor.reset();
-	float MusicLength = int(_StdPCMInput.Num() / StdSampleRate);
+	float MusicLength = int(PCMInput.Num() / SampleRate);
 	TArray<TArray<float>> FFTValue;
 	for (float i = 0; i < MusicLength; i+=0.1f)
 	{
-		NativeCalculateFrequencySpectrum(_StdPCMInput, false, i, 0.1f, 16, FFTValue);
+		NativeCalculateFrequencySpectrum(PCMInput, Channels, false, i, 0.1f, 16, FFTValue);
 		std::vector<float> stdv;
 		stdv.assign(FFTValue[0].GetData(), FFTValue[0].GetData()+FFTValue[0].Num());
 		m_BeatDetektor.process(i,stdv);
