@@ -1,7 +1,6 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 #include "MuthMNativeLib.h"
-#include "opus.h"
 #define MINIMP3_IMPLEMENTATION
 #include "minimp3.h"
 #include "minimp3_ex.h"
@@ -11,6 +10,9 @@
 #include "tools/kiss_fftnd.h"
 #include <vector>
 #include "OpusAudioInfo.h"
+#include "VorbisAudioInfo.h"
+#include "vorbis/codec.h"
+#include "vorbis/vorbisenc.h"
 
 DEFINE_LOG_CATEGORY(MuthMNativeLib)
 //Copy from Unreal Engine 4 Internal Resample function :P
@@ -85,93 +87,112 @@ static void ResampleWaveData(TArray<uint8>& WaveData, size_t& NumBytes, int32 Nu
 
 bool MuthMNativeLib::NativeDecodeMP3ToStdPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputStdPCM)
 {
-	constexpr opus_int32 samplingRate = 48000;
-	OutputStdPCM.Empty();
+	return false;
+}
+
+bool MuthMNativeLib::NativeDecodeMP3ToPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputPCM, int32& SampleRate, int32& Channels)
+{
+	if (!_MP3Data.Num())
+		return false;
+	OutputPCM.Empty();
 	//Begin MP3 Decode
-	mp3dec_file_info_t mp3FileInfo;
-	/*struct FtmpItData
-	{
-		mp3dec_t* Mp3dec;
-		TArray<uint8>* pOriginalPCMData;
-		TArray<mp3d_sample_t>* pFrameBuffer;
-		mp3dec_file_info_t* pFileInfo;
-	};*/
-	//FtmpItData tmpItData;
-	//TArray<mp3d_sample_t> FrameBuffer;
-	//FrameBuffer.SetNum(MINIMP3_MAX_SAMPLES_PER_FRAME);
+	mp3dec_file_info_t mp3FileInfo = {NULL};
 	mp3dec_t MiniMp3Dec;
 	mp3dec_init(&MiniMp3Dec);
-	/*tmpItData.Mp3dec = &MiniMp3Dec;
-	tmpItData.pOriginalPCMData = &OutputStdPCM;
-	tmpItData.pFrameBuffer = &FrameBuffer;*/
 	mp3dec_load_buf(&MiniMp3Dec, _MP3Data.GetData(), _MP3Data.Num(), &mp3FileInfo, nullptr, nullptr);
-	//tmpItData.pFileInfo = &mp3FileInfo;
-	//mp3dec_iterate_buf(_MP3Data.GetData(), _MP3Data.Num(), &MP3_DebugLambda, &tmpItData);
+	if (!mp3FileInfo.samples)
+		return false;
 	//Resample
-	OutputStdPCM.Append((const uint8*)mp3FileInfo.buffer, mp3FileInfo.samples * 2); //sizeof(int16_t)==2*sizeof(uint8)
+	OutputPCM.Append((const uint8*)mp3FileInfo.buffer, mp3FileInfo.samples * 2); //sizeof(int16_t)==2*sizeof(uint8)
 	free(mp3FileInfo.buffer);
-	size_t SampleDataLength = OutputStdPCM.Num();
-	ResampleWaveData(OutputStdPCM, SampleDataLength, mp3FileInfo.channels, mp3FileInfo.hz, samplingRate);
-	OutputStdPCM.SetNum(SampleDataLength);
-	if (mp3FileInfo.channels == 1)
+	SampleRate = mp3FileInfo.hz;
+	Channels = mp3FileInfo.channels;
+	return true;
+}
+
+bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 SampleRate, int32 Channels/*, int32 TargetBitrate = 192*1024*/, TArray<uint8>& OutputOGG)
+{
+	OutputOGG.Empty();
+	//Init Vorbis 
+	vorbis_info vi;
+	vorbis_dsp_state vd;
+	vorbis_comment vc;
+	vorbis_block vb;
+	ogg_stream_state os;
+	ogg_packet header,header_comment,header_code;
+	ogg_packet op;
+	ogg_page og;
+	vorbis_info_init(&vi);
+	vorbis_encode_init(&vi, 2, SampleRate, 192*1024, 168*1024, 0);
+	vorbis_analysis_init(&vd, &vi);
+	vorbis_comment_init(&vc);
+	vorbis_block_init(&vd, &vb);
+	ogg_stream_init(&os, FMath::Rand());
+	vorbis_analysis_headerout(&vd, &vc, &header, &header_comment, &header_code);
+	ogg_stream_packetin(&os, &header);
+	ogg_stream_packetin(&os, &header_comment);
+	ogg_stream_packetin(&os, &header_code);
+	while (ogg_stream_flush(&os, &og))
 	{
-		//Convert to 2 Channels
-		int32 SampleCount = OutputStdPCM.Num();
-		OutputStdPCM.SetNum(OutputStdPCM.Num() * 2);
-		for (int i = SampleCount - 1; i >= 0; i -= 2)
+		OutputOGG.Append(og.header, og.header_len);
+		OutputOGG.Append(og.body, og.body_len);
+	}
+	int sampleCount = PCMData.Num() / Channels / sizeof(uint16);
+	float** PCMBuffer = vorbis_analysis_buffer(&vd, sampleCount);
+	for (int i=0;i<sampleCount;i++)
+	{
+		for (int c=0;c<Channels;c++)
 		{
-			FMemory::Memcpy(OutputStdPCM.GetData() + i, OutputStdPCM.GetData() + i * 2 + sizeof(uint16), sizeof(uint16));
-			FMemory::Memcpy(OutputStdPCM.GetData() + i, OutputStdPCM.GetData() + i * 2, sizeof(uint16));
+			//XXX: Big-Little endian waring
+			PCMBuffer[c][i] = *(uint16*)(PCMData.GetData() + (i *Channels + c)* (sizeof(uint16)));
 		}
 	}
+	vorbis_analysis_wrote(&vd, sampleCount);
+	while (vorbis_analysis_blockout(&vd,&vb)==1)
+	{
+		vorbis_analysis(&vb, &op);
+		vorbis_bitrate_addblock(&vb);
+		while (vorbis_bitrate_flushpacket(&vd,&op))
+		{
+			ogg_stream_packetin(&os, &op);
+			while (ogg_stream_pageout(&os,&og))
+			{
+				OutputOGG.Append(og.header, og.header_len);
+				OutputOGG.Append(og.body, og.body_len);
+			}
+		}
+	}
+	vorbis_analysis_wrote(&vd, 0);
+	while (vorbis_analysis_blockout(&vd, &vb) == 1)
+	{
+		vorbis_analysis(&vb, &op);
+		vorbis_bitrate_addblock(&vb);
+		while (vorbis_bitrate_flushpacket(&vd, &op))
+		{
+			ogg_stream_packetin(&os, &op);
+			while (ogg_stream_pageout(&os, &og))
+			{
+				OutputOGG.Append(og.header, og.header_len);
+				OutputOGG.Append(og.body, og.body_len);
+			}
+		}
+	}
+	//Clean Resources
+	ogg_packet_clear(&op);
+	ogg_packet_clear(&header);
+	ogg_packet_clear(&header_comment);
+	ogg_packet_clear(&header_code);
+	ogg_stream_clear(&os);
+	vorbis_block_clear(&vb);
+	vorbis_dsp_clear(&vd);
+	vorbis_comment_clear(&vc);
+	vorbis_info_clear(&vi);
 	return true;
-	//MP3 Data Decode Finish.
 }
 
 bool MuthMNativeLib::NativeEncodeStdPCMToOpus(const TArray<uint8>& _StdPCM, TArray<uint8>& OutputOpus)
 {
-	int retmsg;
-	TArray<uint8> _MegabyteBuffer;
-	constexpr int BufferSize = 1024 * 1024;
-	constexpr opus_int32 samplingRate = 48000;
-	_MegabyteBuffer.SetNum(BufferSize);
-	OutputOpus.Empty();
-	//Begin Opus Encode
-	//XXX: big little endian problem(May cause bugs in some situation?)
-	OpusEncoder* _pOpusEncoder = opus_encoder_create(samplingRate, 2, OPUS_APPLICATION_AUDIO, &retmsg);
-	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_BITRATE(192 * 1024));
-	opus_encoder_ctl(_pOpusEncoder, OPUS_SET_FORCE_CHANNELS(2));
-	if (retmsg != OPUS_OK)
-		return false;
-	//opus_encoder_init(_pOpusEncoder, 48000, 2, OPUS_APPLICATION_AUDIO);
-	//Use 480 Sample per decode
-	//Will decode more than 18000 times for every sound.
-	constexpr int PerDecodeSampleNum = 480;
-	int PerDecodeSize = PerDecodeSampleNum * 2 * sizeof(uint16); //SampleNum*ChannelCount(2)*16Bit
-	int EncodedOpusSize;
-	int HeaderIndex = FCStringAnsi::Strlen(OPUS_ID_STRING);
-	OutputOpus.SetNum(HeaderIndex + 73); //Terminal Character and opus info data,See OpusAudioInfo.cpp:ParseHeader
-	FMemory::Memcpy(OutputOpus.GetData(), OPUS_ID_STRING,HeaderIndex+1);
-	HeaderIndex++;
-	uint32 SampleCount=0;
-	for (int i = 0; i < _StdPCM.Num(); i += PerDecodeSize)
-	{
-		EncodedOpusSize = opus_encode(_pOpusEncoder,
-			(const opus_int16*)(_StdPCM.GetData() + i),
-			PerDecodeSampleNum, _MegabyteBuffer.GetData(),
-			_MegabyteBuffer.Num());
-		OutputOpus.Append(_MegabyteBuffer.GetData(), EncodedOpusSize);
-		SampleCount++;
-	}
-	*(uint16*)(OutputOpus.GetData() + HeaderIndex) = 48000;  //Sample rate.
-	HeaderIndex += sizeof(uint16);
-	*(uint32*)(OutputOpus.GetData() + HeaderIndex) = _StdPCM.Num()/4; //True sample count(Samples count /16bit/2channels).
-	HeaderIndex += sizeof(uint32);
-	*(uint8*)(OutputOpus.GetData() + HeaderIndex) = 2; //Num Channels
-	HeaderIndex += sizeof(uint8);
-	*(uint32*)(OutputOpus.GetData() + HeaderIndex) = SampleCount; //Frame Count
-	return true;
-	//End Opus Encode
+	return false;
 }
 
 void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& _StdPCMInput, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums)

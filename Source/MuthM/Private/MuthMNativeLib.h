@@ -12,6 +12,7 @@ class MuthMNativeLib
 {
 public:
 	/**
+	 * Deprecated!
 	 * StdPCM Info: 48000Hz,16Bit,2Channels
 	 * This kind of PCM can be convert to Opus Directly.
 	 * Easy to Use,so decide to use it as Stranded PCM.
@@ -22,6 +23,8 @@ public:
 		return SampleValue * 0.5f * (1 - FMath::Cos(2 * PI * SampleIndex / (SampleCount - 1)));
 	}
 	static bool NativeDecodeMP3ToStdPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputStdPCM);
+	static bool NativeDecodeMP3ToPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputPCM, int32& SampleRate,int32& Channels);
+	static bool NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 SampleRate, int32 Channels/*, int32 TargetBitrate = 192*1024*/, TArray<uint8>& OutputOGG);
 	static bool NativeEncodeStdPCMToOpus(const TArray<uint8>& _StdPCM, TArray<uint8>& OutputOpus);
 	static void NativeCalculateFrequencySpectrum(const TArray<uint8>& _StdPCMInput, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums);
 	static float NativeDetectBPMFromPCM(const TArray<uint8>& _StdPCMInput);

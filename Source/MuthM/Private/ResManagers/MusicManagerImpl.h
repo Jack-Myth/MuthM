@@ -17,11 +17,11 @@ class UMusicManagerImpl : public UObject,public IMusicManager
 		//
 	FORCEINLINE FString ConstructMusicFileName(int MusicID) const
 	{
-		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), "/Music/", FString::FromInt(MusicID) + ".Opus");
+		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), "/Music/", FString::FromInt(MusicID) + ".Ogg");
 	}
 	FORCEINLINE FString ConstructOfflineMusicFileName(int ID) const
 	{
-		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), "/Music/Offline/", FString::FromInt(ID) + ".Opus");
+		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), "/Music/Offline/", FString::FromInt(ID) + ".Ogg");
 	}
 	UFUNCTION()
 		void PrepareDownloadMusic(int MusicID, bool IsMusicExist, const FMusicInfo& MusicInfo);
