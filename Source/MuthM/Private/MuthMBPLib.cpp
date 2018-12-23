@@ -205,6 +205,7 @@ TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
 class USoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 {
 	USoundWave* TargetSoundWave = NewObject<USoundWave>();
+	TargetSoundWave->bVirtualizeWhenSilent = true;
 	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
 	bulkData->Lock(LOCK_READ_WRITE);
 	FMemory::Memcpy(bulkData->Realloc(OGGData.Num()), OGGData.GetData(), OGGData.Num());
@@ -213,7 +214,7 @@ class USoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 	FVorbisAudioInfo oggAudioInfo;
 	if (!oggAudioInfo.ReadCompressedInfo(OGGData.GetData(), OGGData.Num(), &soundQualityInfo))
 	{
-		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read Opus Info"));
+		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read OGG Info"));
 		return nullptr;
 	}
 	TargetSoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
@@ -221,13 +222,13 @@ class USoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 	TargetSoundWave->Duration = soundQualityInfo.Duration;
 	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
-	TargetSoundWave->bStreaming = true;
 	return TargetSoundWave;
 }
 
 class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOGG(const TArray<uint8>& OGGData)
 {
 	auto* TargetSoundWave = NewObject<UVisualizableSoundWave>();
+	TargetSoundWave->bVirtualizeWhenSilent = true;
 	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
 	bulkData->Lock(LOCK_READ_WRITE);
 	FMemory::Memcpy(bulkData->Realloc(OGGData.Num()), OGGData.GetData(), OGGData.Num());
@@ -236,7 +237,7 @@ class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOGG(const T
 	FVorbisAudioInfo oggAudioInfo;
 	if (!oggAudioInfo.ReadCompressedInfo(OGGData.GetData(), OGGData.Num(), &soundQualityInfo))
 	{
-		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read Opus Info"));
+		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read OGG Info"));
 		return nullptr;
 	}
 	TargetSoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;

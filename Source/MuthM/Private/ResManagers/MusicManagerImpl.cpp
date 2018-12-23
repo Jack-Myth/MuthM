@@ -220,7 +220,7 @@ void UMusicManagerImpl::ImportMP3Async(const FString& LocalFileName, const FStri
 					auto pSaveGame = GameInstance->GetGlobalSaveGame();
 					pSaveGame->MusicInfoCollection.Add(NewOfflineMusicInfo);
 					GameInstance->SaveGlobalSaveGame();
-					return true;
+					OnImportFinishedDelegate.ExecuteIfBound(true, NewOfflineMusicInfo);
 				});
 			return 0;
 		});
