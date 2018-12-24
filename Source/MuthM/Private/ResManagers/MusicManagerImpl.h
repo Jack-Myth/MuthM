@@ -36,5 +36,7 @@ public:
 	virtual bool ImportMP3(const FString& LocalFileName,const FString& Title,const FString& Musician) override;
 	virtual void ImportMP3Async(const FString& LocalFileName, const FString& Title, const FString& Musician, FOnMusicImportFinished OnImportFinishedDelegate) override;
 	virtual void DeleteMusic(int ID) override;
+	virtual void OnMusicDownloaded(bool IsSuccessful, const FString& ExternInfo) override;
+	virtual void OnMusicUploaded(bool IsSuccessful, int MusicID, const FString& ExternInfo) override;
 
 };

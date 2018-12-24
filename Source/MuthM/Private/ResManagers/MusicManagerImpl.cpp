@@ -56,15 +56,16 @@ void UMusicManagerImpl::FindMusicOnlineByID(int MusicID, FOnMusicQueryFinished Q
 		{
 			if (bConnectedSuccessfully)
 			{
-				FBlueprintJsonObject JsonObj = UMuthMBPLib::LoadJsonFromStr(Response->GetContentAsString());
-				int ErrCode = JsonObj.Object->GetIntegerField("ErrCode");
+				TSharedPtr<FJsonObject> JsonObj = UMuthMBPLib::DeserializeJsonFromStr(Response->GetContentAsString());
+				int ErrCode = JsonObj->GetIntegerField("ErrCode");
 				if (ErrCode == 0)
 				{
 					FMusicInfo tmpMusicInfo;
-					tmpMusicInfo.ID = JsonObj.Object->GetIntegerField("ID");
-					tmpMusicInfo.Title = JsonObj.Object->GetStringField("Title");
-					tmpMusicInfo.Musician = JsonObj.Object->GetStringField("Musician");
-					tmpMusicInfo.FormatType = "Opus";
+					tmpMusicInfo.ID = JsonObj->GetIntegerField("ID");
+					tmpMusicInfo.Title = JsonObj->GetStringField("Title");
+					tmpMusicInfo.Musician = JsonObj->GetStringField("Musician");
+					tmpMusicInfo.UploaderID = JsonObj->GetIntegerField("UploaderID");
+					tmpMusicInfo.FormatType = "OGG";
 					tmpMusicInfo.IsOffline = false;
 					//TODO:Still have a size and description,Are they really needed?
 					QueryDelegate.ExecuteIfBound(MusicID, true, tmpMusicInfo);
@@ -170,7 +171,7 @@ bool UMusicManagerImpl::ImportMP3(const FString& LocalFileName, const FString& T
 
 void UMusicManagerImpl::ImportMP3Async(const FString& LocalFileName, const FString& Title, const FString& Musician, FOnMusicImportFinished OnImportFinishedDelegate)
 {
-	AsyncTask(ENamedThreads::NormalTaskPriority, [=]()
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [=]()
 		{
 			TArray<uint8> MP3Data;
 			TArray<uint8> OGGData;
@@ -233,5 +234,26 @@ void UMusicManagerImpl::DeleteMusic(int ID)
 		auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 		auto pSaveGame = GameInstance->GetGlobalSaveGame();
 		pSaveGame->MusicInfoCollection.RemoveAll([=](const FMusicInfo& a) {return a.ID == ID; });
+		GameInstance->SaveGlobalSaveGame();
+	}
+}
+
+void UMusicManagerImpl::OnMusicDownloaded(bool IsSuccessful, const FString& ExternInfo)
+{
+	if (!IsSuccessful)
+		DeleteMusic(FCString::Atoi(*ExternInfo));
+}
+
+void UMusicManagerImpl::OnMusicUploaded(bool IsSuccessful, int MusicID, const FString& ExternInfo)
+{
+	if (IsSuccessful)
+	{
+		int LocalID = FCString::Atoi(*ExternInfo);
+		auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+		auto pSaveGame = GameInstance->GetGlobalSaveGame();
+		FMusicInfo* MusicInfo = pSaveGame->MusicInfoCollection.FindByPredicate([=](const FMusicInfo& a) {return a.ID == LocalID; });
+		MusicInfo->IsOffline = false;
+		MusicInfo->ID = MusicID;
+		GameInstance->SaveGlobalSaveGame();
 	}
 }

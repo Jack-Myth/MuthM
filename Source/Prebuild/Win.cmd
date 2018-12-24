@@ -81,4 +81,6 @@ fc /b "%temp%\UIProvider.h" "%~1\Source\MuthM\Public\UIProvider.h" > nul
 if errorlevel 1 (
 copy /y "%temp%\UIProvider.h" "%~1\Source\MuthM\Public\UIProvider.h"
 )
-exit /b 0
+del "%temp%\UIProvider.h"
+del "%temp%\UIProvider.cpp"
+exit

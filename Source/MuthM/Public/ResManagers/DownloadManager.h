@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "ResManagers/DownloadTask.h"
+#include "ResManagers/UploadTask.h"
 #include "DownloadManager.generated.h"
 
 USTRUCT(BlueprintType)
@@ -39,9 +41,9 @@ class MUTHM_API IDownloadManager
 public:
 	static TScriptInterface<IDownloadManager> Get(const UObject* WorldContextObj);
 	UFUNCTION(BlueprintCallable)
-		virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName, const FString& DisplayName = FString("")) = 0;
-	UFUNCTION(BlueprintCallable, meta = (ToolTip="Use HTML/FROM-DATA to upload task\nNotice:Upload Task is disposable, the upload record won't save and all unfinshed upload task will lost after exit game."))
-		virtual class UUploadTask* SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL,const FString& DataName, const FString& DisplayName = FString("")) = 0;
+		virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName, const FString& DisplayName = FString(""), EDownloadType DownloadType = EDownloadType::DT_None, const FString& ExternInfo = "") = 0;
+	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Use HTML/FROM-DATA to upload task\nNotice:Upload Task is disposable, the upload record won't save and all unfinshed upload task will lost after exit game."))
+		virtual class UUploadTask* SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL, const FString& DataName, const FString& DisplayName = FString(""), EUploadType UploadType = EUploadType::DT_None, const FString& ExternInfo = "") = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual TArray<class UDownloadTask*> GetDownloadTasks() const = 0;
 	UFUNCTION(BlueprintCallable)
@@ -56,6 +58,8 @@ public:
 		virtual void OnTaskFinishd() = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual void CancelDownloadTask(class UDownloadTask* DownloadTask) = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual void CancelUploadTask(class UUploadTask* UploadTask) = 0;
 	UFUNCTION(BlueprintCallable, meta=(ToolTip = "Notice: Only allow to remove finished task."))
 		virtual void RemoveDownloadTask(class UDownloadTask* DownloadTask) = 0;
 	UFUNCTION(BlueprintCallable, meta=(ToolTip = "Notice: Only allow to remove finished task."))

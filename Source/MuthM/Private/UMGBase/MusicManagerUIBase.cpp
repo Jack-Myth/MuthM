@@ -17,7 +17,7 @@ void UMusicManagerUIBase::DeleteMusic(int ID)
 	IMusicManager::Get(this)->DeleteMusic(ID);
 }
 
-void UMusicManagerUIBase::ImportMusic(FOnMusicImported OnMusicImported)
+void UMusicManagerUIBase::ImportMusic()
 {
 	TArray<FString> Filters;
 	Filters.Add("MP3");
@@ -29,9 +29,9 @@ void UMusicManagerUIBase::ImportMusic(FOnMusicImported OnMusicImported)
 	auto* UIInstance = Cast<UMusicImportationUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UIClass, "MusicImportationUI"));
 	UIInstance->MusicFileName = SelectedFileName[0];
 	UIInstance->InitMusicInfo(SelectedFileName[0], "", "");
-	UIInstance->OnMusicImportFinished.CreateLambda([=]()
+	UIInstance->OnMusicImportFinished.BindLambda([=]()
 		{
-			OnMusicImported.ExecuteIfBound();
+			OnInitMusicList();
 		});
 	UIInstance->AddToViewport(102);
 }

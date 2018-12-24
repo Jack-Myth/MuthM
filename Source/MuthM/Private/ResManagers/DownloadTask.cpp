@@ -11,6 +11,7 @@
 #include "GenericPlatformFile.h"
 #include "MuthMTypeHelper.h"
 #include "FileHelper.h"
+#include "MusicManager.h"
 
 bool UDownloadTask::CheckIfDownloadRecordExist(const FString& DestFileName)
 {
@@ -132,7 +133,19 @@ void UDownloadTask::DownloadFinish(bool bSuccessfully)
 	DownloadState = EDownloadState::DS_Finished;
 	NotifyDownloadStateChanged();
 	IDownloadManager::Get(this)->OnTaskFinishd();
-	OnDownloadFinished.Broadcast(bSuccessfully);
+	OnDownloadFinished.Broadcast(this,bSuccessfully);
+
+	//Action After Finished.
+	switch (DownloadType)
+	{
+		case EDownloadType::DT_Music:
+			IMusicManager::Get(this)->OnMusicDownloaded(true,ExternInfomation);
+			break;
+		case EDownloadType::DT_MDAT:
+			break;
+		case EDownloadType::DT_Mod:
+			break;
+	}
 }
 
 void UDownloadTask::ThreadFinished(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
@@ -348,4 +361,14 @@ void UDownloadTask::CancelTask()
 	IFileManager::Get().Delete(*DownloadRecord.DestFileName);
 	DownloadRecord.DownloadedBlocks.Empty();
 	DownloadRecord.FileSize = 0;
+	switch (DownloadType)
+	{
+		case EDownloadType::DT_Music:
+			IMusicManager::Get(this)->OnMusicDownloaded(false, ExternInfomation);
+			break;
+		case EDownloadType::DT_MDAT:
+			break;
+		case EDownloadType::DT_Mod:
+			break;
+	}
 }

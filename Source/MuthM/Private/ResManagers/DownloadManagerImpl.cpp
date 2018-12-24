@@ -17,15 +17,19 @@ void UDownloadManagerImpl::LoadDownloadList()
 		return;
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	auto pSaveGame = GameInstance->GetGlobalSaveGame();
-	for (int i = 0; i < pSaveGame->LocalDownloadFileCollection.Num(); i++)
+	for (int i = 0; i < pSaveGame->DownloadInfoCollection.Num(); i++)
 	{
-		UDownloadTask* DownloadTask = UDownloadTask::ParseDownloadTask(this, pSaveGame->LocalDownloadFileCollection[i]);
+		UDownloadTask* DownloadTask = UDownloadTask::ParseDownloadTask(this, pSaveGame->DownloadInfoCollection[i].LocalFile);
 		if (DownloadTask) //It may failed to construct.
+		{
+			DownloadTask->DownloadType = (EDownloadType)pSaveGame->DownloadInfoCollection[i].DownloadType;
+			DownloadTask->ExternInfomation = pSaveGame->DownloadInfoCollection[i].ExternInfomation;
 			DownloadList.Add(DownloadTask);
+		}
 	}
 }
 
-class UDownloadTask* UDownloadManagerImpl::SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName, const FString& DisplayName/*=FString("")*/)
+class UDownloadTask* UDownloadManagerImpl::SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName, const FString& DisplayName/*=FString("")*/, EDownloadType DownloadType /*= EDownloadType::DT_None*/, const FString& ExternInfo /*= ""*/)
 {
 	UDownloadTask* DownloadTask;
 	if (DisplayName == "")
@@ -38,7 +42,11 @@ class UDownloadTask* UDownloadManagerImpl::SubmitDownloadTask(const FString& Dow
 		//Add DownloadItem To SaveGame.
 		auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 		auto pSaveGame = GameInstance->GetGlobalSaveGame();
-		pSaveGame->LocalDownloadFileCollection.Add(DestFileName);
+		FDownloadInfo DI;
+		DI.ExternInfomation = ExternInfo;
+		DI.DownloadType = (uint8)DownloadType;
+		DI.LocalFile = DestFileName;
+		pSaveGame->DownloadInfoCollection.Add(DI);
 		GameInstance->SaveGlobalSaveGame();
 	}
 	return DownloadTask;
@@ -80,13 +88,13 @@ void UDownloadManagerImpl::OnTaskFinishd()
 	for (int i = 0; i < DownloadList.Num(); i++)
 	{
 		if (DownloadList[i]->GetDownloadState() == EDownloadState::DS_Finished)
-			pSaveGame->LocalDownloadFileCollection.Remove(DownloadList[i]->GetLocalFileName());
+			pSaveGame->DownloadInfoCollection.RemoveAll([=](const FDownloadInfo& a) {return a.LocalFile == DownloadList[i]->GetLocalFileName(); });
 	}
 	//XXX: Code is out of CriticalSection
 	GameInstance->SaveGlobalSaveGame();
 }
 
-class UUploadTask* UDownloadManagerImpl::SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL, const FString& DataName, const FString& DisplayName /*= FString("")*/)
+class UUploadTask* UDownloadManagerImpl::SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL, const FString& DataName, const FString& DisplayName /*= FString("")*/, EUploadType UploadType/* = EUploadType::DT_None*/, const FString& ExternInfo /*= ""*/)
 {
 	UUploadTask* UploadTask;
 	if (DisplayName=="")
@@ -94,7 +102,11 @@ class UUploadTask* UDownloadManagerImpl::SubmitUploadTask(const FString& LocalFi
 	else
 		UploadTask = UUploadTask::CreateUploadTask(this, LocalFileName, UploadURL, DataName, DisplayName);
 	if (UploadTask)
+	{
+		UploadTask->UploadType = UploadType;
+		UploadTask->ExternInfo = ExternInfo;
 		UploadList.Add(UploadTask);
+	}
 	return UploadTask;
 }
 
@@ -113,4 +125,13 @@ void UDownloadManagerImpl::RemoveDownloadTask(class UDownloadTask* DownloadTask)
 
 void UDownloadManagerImpl::RemoveUploadTask(class UUploadTask* UploadTask)
 {
+	if (UploadTask->GetUploadState() != EUploadState::US_Finished)
+		return;
+	UploadList.Remove(UploadTask);
+}
+
+void UDownloadManagerImpl::CancelUploadTask(class UUploadTask* UploadTask)
+{
+	UploadTask->Cancel();
+	UploadList.Remove(UploadTask);
 }

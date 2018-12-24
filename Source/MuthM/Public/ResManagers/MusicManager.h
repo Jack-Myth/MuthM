@@ -30,6 +30,8 @@ public:
 		FString Musician;
 	UPROPERTY(BlueprintReadWrite)
 		FString Description;
+	UPROPERTY(BlueprintReadWrite)
+		int UploaderID;
 	UPROPERTY(BlueprintReadWrite,meta=(ToolTip="Mark Music is or not exist on remote server."))
 		bool IsOffline=false;
 	int Size;
@@ -62,6 +64,8 @@ public:
 		virtual bool ImportMP3(const FString& LocalFileName, const FString& Title, const FString& Musician) = 0;
 	//Async Import MP3
 	virtual void ImportMP3Async(const FString& LocalFileName, const FString& Title, const FString& Musician, FOnMusicImportFinished OnImportFinishedDelegate) = 0;
+	virtual void OnMusicDownloaded(bool IsSuccessful, const FString& ExternInfo) = 0;
+	virtual void OnMusicUploaded(bool IsSuccessful, int MusicID, const FString& ExternInfo) = 0;
 	UFUNCTION()
 		virtual void DeleteMusic(int ID) = 0;
 };

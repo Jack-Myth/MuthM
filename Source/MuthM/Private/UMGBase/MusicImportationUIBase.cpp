@@ -10,8 +10,10 @@ void UMusicImportationUIBase::BeginImportMusic(const FString& Title, const FStri
 	//XXX:Treat all music file as MP3.
 	OnAsyncImportStarted();
 	IMusicManager::Get(this)->ImportMP3Async(MusicFileName, Title, Musician,
-		FOnMusicImportFinished::CreateLambda([=](bool IsFinished, const FMusicInfo& MusicInfo) 
+		FOnMusicImportFinished::CreateLambda([this](bool IsFinished, const FMusicInfo& MusicInfo) 
 			{
+				if (!OnMusicImportFinished.IsBound())
+					GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, "Warning:OnMusicImportFinished Unbound!");
 				OnMusicImportFinished.ExecuteIfBound();
 				OnAsyncImportEnd();
 			}));

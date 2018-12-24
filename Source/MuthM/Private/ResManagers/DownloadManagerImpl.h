@@ -22,16 +22,17 @@ class UDownloadManagerImpl : public UObject,public IDownloadManager
 	FDownloadConfig DownloadConfig;
 public:
 	void LoadDownloadList();
-	virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName,const FString& DisplayName=FString("")) override;
+	virtual class UDownloadTask* SubmitDownloadTask(const FString& DownloadURL, const FString& DestFileName,const FString& DisplayName=FString(""),EDownloadType DownloadType=EDownloadType::DT_None,const FString& ExternInfo="") override;
 	virtual TArray<class UDownloadTask *> GetDownloadTasks() const override;
 	virtual void PauseAllDownloadTasks() override;
 	virtual void ResumeAllDownloadTasks() override;
 	virtual FDownloadConfig GetDownloadConfig() const override;
 	virtual void SetDownloadConfig(const FDownloadConfig& NewDownloadConfig) override;
 	virtual void OnTaskFinishd() override;
-	virtual class UUploadTask* SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL,const FString& DataName, const FString& DisplayName = FString("")) override;
+	virtual class UUploadTask* SubmitUploadTask(const FString& LocalFileName, const FString& UploadURL,const FString& DataName, const FString& DisplayName = FString(""), EUploadType UploadType = EUploadType::DT_None, const FString& ExternInfo = "") override;
 	virtual void CancelDownloadTask(class UDownloadTask* DownloadTask) override;
 	virtual void RemoveDownloadTask(class UDownloadTask* DownloadTask) override;
 	virtual void RemoveUploadTask(class UUploadTask* UploadTask) override;
+	virtual void CancelUploadTask(class UUploadTask* UploadTask) override;
 
 };

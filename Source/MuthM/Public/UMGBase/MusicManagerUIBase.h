@@ -23,7 +23,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void DeleteMusic(int ID);
 	UFUNCTION(BlueprintCallable)
-		void ImportMusic(FOnMusicImported OnMusicImported);
-	UFUNCTION(BlueprintImplementableEvent)
+		void ImportMusic();
+	UFUNCTION(BlueprintImplementableEvent,meta=(ToolTip="Notice:It may call many times to refresh the list after import music."))
 		void OnInitMusicList();
 };

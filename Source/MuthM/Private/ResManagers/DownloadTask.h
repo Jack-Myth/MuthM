@@ -18,8 +18,17 @@ enum class EDownloadState :uint8
 	DS_Finished UMETA(DisplayName="Finished")
 };
 
+UENUM()
+enum class EDownloadType :uint8
+{
+	DT_None,
+	DT_Music,
+	DT_MDAT,
+	DT_Mod
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDownloadProgress, int, DownloadedSize, int, TotalSize);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDownloadFinished,int,bSuccessfully);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDownloadFinished,class UDownloadTask*,DownloadTask,int,bSuccessfully);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDownloadStateChanged, EDownloadState, DownloadState);
 
 struct FDownloadRecord
@@ -72,6 +81,8 @@ class UDownloadTask : public UObject
 	EDownloadState DownloadState;
 	FString DownloadName;
 public:
+	EDownloadType DownloadType = EDownloadType::DT_None;
+	FString ExternInfomation;
 	UPROPERTY(BlueprintAssignable)
 		FOnDownloadProgress OnDownloadProgress;
 	UPROPERTY(BlueprintAssignable)

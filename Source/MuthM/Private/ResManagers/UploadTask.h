@@ -15,8 +15,17 @@ enum class EUploadState :uint8
 	US_Finished UMETA(DisplayName = "Finished")
 };
 
+UENUM()
+enum class EUploadType :uint8
+{
+	DT_None,
+	DT_Music,
+	DT_MDAT,
+	DT_Mod
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUploadProgress, int, SentSize, int, TotalSize);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUploadFinished, bool, bSuccessfully);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnUploadFinished,class UUploadTask*,UploadTask, bool, bSuccessfully);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnUploadStateChanged, EUploadState, UploadState);
 
 /**
@@ -41,6 +50,8 @@ class UUploadTask : public UObject
 	void UploadProgress(FHttpRequestPtr Request, int32 BytesSent, int32 BytesReceived);
 	void UploadFinished(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully);
 public:
+	EUploadType UploadType;
+	FString ExternInfo;
 	UPROPERTY(BlueprintAssignable)
 		FOnUploadProgress OnUploadProgress;
 	UPROPERTY(BlueprintAssignable)
@@ -52,4 +63,11 @@ public:
 		void Start();
 	UFUNCTION(BlueprintCallable)
 		void Stop();
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE EUploadState GetUploadState() const
+	{
+		return UploadState;
+	}
+	UFUNCTION()
+		void Cancel();
 };

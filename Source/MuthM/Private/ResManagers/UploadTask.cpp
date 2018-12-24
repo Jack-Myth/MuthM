@@ -6,6 +6,10 @@
 #include "NetworkManager.h"
 #include "IHttpRequest.h"
 #include "FileHelper.h"
+#include "MusicManager.h"
+#include "MuthMBPLib.h"
+#include "JsonObject.h"
+#include "IHttpResponse.h"
 
 void UUploadTask::UploadProgress(FHttpRequestPtr Request, int32 BytesSent, int32 BytesReceived)
 {
@@ -17,7 +21,23 @@ void UUploadTask::UploadFinished(FHttpRequestPtr Request, FHttpResponsePtr Respo
 	//No need to call INetworkManager::OnTaskFinished()
 	UploadState = EUploadState::US_Finished;
 	OnUploadStateChanged.Broadcast(UploadState);
-	OnUploadFinished.Broadcast(bConnectedSuccessfully);
+	OnUploadFinished.Broadcast(this,bConnectedSuccessfully);
+	
+	//Action After Upload.
+	switch (UploadType)
+	{
+		case EUploadType::DT_Music:
+			{
+				TSharedPtr<FJsonObject> JsonObj = UMuthMBPLib::DeserializeJsonFromStr(Response->GetContentAsString());
+				int MusicID = JsonObj->GetIntegerField("MusicID");
+				IMusicManager::Get(this)->OnMusicUploaded(true, MusicID, ExternInfo);
+			}
+			break;
+		case EUploadType::DT_MDAT:
+			break;
+		case EUploadType::DT_Mod:
+			break;
+	}
 }
 
 UUploadTask* UUploadTask::CreateUploadTask(const UObject* WorldContextObj,const FString& LocalFileName, const FString& TargetURL, const FString& DataName, const FString& UploadName)
@@ -75,5 +95,20 @@ void UUploadTask::Stop()
 		UploadRequest.Reset();
 		UploadState = EUploadState::US_Stoped;
 		OnUploadStateChanged.Broadcast(UploadState);
+	}
+}
+
+void UUploadTask::Cancel()
+{
+	Stop();
+	switch (UploadType)
+	{
+		case EUploadType::DT_Music:
+			IMusicManager::Get(this)->OnMusicUploaded(false, -1, ExternInfo);
+			break;
+		case EUploadType::DT_MDAT:
+			break;
+		case EUploadType::DT_Mod:
+			break;
 	}
 }

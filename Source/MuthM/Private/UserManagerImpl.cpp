@@ -13,6 +13,7 @@
 #include "MuthMGameInstance.h"
 #include "ResManagers/GlobalSaveGame.h"
 #include "Kismet/GameplayStatics.h"
+#include "ResManagers/UploadTask.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -184,7 +185,8 @@ bool UUserManagerImpl::AddMusicUploadTask(const FString& OpusFileName, const FSt
 	FString EncodedTitle = FGenericPlatformHttp::UrlEncode(Title);
 	FString EncodedMusician = FGenericPlatformHttp::UrlEncode(Musician);
 	FString URL = FString::Printf(TEXT("%s/upload_mdat.php?Title=%s&LinkOnly=false&Description=%s"), *EncodedTitle, *EncodedMusician);
-	return !!IDownloadManager::Get(this)->SubmitUploadTask(OpusFileName, URL, "MusicFile");
+	UUploadTask* UploadTask = IDownloadManager::Get(this)->SubmitUploadTask(OpusFileName, URL, "MusicFile");
+	return !!UploadTask;
 }
 
 FString UUserManagerImpl::GenCookies() const

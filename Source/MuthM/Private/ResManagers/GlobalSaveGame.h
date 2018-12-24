@@ -7,6 +7,19 @@
 #include "MusicManager.h"
 #include "GlobalSaveGame.generated.h"
 
+USTRUCT()
+struct FDownloadInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+		FString LocalFile;
+	UPROPERTY()
+		uint8 DownloadType;
+	UPROPERTY()
+		FString ExternInfomation;
+};
+
 /**
  * 
  */
@@ -26,5 +39,5 @@ public:
 	UPROPERTY()
 		TArray<FMusicInfo> MusicInfoCollection;
 	UPROPERTY()
-		TArray<FString> LocalDownloadFileCollection;
+		TArray<FDownloadInfo> DownloadInfoCollection;
 };
