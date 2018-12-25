@@ -135,3 +135,25 @@ void UDownloadManagerImpl::CancelUploadTask(class UUploadTask* UploadTask)
 	UploadTask->Cancel();
 	UploadList.Remove(UploadTask);
 }
+
+TArray<class UDownloadTask *> UDownloadManagerImpl::FindDownloadTasksByTag(const FString& Tag)
+{
+	TArray<UDownloadTask*> FoundItem;
+	for (int i=0;i<DownloadList.Num();i++)
+	{
+		if (DownloadList[i]->Tags.Find(Tag) != INDEX_NONE)
+			FoundItem.Add(DownloadList[i]);
+	}
+	return FoundItem;
+}
+
+TArray<class UUploadTask *> UDownloadManagerImpl::FindUploadTasksByTag(const FString& Tag)
+{
+	TArray<UUploadTask*> FoundItem;
+	for (int i = 0; i < DownloadList.Num(); i++)
+	{
+		if (UploadList[i]->Tags.Find(Tag) != INDEX_NONE)
+			FoundItem.Add(UploadList[i]);
+	}
+	return FoundItem;
+}

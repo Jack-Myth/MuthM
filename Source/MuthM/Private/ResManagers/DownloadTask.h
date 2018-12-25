@@ -82,6 +82,8 @@ class UDownloadTask : public UObject
 	FString DownloadName;
 public:
 	EDownloadType DownloadType = EDownloadType::DT_None;
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FString> Tags;
 	FString ExternInfomation;
 	UPROPERTY(BlueprintAssignable)
 		FOnDownloadProgress OnDownloadProgress;

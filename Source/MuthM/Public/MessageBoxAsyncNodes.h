@@ -18,7 +18,6 @@ class MUTHM_API UPupopMessage : public UBlueprintAsyncActionBase
 	virtual void Activate() override;
 	FText Message;
 	FText Title;
-	UObject* _WorldContext;
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMsgBoxReplied Confirmed;
@@ -39,7 +38,6 @@ class MUTHM_API UPupopQuestion : public UBlueprintAsyncActionBase
 	FText Question;
 	FText Title;
 	bool AllowCancel;
-	UObject* _WorldContext;
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMsgBoxReplied Yes;

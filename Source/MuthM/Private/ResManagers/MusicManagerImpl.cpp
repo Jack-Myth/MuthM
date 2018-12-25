@@ -20,17 +20,20 @@
 #include "DownloadManager.h"
 #include "Runnable.h"
 #include "Async.h"
+#include "UserManager.h"
+#include "GenericPlatformHttp.h"
 
 DEFINE_LOG_CATEGORY(MuthMMusicManager)
 
 void UMusicManagerImpl::PrepareDownloadMusic(int MusicID, bool IsMusicExist,const FMusicInfo& MusicInfo)
 {
-	if (!IsMusicExist)
+	if (!IsMusicExist||IDownloadManager::Get(this)->FindDownloadTasksByTag(FString::FromInt(MusicID)).Num()!=0)
 		return;
 	auto* DownloadTask = IDownloadManager::Get(this)->SubmitDownloadTask(
 		FString::Printf(TEXT("%s/get_music.php?MusicID=%d"), TEXT(MUTHM_URL_ROOT), MusicID), ConstructMusicFileName(MusicID),MusicInfo.Title);
 	if (DownloadTask)
 	{
+		DownloadTask->Tags.Add(FString::FromInt(MusicID));
 		auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 		auto pSaveGame = GameInstance->GetGlobalSaveGame();
 		pSaveGame->MusicInfoCollection.Add(MusicInfo);
@@ -256,4 +259,36 @@ void UMusicManagerImpl::OnMusicUploaded(bool IsSuccessful, int MusicID, const FS
 		MusicInfo->ID = MusicID;
 		GameInstance->SaveGlobalSaveGame();
 	}
+}
+
+bool UMusicManagerImpl::UploadMusicLinkOnly(int ID, const FString& MusicURL, const FString& Title, const FString& Musician)
+{
+	if (!IUserManager::Get(this)->IsLoggedIn())
+		return false;
+	TSharedPtr<IHttpRequest> Request = INetworkManager::Get(this)->GenRequest();
+	FString EncodedTitle = FGenericPlatformHttp::UrlEncode(Title);
+	FString EncodedMusician = FGenericPlatformHttp::UrlEncode(Musician);
+	FString URL = FString::Printf(TEXT("%s/upload_music.php?Title=%s&LinkOnly=true&MusicURL=%s&Description=%s"), *EncodedTitle, *MusicURL, *EncodedMusician);
+	Request->SetURL(URL);
+	return Request->ProcessRequest();
+}
+
+bool UMusicManagerImpl::AddMusicUploadTask(int ID, const FString& Title, const FString& Musician)
+{
+	if (!IUserManager::Get(this)->IsLoggedIn()||IDownloadManager::Get(this)->FindUploadTasksByTag(FString::FromInt(ID)).Num()!=0)
+		return false;
+	FString LocalFileName;
+	if (ID >= 0)
+		LocalFileName = ConstructMusicFileName(ID);
+	else
+		LocalFileName = ConstructOfflineMusicFileName(ID);
+	if (!IFileManager::Get().FileExists(*LocalFileName))
+		return false;
+	TSharedPtr<IHttpRequest> Request = INetworkManager::Get(this)->GenRequest();
+	FString EncodedTitle = FGenericPlatformHttp::UrlEncode(Title);
+	FString EncodedMusician = FGenericPlatformHttp::UrlEncode(Musician);
+	FString URL = FString::Printf(TEXT("%s/upload_mdat.php?Title=%s&LinkOnly=false&Description=%s"), *EncodedTitle, *EncodedMusician);
+	UUploadTask* UploadTask = IDownloadManager::Get(this)->SubmitUploadTask(LocalFileName, URL, "MusicFile",Title,EUploadType::DT_Music,FString::FromInt(ID));
+	UploadTask->Tags.Add(FString::FromInt(ID));
+	return !!UploadTask;
 }

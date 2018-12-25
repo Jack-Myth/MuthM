@@ -26,4 +26,6 @@ public:
 		void ImportMusic();
 	UFUNCTION(BlueprintImplementableEvent,meta=(ToolTip="Notice:It may call many times to refresh the list after import music."))
 		void OnInitMusicList();
+	UFUNCTION(BlueprintCallable)
+		void UploadMusic(int ID,const FString& Title,const FString& Musician);
 };

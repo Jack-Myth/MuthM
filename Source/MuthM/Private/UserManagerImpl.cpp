@@ -165,30 +165,6 @@ bool UUserManagerImpl::AddMDATUploadTask(const FString& MDATFileName, const FStr
 	return !!IDownloadManager::Get(this)->SubmitUploadTask(MDATFileName, URL, "MDATFile");
 }
 
-bool UUserManagerImpl::UploadMusicLinkOnly(const FString& MusicURL, const FString& Title, const FString& Musician, int MusicID /*= 0*/)
-{
-	if (!IsLoggedIn())
-		return false;
-	TSharedPtr<IHttpRequest> Request = INetworkManager::Get(this)->GenRequest();
-	FString EncodedTitle = FGenericPlatformHttp::UrlEncode(Title);
-	FString EncodedMusician = FGenericPlatformHttp::UrlEncode(Musician);
-	FString URL = FString::Printf(TEXT("%s/upload_music.php?Title=%s&LinkOnly=true&MusicURL=%s&Description=%s"), *EncodedTitle, *MusicURL, *EncodedMusician);
-	Request->SetURL(URL);
-	return Request->ProcessRequest();
-}
-
-bool UUserManagerImpl::AddMusicUploadTask(const FString& OpusFileName, const FString& Title, const FString& Musician, int MusicID /*= 0*/)
-{
-	if (!IsLoggedIn())
-		return false;
-	TSharedPtr<IHttpRequest> Request = INetworkManager::Get(this)->GenRequest();
-	FString EncodedTitle = FGenericPlatformHttp::UrlEncode(Title);
-	FString EncodedMusician = FGenericPlatformHttp::UrlEncode(Musician);
-	FString URL = FString::Printf(TEXT("%s/upload_mdat.php?Title=%s&LinkOnly=false&Description=%s"), *EncodedTitle, *EncodedMusician);
-	UUploadTask* UploadTask = IDownloadManager::Get(this)->SubmitUploadTask(OpusFileName, URL, "MusicFile");
-	return !!UploadTask;
-}
-
 FString UUserManagerImpl::GenCookies() const
 {
 	return IsLoggedIn()?FString::Printf(TEXT("UserID=%d;Token=%s"), _UserID, *_Token):"";

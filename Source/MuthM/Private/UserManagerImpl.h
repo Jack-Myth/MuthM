@@ -62,10 +62,4 @@ public:
 
 	virtual bool AddMDATUploadTask(const FString& MDATFileName, const FString& Title, const FString& Description, int MDATID = 0) override;
 
-
-	virtual bool UploadMusicLinkOnly(const FString& OpusFileName, const FString& Title, const FString& Musician, int MusicID = 0) override;
-
-
-	virtual bool AddMusicUploadTask(const FString& OpusFileName, const FString& Title, const FString& Musician, int MusicID = 0) override;
-
 };

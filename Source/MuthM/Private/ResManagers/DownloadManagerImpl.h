@@ -34,5 +34,7 @@ public:
 	virtual void RemoveDownloadTask(class UDownloadTask* DownloadTask) override;
 	virtual void RemoveUploadTask(class UUploadTask* UploadTask) override;
 	virtual void CancelUploadTask(class UUploadTask* UploadTask) override;
+	virtual TArray<class UDownloadTask *> FindDownloadTasksByTag(const FString& Tag) override;
+	virtual TArray<class UUploadTask *> FindUploadTasksByTag(const FString& Tag) override;
 
 };

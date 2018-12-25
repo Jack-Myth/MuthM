@@ -73,10 +73,6 @@ public:
 		virtual bool UploadMDATLinkOnly(const FString& MDATURL, const FString& Title, const FString& Description, int MDATID = 0) = 0;
 	UFUNCTION()
 		virtual bool AddMDATUploadTask(const FString& MDATFileName, const FString& Title, const FString& Description, int MDATID = 0) = 0;
-	UFUNCTION()
-		virtual bool UploadMusicLinkOnly(const FString& MusicURL, const FString& Title, const FString& Musician, int MusicID = 0) = 0;
-	UFUNCTION()
-		virtual bool AddMusicUploadTask(const FString& OpusFileName, const FString& Title, const FString& Musician, int MusicID = 0) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual FString GetAvatarURL(int UserID) const = 0;
 	UFUNCTION(BlueprintCallable)

@@ -64,4 +64,8 @@ public:
 		virtual void RemoveDownloadTask(class UDownloadTask* DownloadTask) = 0;
 	UFUNCTION(BlueprintCallable, meta=(ToolTip = "Notice: Only allow to remove finished task."))
 		virtual void RemoveUploadTask(class UUploadTask* UploadTask) = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual TArray<class UDownloadTask*> FindDownloadTasksByTag(const FString& Tag) = 0;
+	UFUNCTION(BlueprintCallable)
+		virtual TArray<class UUploadTask*> FindUploadTasksByTag(const FString& Tag) = 0;
 };

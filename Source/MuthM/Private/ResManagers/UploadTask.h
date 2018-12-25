@@ -52,6 +52,8 @@ class UUploadTask : public UObject
 public:
 	EUploadType UploadType;
 	FString ExternInfo;
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FString> Tags;
 	UPROPERTY(BlueprintAssignable)
 		FOnUploadProgress OnUploadProgress;
 	UPROPERTY(BlueprintAssignable)

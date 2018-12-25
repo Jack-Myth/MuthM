@@ -5,17 +5,14 @@
 void UQuestionBoxBase::Yes()
 {
 	OnYes.Broadcast();
-	RemoveFromParent();
 }
 
 void UQuestionBoxBase::No()
 {
 	OnNo.Broadcast();
-	RemoveFromParent();
 }
 
 void UQuestionBoxBase::Cancel()
 {
 	OnCancel.Broadcast();
-	RemoveFromParent();
 }

@@ -38,5 +38,6 @@ public:
 	virtual void DeleteMusic(int ID) override;
 	virtual void OnMusicDownloaded(bool IsSuccessful, const FString& ExternInfo) override;
 	virtual void OnMusicUploaded(bool IsSuccessful, int MusicID, const FString& ExternInfo) override;
-
+	virtual bool AddMusicUploadTask(int ID, const FString& Title, const FString& Musician) override;
+	virtual bool UploadMusicLinkOnly(int ID, const FString& MusicURL, const FString& Title, const FString& Musician) override;
 };

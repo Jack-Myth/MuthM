@@ -29,6 +29,12 @@ void UUploadTask::UploadFinished(FHttpRequestPtr Request, FHttpResponsePtr Respo
 		case EUploadType::DT_Music:
 			{
 				TSharedPtr<FJsonObject> JsonObj = UMuthMBPLib::DeserializeJsonFromStr(Response->GetContentAsString());
+				if (JsonObj->GetIntegerField("ErrCode")!=0)
+				{
+					//Upload Failed
+					IMusicManager::Get(this)->OnMusicUploaded(false, 0, ExternInfo);
+					break;
+				}
 				int MusicID = JsonObj->GetIntegerField("MusicID");
 				IMusicManager::Get(this)->OnMusicUploaded(true, MusicID, ExternInfo);
 			}
