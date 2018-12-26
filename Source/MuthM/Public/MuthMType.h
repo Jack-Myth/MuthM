@@ -25,11 +25,14 @@ class MUTHM_API FMDATFile
 	//Need To convert the File Path to the simplest
 	TMap<FString, FileInfo> _Files;
 	uint32 _DataAddressBase;
+
+	//The Local File Name
 	FString _MDATFileName;
 	bool _DeserializeInternal(const uint8* _pData);
 	bool _DeserializeInternal_Lazy(IFileHandle* FileHandle);
 	void _SerializeInternal(TArray<uint8>& DataResult);
 	void _LazyLoad(FileInfo* pFileInfo) const;
+	FString _FormatFileName(const FString& FileName) const;
 public:
 	FMDATFile()=default;
 
@@ -58,29 +61,30 @@ public:
 	TArray<uint8> GetFileData(FString FileName) const;
 	FORCEINLINE uint32 GetFileAddress(FString FileName) const
 	{
-		const FileInfo* TargetFileInfo = _Files.Find(FileName);
+		const FileInfo* TargetFileInfo = _Files.Find(_FormatFileName(FileName));
 		return TargetFileInfo ? TargetFileInfo->Address : NULL;
 	}
 	FORCEINLINE uint32 GetFileCompressedLength(FString FileName) const
 	{
-		const FileInfo* TargetFileInfo = _Files.Find(FileName);
+		const FileInfo* TargetFileInfo = _Files.Find(_FormatFileName(FileName));
 		return TargetFileInfo ? TargetFileInfo->CompressedLength : NULL;
 	}
 	FORCEINLINE bool IsFileExist(FString FileName) const
 	{
-		return _Files.Find(FileName);
+		return _Files.Find(_FormatFileName(FileName));
 	}
 
 	bool AddFile(FString FileName, const TArray<uint8>& FileData);
 	FORCEINLINE bool RemoveFile(FString FileName)
 	{
-		return _Files.Remove(FileName);
+		return _Files.Remove(_FormatFileName(FileName));
 	}
 
 	//Save MDAT to local file.
-	bool Save(FString FileName);
+	bool Save(FString FileName="");
 	FORCEINLINE void Serialize(TArray<uint8>& DataResult)
 	{
 		_SerializeInternal(DataResult);
 	}
+
 };

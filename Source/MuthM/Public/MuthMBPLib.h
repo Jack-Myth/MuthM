@@ -10,6 +10,43 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMBPLib, Log, All);
 
+USTRUCT(BlueprintType)
+struct FMusicScoreInfo
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadWrite)
+		FString Title;
+	UPROPERTY(BlueprintReadWrite)
+		FString Subtitle;
+	UPROPERTY(BlueprintReadWrite)
+		FString Img;
+	UPROPERTY(BlueprintReadWrite)
+		int MusicID;
+	UPROPERTY(BlueprintReadWrite)
+		FString ScoreDataFileName;
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FName> RequestMods;
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FName> OptionalMods;
+};
+
+USTRUCT(BlueprintType)
+struct FMDATMainInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadWrite)
+		FString Title;
+	int AuthorID;
+	UPROPERTY(BlueprintReadWrite)
+		FString AuthorName;
+	UPROPERTY(BlueprintReadWrite)
+		FString Description;
+	UPROPERTY(BlueprintReadWrite)
+		FString Cover;
+	TArray<FMusicScoreInfo> ScoreInfoCollection;
+};
+
 /**
  * 
  */
@@ -41,7 +78,7 @@ public:
 	static UTexture2D* TextureFromImage(const int32 SrcWidth, const int32 SrcHeight, const TArray<FColor>&SrcData, const bool UseAlpha);
 	UFUNCTION(BlueprintPure)
 		static FBlueprintJsonObject LoadJsonFromStr(FString JsonStr);
-	static TSharedPtr<FJsonObject> DeserializeJsonFromUTF8(TArray<uint8> CharArray);
+	static TSharedPtr<FJsonObject> DeserializeJsonFromUTF8(const TArray<uint8>& CharArray);
 	static TSharedPtr<FJsonObject> DeserializeJsonFromStr(FString JsonStr);
 	UFUNCTION(BlueprintCallable)
 		static class USoundWave* DecodeWaveFromOGG(const TArray<uint8>& OGGData);
@@ -55,7 +92,6 @@ public:
 		static void AddNumberItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemNumber NumberItem);
 	UFUNCTION(BlueprintCallable)
 		static void AddCustomItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemCustom CustomItem);
-
 	//Fill Filter by file extension,if the first element include character '/',it will be treat as MIME Type.
 	UFUNCTION(BlueprintCallable)
 		static bool GetOpenFileName(const FText& Title, TArray<FString> Filters, bool AllowMultipleSelected, TArray<FString>& SelectedFileName, const FString& InitDir = "");

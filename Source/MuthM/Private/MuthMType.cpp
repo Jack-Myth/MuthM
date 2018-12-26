@@ -76,6 +76,11 @@ bool FMDATFile::_DeserializeInternal_Lazy(IFileHandle* FileHandle)
 			break;
 		auto Convertion = FUTF8ToTCHAR((const ANSICHAR*)tmpData.GetData());
 		FString FileName = Convertion.Get();
+		FString SimplestFileName = _FormatFileName(FileName);
+#if !UE_BUILD_SHIPPING
+		if (FileName!=SimplestFileName)
+			UE_LOG(MDATFile,Warning,TEXT("FileName \"%s\" is not the samplest."),*FileName)
+#endif
 		FileInfo CurFile;
 		tmpData.SetNum(sizeof(uint32),false);
 		FileHandle->Read(tmpData.GetData(), sizeof(uint32));
@@ -88,7 +93,7 @@ bool FMDATFile::_DeserializeInternal_Lazy(IFileHandle* FileHandle)
 		CurFile.Address = FileAddress;
 		CurFile.CompressedLength = FileSize;
 		CurFile.OriginalLength = OriginalFileLength;
-		_Files.Add(FileName, CurFile);
+		_Files.Add(SimplestFileName, CurFile);
 	}
 	_DataAddressBase = FileHandle->Tell();
 	return true;
@@ -143,6 +148,29 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 	pFileInfo->bLoaded = true;
 }
 
+FString FMDATFile::_FormatFileName(const FString& FileName) const
+{
+	FString TargetFilePath = FileName;
+	TargetFilePath.Replace(TEXT("\\"), TEXT("/"));
+	//Clear Duplicated '/'
+	for (auto it = TargetFilePath.CreateIterator(); it; ++it)
+	{
+		if (*it == TEXT('/'))
+		{
+			for (auto itx = it + 1; it; it++)
+			{
+				if (*itx == TEXT('/'))
+					itx.RemoveCurrent();
+				else
+					break;
+			}
+		}
+	}
+	if (TargetFilePath[0] != TEXT('/'))
+		TargetFilePath = TEXT("/")+TargetFilePath;
+	return TargetFilePath;
+}
+
 bool FMDATFile::LoadFromFile(FString FileName)
 {
 	TArray<uint8> Result;
@@ -160,7 +188,7 @@ bool FMDATFile::LoadFromFile(FString FileName)
 
 TArray<uint8> FMDATFile::GetFileData(FString FileName) const
 {
-	//TODO:Need to convert the FileName;
+	FileName = _FormatFileName(FileName);
 	const FileInfo* TargetFileInfo = _Files.Find(FileName);
 	if (TargetFileInfo)
 	{
@@ -173,6 +201,7 @@ TArray<uint8> FMDATFile::GetFileData(FString FileName) const
 
 bool FMDATFile::AddFile(FString FileName, const TArray<uint8>& FileData)
 {
+	FileName = _FormatFileName(FileName);
 	if (IsFileExist(FileName))
 		return false;
 	FileInfo& tmpFileInfo= _Files.Add(FileName);
@@ -185,7 +214,9 @@ bool FMDATFile::AddFile(FString FileName, const TArray<uint8>& FileData)
 
 bool FMDATFile::Save(FString FileName)
 {
+	if (FileName != "" || _MDATFileName != "")
+		return false;
 	TArray<uint8> ResData;
 	Serialize(ResData);
-	return FFileHelper::SaveArrayToFile(ResData, *FileName);
+	return FFileHelper::SaveArrayToFile(ResData, FileName!=""?*FileName:*_MDATFileName);
 }

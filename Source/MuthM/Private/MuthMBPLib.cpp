@@ -188,7 +188,7 @@ FBlueprintJsonObject UMuthMBPLib::LoadJsonFromStr(FString JsonStr)
 	return tmpJsonObj;
 }
 
-TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromUTF8(TArray<uint8> CharArray)
+TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromUTF8(const TArray<uint8>& CharArray)
 {
 	FString JsonStr(UTF8_TO_TCHAR((const ANSICHAR*)CharArray.GetData()));
 	return DeserializeJsonFromStr(JsonStr);

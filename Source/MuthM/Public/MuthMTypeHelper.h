@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MuthMBPLib.h"
+
+
 
 /**
  * 
@@ -39,4 +42,7 @@ public:
 		DataToSave.Add(Int);
 		return DataToSave;
 	}
+
+	static bool TryGetMDATMainInfo(class FMDATFile* MDATFile, FMDATMainInfo& MainInfo);
+	static void SaveMDATMainInfo(class FMDATFile* MDATFile, const FMDATMainInfo& MainInfo);
 };
