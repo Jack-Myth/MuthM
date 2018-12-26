@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "MuthMBPLib.h"
-#include "ScoreEditorEntry.generated.h"
+#include "ScoreEditorEntryUIBase.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MUTHM_API UScoreEditorEntry : public UUserWidget
+class MUTHM_API UScoreEditorEntryUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 

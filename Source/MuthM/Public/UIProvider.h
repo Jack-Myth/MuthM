@@ -31,6 +31,8 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicManagerUIDelegate, TSubclassOf<class UMu
 DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreManagerUIDelegate, TSubclassOf<class UScoreManagerUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FModManagerUIDelegate, TSubclassOf<class UModManagerUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicImportationUIDelegate, TSubclassOf<class UMusicImportationUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreEditorEntryUIDelegate, TSubclassOf<class UScoreEditorEntryUIBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FInputBoxDelegate, TSubclassOf<class UInputBoxBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
 UCLASS(NotBlueprintable)
@@ -208,5 +210,19 @@ public:
 		void ClearMusicImportationUI() { MusicImportationUI.Unbind(); }
 	UFUNCTION(BlueprintPure)
 		TSubclassOf<class UMusicImportationUIBase> GetMusicImportationUI(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FScoreEditorEntryUIDelegate ScoreEditorEntryUI;
+	UFUNCTION(BlueprintCallable)
+		void ClearScoreEditorEntryUI() { ScoreEditorEntryUI.Unbind(); }
+	UFUNCTION(BlueprintPure)
+		TSubclassOf<class UScoreEditorEntryUIBase> GetScoreEditorEntryUI(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FInputBoxDelegate InputBox;
+	UFUNCTION(BlueprintCallable)
+		void ClearInputBox() { InputBox.Unbind(); }
+	UFUNCTION(BlueprintPure)
+		TSubclassOf<class UInputBoxBase> GetInputBox(); 
  
 }; 

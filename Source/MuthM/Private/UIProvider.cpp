@@ -28,6 +28,8 @@
 #include "ScoreManagerUIBase.h" 
 #include "ModManagerUIBase.h" 
 #include "MusicImportationUIBase.h" 
+#include "ScoreEditorEntryUIBase.h" 
+#include "InputBoxBase.h" 
  
 UUIProvider* UUIProvider::Get(const UObject* WorldContextObj)
 {
@@ -370,6 +372,34 @@ TSubclassOf<UMusicImportationUIBase> UUIProvider::GetMusicImportationUI()
 	else
 	{
 		return LoadClass<UMusicImportationUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MusicImportationUI.MusicImportationUI_C'"));
+	} 
+} 
+ 
+TSubclassOf<UScoreEditorEntryUIBase> UUIProvider::GetScoreEditorEntryUI() 
+{ 
+	if(ScoreEditorEntryUI.IsBound()) 
+	{ 
+		TSubclassOf<UScoreEditorEntryUIBase> _uclass; 
+		ScoreEditorEntryUI.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UScoreEditorEntryUIBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ScoreEditorEntryUI.ScoreEditorEntryUI_C'"));
+	} 
+} 
+ 
+TSubclassOf<UInputBoxBase> UUIProvider::GetInputBox() 
+{ 
+	if(InputBox.IsBound()) 
+	{ 
+		TSubclassOf<UInputBoxBase> _uclass; 
+		InputBox.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UInputBoxBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/InputBox.InputBox_C'"));
 	} 
 } 
  
