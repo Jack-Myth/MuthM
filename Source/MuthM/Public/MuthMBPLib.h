@@ -37,14 +37,16 @@ struct FMDATMainInfo
 
 	UPROPERTY(BlueprintReadWrite)
 		FString Title;
-	int AuthorID;
+	UPROPERTY(BlueprintReadWrite)
+		int AuthorID;
 	UPROPERTY(BlueprintReadWrite)
 		FString AuthorName;
 	UPROPERTY(BlueprintReadWrite)
 		FString Description;
 	UPROPERTY(BlueprintReadWrite)
 		FString Cover;
-	TArray<FMusicScoreInfo> ScoreInfoCollection;
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FMusicScoreInfo> ScoreInfoCollection;
 };
 
 /**
@@ -73,7 +75,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		static class UTexture2D* GetLocalTexture(const FString &_TexPath);
-	static class UTexture2D* GetLocalTextureByImageData(const TArray<uint8>& ImageData);
+	UFUNCTION(BlueprintCallable)
+		static class UTexture2D* GetLocalTextureByImageData(const TArray<uint8>& ImageData);
 	static TArray<FColor> uint8ToFColor(const TArray<uint8> origin);
 	static UTexture2D* TextureFromImage(const int32 SrcWidth, const int32 SrcHeight, const TArray<FColor>&SrcData, const bool UseAlpha);
 	UFUNCTION(BlueprintPure)

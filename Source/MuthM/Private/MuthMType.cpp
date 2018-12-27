@@ -220,3 +220,17 @@ bool FMDATFile::Save(FString FileName)
 	Serialize(ResData);
 	return FFileHelper::SaveArrayToFile(ResData, FileName!=""?*FileName:*_MDATFileName);
 }
+
+TArray<FString> FMDATFile::GetAllFileNames()
+{
+	TArray<FString> FileNames;
+	_Files.GetKeys(FileNames);
+	return FileNames;
+}
+
+void FMDATFile::MakeEmpty()
+{
+	_Files.Empty();
+	_MDATFileName = "";
+	_DataAddressBase = 0;
+}

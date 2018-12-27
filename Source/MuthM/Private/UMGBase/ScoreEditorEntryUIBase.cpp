@@ -45,10 +45,55 @@ void UScoreEditorEntryUIBase::UpdateMDATInfo(const FString& FileName, FMDATMainI
 	MuthMTypeHelper::SaveMDATMainInfo(&tmpMDAT, MainInfo);
 }
 
-bool UScoreEditorEntryUIBase::TryGetMDATMainInfo(const FString& FileName, FMDATMainInfo& MDATInfo)
+bool UScoreEditorEntryUIBase::OpenMDAT(const FString& FileName, FMDATMainInfo& MDATInfo)
 {
-	FMDATFile tmpMDAT;
-	if (!tmpMDAT.LoadFromFile(FileName))
+	TSharedPtr<FMDATFile> tmpMDAT = MakeShareable(new FMDATFile());
+	if (!tmpMDAT->LoadFromFile(FileName))
 		return false;
-	return MuthMTypeHelper::TryGetMDATMainInfo(&tmpMDAT, MDATInfo);
+	_MDATInstance = tmpMDAT;
+	return MuthMTypeHelper::TryGetMDATMainInfo(_MDATInstance.Get(), MDATInfo);
+}
+
+bool UScoreEditorEntryUIBase::GetFileFromOpenedMDAT(const FString& FileName, TArray<uint8>& FileData) const
+{
+	if (!_MDATInstance.IsValid())
+		return false;
+	if (_MDATInstance->IsFileExist(FileName))
+	{
+		FileData = _MDATInstance->GetFileData(FileName);
+		return true;
+	}
+	else
+		return false;
+}
+
+TArray<FString> UScoreEditorEntryUIBase::GetOpenedMDATFileList()
+{
+	if (!_MDATInstance.IsValid())
+		return TArray<FString>();
+	return _MDATInstance->GetAllFileNames();
+}
+
+void UScoreEditorEntryUIBase::SaveOpenedMDATMainInfo(const FMDATMainInfo& MDATInfo)
+{
+	if (!_MDATInstance.IsValid())
+		return;
+	MuthMTypeHelper::SaveMDATMainInfo(_MDATInstance.Get(),MDATInfo);
+}
+
+bool UScoreEditorEntryUIBase::RenameOpenedMDATFile(const FString& NewFileName)
+{
+	if (IFileManager::Get().FileExists(*ConstructMDATPath(NewFileName)))
+		return false;
+	FString OpenedFileName = _MDATInstance->GetLocalFileName();
+	return IFileManager::Get().Move(*ConstructMDATPath(NewFileName), *OpenedFileName,false);
+}
+
+void UScoreEditorEntryUIBase::DeleteOpenedMDATFile()
+{
+	if (!_MDATInstance.IsValid())
+		return;
+	FString MDATFileName = _MDATInstance->GetLocalFileName();
+	_MDATInstance.Reset();
+	IFileManager::Get().Delete(*MDATFileName);
 }

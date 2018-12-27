@@ -87,4 +87,15 @@ public:
 		_SerializeInternal(DataResult);
 	}
 
+	TArray<FString> GetAllFileNames();
+
+	//Clear all data restore to default mode.
+	//Same as =FMDATFile();
+	void MakeEmpty();
+
+	//Return local file that the instance is open form.
+	FORCEINLINE FString GetLocalFileName() const
+	{
+		return _MDATFileName;
+	}
 };
