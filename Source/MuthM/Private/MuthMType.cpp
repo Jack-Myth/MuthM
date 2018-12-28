@@ -76,7 +76,7 @@ bool FMDATFile::_DeserializeInternal_Lazy(IFileHandle* FileHandle)
 			break;
 		auto Convertion = FUTF8ToTCHAR((const ANSICHAR*)tmpData.GetData());
 		FString FileName = Convertion.Get();
-		FString SimplestFileName = _FormatFileName(FileName);
+		FString SimplestFileName = FormatFileName(FileName);
 #if !UE_BUILD_SHIPPING
 		if (FileName!=SimplestFileName)
 			UE_LOG(MDATFile,Warning,TEXT("FileName \"%s\" is not the samplest."),*FileName)
@@ -114,12 +114,14 @@ void FMDATFile::_SerializeInternal(TArray<uint8>& DataResult)
 		CompressBuffer.SetNum(it->Value.CompressedLength ? it->Value.CompressedLength : it->Value.OriginalLength);
 		unsigned long DestLen = CompressBuffer.Num();
 		compress2(CompressBuffer.GetData(), &DestLen, it->Value.Data.GetData(), it->Value.Data.Num(), Z_BEST_COMPRESSION);
+		it->Value.CompressedLength = DestLen;
 		DataArea.Append(CompressBuffer.GetData(), DestLen);
 		DataResult.Append((const uint8*)TTU.Get(), TTU.Length()+1); //Include Terminator Character
 		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.Address));
-		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.CompressedLength));
+		DataResult.Append(MuthMTypeHelper::SaveIntToData(DestLen));
 		DataResult.Append(MuthMTypeHelper::SaveIntToData(it->Value.OriginalLength));
 	}
+	DataResult.Add(0);
 	DataResult.Append(DataArea);
 }
 
@@ -136,19 +138,21 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 	FileHandle->Seek(pFileInfo->Address + _DataAddressBase);
 	TArray<uint8> CompressedData;
 	CompressedData.SetNum(pFileInfo->CompressedLength);
-	if (!FileHandle->Read(pFileInfo->Data.GetData(), pFileInfo->CompressedLength))
+	if (!FileHandle->Read(CompressedData.GetData(), pFileInfo->CompressedLength))
 	{
 		//Load Failed!
 		UE_LOG(MDATFile, Error, TEXT("Unable to load data from %s!"), *_MDATFileName);
+		delete FileHandle;
 		return;
 	}
+	delete FileHandle;
 	pFileInfo->Data.SetNum(pFileInfo->OriginalLength);
 	unsigned long DestLen = pFileInfo->Data.Num();
 	uncompress(pFileInfo->Data.GetData(), &DestLen, CompressedData.GetData(), CompressedData.Num());
 	pFileInfo->bLoaded = true;
 }
 
-FString FMDATFile::_FormatFileName(const FString& FileName) const
+FString FMDATFile::FormatFileName(const FString& FileName)
 {
 	FString TargetFilePath = FileName;
 	TargetFilePath.Replace(TEXT("\\"), TEXT("/"));
@@ -166,9 +170,36 @@ FString FMDATFile::_FormatFileName(const FString& FileName) const
 			}
 		}
 	}
-	if (TargetFilePath[0] != TEXT('/'))
+	if (TargetFilePath==""||TargetFilePath[0] != TEXT('/'))
 		TargetFilePath = TEXT("/")+TargetFilePath;
 	return TargetFilePath;
+}
+
+FolderTree FMDATFile::_GenFolderTreeInternal(const TArray<FString>& FileNames, const FString& FolderName)
+{
+	//TODO:Performance Warning.
+	TMap<FString, TArray<FString>> FolderNames;
+	FolderTree FT;
+	for (int i=0;i<FileNames.Num();i++)
+	{
+		FString L, R;
+		if (!FileNames[i].Split("/", &L, &R))
+		{
+			//Is File,can not be split.
+			FT.Files.Add(FileNames[i]);
+		}
+		else
+		{
+			//Have Folder.
+			FolderNames.FindOrAdd(L).Add(R);
+		}
+	}
+	for (auto it=FolderNames.CreateIterator();it;++it)
+	{
+		FT.Folders.Add(_GenFolderTreeInternal(it->Value, it->Key));
+	}
+	FT.FolderName = FolderName;
+	return FT;
 }
 
 bool FMDATFile::LoadFromFile(FString FileName)
@@ -181,14 +212,21 @@ bool FMDATFile::LoadFromFile(FString FileName)
 		return false;
 	}
 	bool IsSucceed = _DeserializeInternal_Lazy(FileHandle);
+	delete FileHandle; //Close File
 	if (!IsSucceed)
+	{
 		UE_LOG(MDATFile, Error, TEXT("At File Name:%s"), *FileName);
+	}
+	else
+	{
+		_MDATFileName = FileName;
+	}
 	return IsSucceed;
 }
 
 TArray<uint8> FMDATFile::GetFileData(FString FileName) const
 {
-	FileName = _FormatFileName(FileName);
+	FileName = FormatFileName(FileName);
 	const FileInfo* TargetFileInfo = _Files.Find(FileName);
 	if (TargetFileInfo)
 	{
@@ -201,7 +239,9 @@ TArray<uint8> FMDATFile::GetFileData(FString FileName) const
 
 bool FMDATFile::AddFile(FString FileName, const TArray<uint8>& FileData)
 {
-	FileName = _FormatFileName(FileName);
+	FileName = FormatFileName(FileName);
+	if (FileName.EndsWith("/"))
+		return false;
 	if (IsFileExist(FileName))
 		return false;
 	FileInfo& tmpFileInfo= _Files.Add(FileName);
@@ -214,11 +254,14 @@ bool FMDATFile::AddFile(FString FileName, const TArray<uint8>& FileData)
 
 bool FMDATFile::Save(FString FileName)
 {
-	if (FileName != "" || _MDATFileName != "")
+	if (FileName == "" && _MDATFileName == "")
 		return false;
+	FString TargetSaveFile = FileName != "" ? *FileName : *_MDATFileName;
 	TArray<uint8> ResData;
 	Serialize(ResData);
-	return FFileHelper::SaveArrayToFile(ResData, FileName!=""?*FileName:*_MDATFileName);
+	//if (TargetSaveFile==_MDATFileName)
+		//IFileManager::Get().Delete(*TargetSaveFile);
+	return FFileHelper::SaveArrayToFile(ResData, *TargetSaveFile);
 }
 
 TArray<FString> FMDATFile::GetAllFileNames()
@@ -233,4 +276,49 @@ void FMDATFile::MakeEmpty()
 	_Files.Empty();
 	_MDATFileName = "";
 	_DataAddressBase = 0;
+}
+
+FolderTree FMDATFile::GenFolderTree()
+{
+	TArray<FString> FileNames;
+	_Files.GetKeys(FileNames);
+	FolderTree FT = _GenFolderTreeInternal(FileNames, "/");
+	if (FT.Folders.Num())
+	{
+		//All folder is start with "/"
+		//so the real FolderTree must inside FT.
+		FT.Folders[0].FolderName = "/";
+		return FT.Folders[0];
+	}
+	else
+		return FolderTree();
+}
+
+bool FMDATFile::MoveFile(const FString& OriginalFileName, const FString& TargetFileName)
+{
+	FString _OriFileName = FormatFileName(OriginalFileName);
+	FString _TargetFileName = FormatFileName(TargetFileName);
+	if (!_Files.Find(_OriFileName)||_Files.Find(_TargetFileName))
+		return false;
+	FileInfo FI;
+	_Files.RemoveAndCopyValue(_OriFileName, FI);
+	_Files.Add(_TargetFileName, FI);
+	return true;
+}
+
+bool FMDATFile::RemoveFolder(const FString& FolderFullName)
+{
+	FString TargetFolderName = FormatFileName(FolderFullName);
+	if (!TargetFolderName.EndsWith("/"))
+		TargetFolderName += "/";
+	bool IsAnyRemoved=false;
+	for (auto it=_Files.CreateIterator();it;++it)
+	{
+		if (it->Key.StartsWith(TargetFolderName))
+		{
+			it.RemoveCurrent();
+			IsAnyRemoved = true;
+		}
+	}
+	return IsAnyRemoved;
 }

@@ -18,4 +18,6 @@ public:
 		void PendingStartGame();
 	UFUNCTION(BlueprintCallable)
 		void ShowContentManagerUI();
+	UFUNCTION(BlueprintCallable)
+		void ShowScoreEditorEntryUI();
 };

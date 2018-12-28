@@ -17,7 +17,8 @@ class MUTHM_API UScoreEditorEntryUIBase : public UUserWidget
 
 	TSharedPtr<class FMDATFile> _MDATInstance;
 	static FString ConstructMDATPath(const FString& MDATFileName);
-	
+	TSharedPtr<struct FolderTree> pRootFolderTree;
+	TArray<struct FolderTree*> pFolderTreeStack;
 protected:
 	UFUNCTION(BlueprintPure)
 		void GetSuitableMDATs(TArray<FString>& MDATFileName) const;
@@ -37,4 +38,24 @@ protected:
 		bool RenameOpenedMDATFile(const FString& NewFileName);
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Need refresh MDAT List after Delete."))
 		void DeleteOpenedMDATFile();
+	UFUNCTION(BlueprintCallable)
+		bool FolderTreeEnterFolder(const FString& FolderName);
+	UFUNCTION(BlueprintCallable)
+		bool FolderTreeExitFolder();
+	UFUNCTION(BlueprintPure)
+		void FolderTreeGetCurrent(FString& FolderName, TArray<FString>& SubFolders, TArray<FString>& Files,bool& IsRoot) const;
+	UFUNCTION(BlueprintPure)
+		FString FolderTreeGetCurrentPath();
+	UFUNCTION(BlueprintCallable)
+		bool AddMMSFileToCurrentFolder(const FString& FileName);
+	UFUNCTION(BlueprintCallable)
+		bool AddFileToCurrentFolder(const FString& LocalFileName, const FString& TargetFileName);
+	UFUNCTION(BlueprintCallable)
+		bool CreateFolderInCurrentFolder(const FString& NewFolderName);
+	UFUNCTION(BlueprintCallable)
+		bool MoveFileInCurrentFolder(const FString& FileName, const FString& NewFileName);
+	UFUNCTION(BlueprintCallable)
+		bool RemoveFileInFolder(const FString& FileName);
+	UFUNCTION(BlueprintCallable)
+		bool RemoveFolderInFolder(const FString& FolderName);
 };

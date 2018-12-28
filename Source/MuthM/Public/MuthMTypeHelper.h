@@ -33,11 +33,11 @@ public:
 	inline static TArray<uint8> SaveIntToData(uint32 Int)
 	{
 		TArray<uint8> DataToSave;
-		DataToSave.Add(0x000000FF | Int);
+		DataToSave.Add(0x000000FF & Int);
 		Int >>= 8;
-		DataToSave.Add(0x000000FF | Int);
+		DataToSave.Add(0x000000FF & Int);
 		Int >>= 8;
-		DataToSave.Add(0x000000FF | Int);
+		DataToSave.Add(0x000000FF & Int);
 		Int >>= 8;
 		DataToSave.Add(Int);
 		return DataToSave;

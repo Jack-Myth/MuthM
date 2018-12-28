@@ -4,6 +4,13 @@
 
 #include "CoreMinimal.h"
 
+struct FolderTree
+{
+	FString FolderName;
+	TArray<FolderTree> Folders;
+	TArray<FString> Files;
+};
+
 /**
  * 
  */
@@ -32,8 +39,10 @@ class MUTHM_API FMDATFile
 	bool _DeserializeInternal_Lazy(IFileHandle* FileHandle);
 	void _SerializeInternal(TArray<uint8>& DataResult);
 	void _LazyLoad(FileInfo* pFileInfo) const;
-	FString _FormatFileName(const FString& FileName) const;
+	FolderTree _GenFolderTreeInternal(const TArray<FString>& FileNames, const FString& FolderName);
 public:
+	static FString FormatFileName(const FString& FileName);
+
 	FMDATFile()=default;
 
 	bool LoadFromFile(FString FileName);
@@ -61,23 +70,23 @@ public:
 	TArray<uint8> GetFileData(FString FileName) const;
 	FORCEINLINE uint32 GetFileAddress(FString FileName) const
 	{
-		const FileInfo* TargetFileInfo = _Files.Find(_FormatFileName(FileName));
+		const FileInfo* TargetFileInfo = _Files.Find(FormatFileName(FileName));
 		return TargetFileInfo ? TargetFileInfo->Address : NULL;
 	}
 	FORCEINLINE uint32 GetFileCompressedLength(FString FileName) const
 	{
-		const FileInfo* TargetFileInfo = _Files.Find(_FormatFileName(FileName));
+		const FileInfo* TargetFileInfo = _Files.Find(FormatFileName(FileName));
 		return TargetFileInfo ? TargetFileInfo->CompressedLength : NULL;
 	}
 	FORCEINLINE bool IsFileExist(FString FileName) const
 	{
-		return _Files.Find(_FormatFileName(FileName));
+		return _Files.Find(FormatFileName(FileName));
 	}
 
 	bool AddFile(FString FileName, const TArray<uint8>& FileData);
 	FORCEINLINE bool RemoveFile(FString FileName)
 	{
-		return _Files.Remove(_FormatFileName(FileName));
+		return _Files.Remove(FormatFileName(FileName));
 	}
 
 	//Save MDAT to local file.
@@ -98,4 +107,9 @@ public:
 	{
 		return _MDATFileName;
 	}
+
+	FolderTree GenFolderTree();
+
+	bool MoveFile(const FString& OriginalFileName,const FString& TargetFileName);
+	bool RemoveFolder(const FString& FolderFullName);
 };
