@@ -11,8 +11,8 @@ void UPupopMessage::Activate()
 	auto MsgBoxClass = UUIProvider::Get(this)->GetMessageBox();
 	UMessageBoxBase* MsgBoxUI = Cast<UMessageBoxBase>(UUserWidget::CreateWidgetInstance(*GetWorld(),MsgBoxClass, NAME_None));
 	MsgBoxUI->OnMessageBoxConfirmed.AddDynamic(this,&UPupopMessage::OnConfirmed);
-	MsgBoxUI->OnPupopMessage(Message, Title);
 	MsgBoxUI->AddToViewport(900);
+	MsgBoxUI->OnPupopMessage(Message, Title);
 }
 
 void UPupopMessage::OnConfirmed()
@@ -36,8 +36,8 @@ void UPupopQuestion::Activate()
 	QuestionBoxUI->OnYes.AddDynamic(this, &UPupopQuestion::OnYes);
 	QuestionBoxUI->OnNo.AddDynamic(this, &UPupopQuestion::OnNo);
 	QuestionBoxUI->OnCancel.AddDynamic(this, &UPupopQuestion::OnCancel);
-	QuestionBoxUI->OnPupopQuestion(Question, Title,AllowCancel);
 	QuestionBoxUI->AddToViewport(900);
+	QuestionBoxUI->OnPupopQuestion(Question, Title, AllowCancel);
 }
 
 void UPupopQuestion::OnYes()
@@ -73,8 +73,8 @@ void UPupopInput::Activate()
 	auto* InputBoxUI = Cast<UInputBoxBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InputBoxClass, NAME_None));
 	InputBoxUI->OnInput.AddDynamic(this, &UPupopInput::OnInput);
 	InputBoxUI->OnCancelled.AddDynamic(this, &UPupopInput::OnCancel);
-	InputBoxUI->OnPupopInput(Title, Message, DefaultInput, AllowCancel);
 	InputBoxUI->AddToViewport(900);
+	InputBoxUI->OnPupopInput(Title, Message, DefaultInput, AllowCancel);
 }
 
 void UPupopInput::OnInput(const FString& InputString)

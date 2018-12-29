@@ -12,7 +12,6 @@
 #include "Sound/SoundWave.h"
 #include "MuthMNativeLib.h"
 #include "Type/VisualizableSoundWave.h"
-#include "TargetPlatform/Public/Interfaces/IAudioFormat.h"
 #include "JsonReader.h"
 #include "JsonSerializer.h"
 #include "InstructionManager.h"
@@ -25,6 +24,28 @@
 #include "VorbisAudioInfo.h"
 #include "Engine/Engine.h"
 #include "AudioDevice.h"
+
+//Copy from IAudioFormat.h
+struct FSoundQualityInfo
+{
+	/** Holds the quality value ranging from 1 [poor] to 100 [very good]. */
+	int32 Quality;
+
+	/** Holds the number of distinct audio channels. */
+	uint32 NumChannels;
+
+	/** Holds the number of PCM samples per second. */
+	uint32 SampleRate;
+
+	/** Holds the size of sample data in bytes. */
+	uint32 SampleDataSize;
+
+	/** Holds the length of the sound in seconds. */
+	float Duration;
+
+	/** Holds a string for debugging purposes. */
+	FString DebugName;
+};
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 

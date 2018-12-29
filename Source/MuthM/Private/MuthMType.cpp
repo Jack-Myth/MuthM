@@ -161,7 +161,7 @@ FString FMDATFile::FormatFileName(const FString& FileName)
 	{
 		if (*it == TEXT('/'))
 		{
-			for (auto itx = it + 1; it; it++)
+			for (auto itx = it + 1; itx; ++itx)
 			{
 				if (*itx == TEXT('/'))
 					itx.RemoveCurrent();

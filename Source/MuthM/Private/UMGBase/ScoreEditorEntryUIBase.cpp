@@ -170,7 +170,7 @@ bool UScoreEditorEntryUIBase::AddFileToCurrentFolder(const FString& LocalFileNam
 	if (_MDATInstance->IsFileExist(tFileName))
 		return false;
 	TArray<uint8> FileData;
-	if (!FFileHelper::LoadFileToArray(FileData, *tFileName))
+	if (!FFileHelper::LoadFileToArray(FileData, *LocalFileName))
 		return false;
 	return _MDATInstance->AddFile(tFileName, FileData);
 }
