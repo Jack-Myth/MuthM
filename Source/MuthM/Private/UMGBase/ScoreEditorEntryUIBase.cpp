@@ -138,7 +138,7 @@ void UScoreEditorEntryUIBase::FolderTreeGetCurrent(FString& FolderName, TArray<F
 FString UScoreEditorEntryUIBase::FolderTreeGetCurrentPath()
 {
 	FString FullPath;
-	for (int i = 0; i < pFolderTreeStack.Num(); i++)
+	for (int i = 1; i < pFolderTreeStack.Num(); i++)
 		FullPath += "/" + pFolderTreeStack[i]->FolderName;
 	return FullPath;
 }
@@ -164,7 +164,8 @@ bool UScoreEditorEntryUIBase::AddFileToCurrentFolder(const FString& LocalFileNam
 {
 	if (!_MDATInstance.IsValid())
 		return false;
-	FString tFileName=TargetFileName.Replace(TEXT("/"),TEXT(""));
+	FString rFileName = TargetFileName.Replace(TEXT("/"), TEXT(""));
+	FString tFileName = FolderTreeGetCurrentPath() + "/" + rFileName;
 	if (!IFileManager::Get().FileExists(*LocalFileName)|| !_MDATInstance.IsValid())
 		return false;
 	if (_MDATInstance->IsFileExist(tFileName))
@@ -172,7 +173,12 @@ bool UScoreEditorEntryUIBase::AddFileToCurrentFolder(const FString& LocalFileNam
 	TArray<uint8> FileData;
 	if (!FFileHelper::LoadFileToArray(FileData, *LocalFileName))
 		return false;
-	return _MDATInstance->AddFile(tFileName, FileData);
+	if (_MDATInstance->AddFile(tFileName, FileData))
+	{
+		pFolderTreeStack.Top()->Files.Add(rFileName);
+		return true;
+	}
+	return false;
 }
 
 bool UScoreEditorEntryUIBase::CreateFolderInCurrentFolder(const FString& NewFolderName)
@@ -192,7 +198,7 @@ bool UScoreEditorEntryUIBase::CreateFolderInCurrentFolder(const FString& NewFold
 
 bool UScoreEditorEntryUIBase::MoveFileInCurrentFolder(const FString& FileName, const FString& NewFileName)
 {
-	if (pFolderTreeStack.Last()->Files.Find(FileName) != INDEX_NONE||NewFileName.EndsWith("/")|| !_MDATInstance.IsValid())
+	if (pFolderTreeStack.Last()->Files.Find(FileName) == INDEX_NONE||NewFileName.EndsWith("/")|| !_MDATInstance.IsValid())
 		return false;
 	FString TargetNewFileName = NewFileName;
 	//TODO: May duplicated with FormatFileName().
@@ -243,7 +249,7 @@ bool UScoreEditorEntryUIBase::RemoveFileInFolder(const FString& FileName)
 
 bool UScoreEditorEntryUIBase::RemoveFolderInFolder(const FString& FolderName)
 {
-	if (pFolderTreeStack.Last()->Folders.FindByPredicate([=](const FolderTree& a) {return a.FolderName==FolderName;}) && !_MDATInstance.IsValid())
+	if (!pFolderTreeStack.Last()->Folders.FindByPredicate([=](const FolderTree& a) {return a.FolderName==FolderName;}) || !_MDATInstance.IsValid())
 		return false;
 	_MDATInstance->RemoveFolder(FolderTreeGetCurrentPath() + "/" + FolderName);
 	pFolderTreeStack.Last()->Folders.RemoveAll([=](const FolderTree& a) {return a.FolderName == FolderName; });

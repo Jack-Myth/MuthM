@@ -5,5 +5,4 @@
 void UMessageBoxBase::Confirm()
 {
 	OnMessageBoxConfirmed.Broadcast();
-	RemoveFromParent();
 }

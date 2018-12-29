@@ -44,6 +44,8 @@ protected:
 		bool FolderTreeExitFolder();
 	UFUNCTION(BlueprintPure)
 		void FolderTreeGetCurrent(FString& FolderName, TArray<FString>& SubFolders, TArray<FString>& Files,bool& IsRoot) const;
+
+	//Notice: For root folder ,this function will return "" instead of "/"
 	UFUNCTION(BlueprintPure)
 		FString FolderTreeGetCurrentPath();
 	UFUNCTION(BlueprintCallable)

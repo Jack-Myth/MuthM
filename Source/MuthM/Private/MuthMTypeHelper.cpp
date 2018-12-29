@@ -56,6 +56,7 @@ void MuthMTypeHelper::SaveMDATMainInfo(class FMDATFile* MDATFile, const FMDATMai
 	tmpMainJsonObj.SetNumberField("AuthorID", MainInfo.AuthorID);
 	tmpMainJsonObj.SetStringField("AuthorName", MainInfo.AuthorName);
 	tmpMainJsonObj.SetStringField("Cover", MainInfo.Cover);
+	tmpMainJsonObj.SetNumberField("ScoreCount", MainInfo.ScoreInfoCollection.Num());
 	for (int i=0;i<MainInfo.ScoreInfoCollection.Num();i++)
 	{
 		TSharedPtr<FJsonObject> tmpScoreJsonObj = MakeShareable(new FJsonObject());

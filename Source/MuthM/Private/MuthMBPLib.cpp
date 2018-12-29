@@ -121,11 +121,11 @@ UTexture2D* UMuthMBPLib::GetLocalTextureByImageData(const TArray<uint8>& ImageDa
 	TSharedPtr<IImageWrapper> imageWrapper;
 	UTexture2D* OutTex = NULL;
 	//Check Image Format
-	if (FMemory::Memcmp(ImageData.GetData(), PNGHeader, sizeof(PNGHeader)))
+	if (!FMemory::Memcmp(ImageData.GetData(), PNGHeader, sizeof(PNGHeader)))
 		imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::PNG);
-	else if (FMemory::Memcmp(ImageData.GetData(), SOI, sizeof(SOI))) //No Need to check EOI
+	else if (!FMemory::Memcmp(ImageData.GetData(), SOI, sizeof(SOI))) //No Need to check EOI
 		imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::JPEG);
-	else if (FMemory::Memcmp(ImageData.GetData(), "BM", 2))//Length of "BM" is 2
+	else if (!FMemory::Memcmp(ImageData.GetData(), "BM", 2))//Length of "BM" is 2
 		imageWrapper = imageWrapperModule.CreateImageWrapper(EImageFormat::BMP);
 	else
 		return nullptr; //Unidentified Image Format

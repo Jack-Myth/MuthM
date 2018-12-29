@@ -116,7 +116,7 @@ UObject* UInstructionManagerImpl::GetWorldProvider()
 
 TScriptInterface<IMMScript> UInstructionManagerImpl::GenMMScript(bool bIsEditorMode)
 {
-	UMMScriptImpl* pMMScript = NewObject<UMMScriptImpl>();
+	UMMScriptImpl* pMMScript = NewObject<UMMScriptImpl>(this);
 	if (bIsEditorMode)
 	{
 		pMMScript->SetPlayType(EPlayType::PT_Editor);
