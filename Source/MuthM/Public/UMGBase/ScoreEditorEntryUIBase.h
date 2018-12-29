@@ -60,4 +60,7 @@ protected:
 		bool RemoveFileInFolder(const FString& FileName);
 	UFUNCTION(BlueprintCallable)
 		bool RemoveFolderInFolder(const FString& FolderName);
+
+	UFUNCTION(BlueprintCallable)
+		bool LaunchScoreEditor(const FString& TargetMMSFile, int ScoreIndex, int MusicID);
 };

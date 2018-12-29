@@ -9,6 +9,8 @@
 #include "UserManager.h"
 #include "InstructionManager.h"
 #include "FileHelper.h"
+#include "MuthMGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 
 FString UScoreEditorEntryUIBase::ConstructMDATPath(const FString& MDATFileName)
 {
@@ -253,5 +255,23 @@ bool UScoreEditorEntryUIBase::RemoveFolderInFolder(const FString& FolderName)
 		return false;
 	_MDATInstance->RemoveFolder(FolderTreeGetCurrentPath() + "/" + FolderName);
 	pFolderTreeStack.Last()->Folders.RemoveAll([=](const FolderTree& a) {return a.FolderName == FolderName; });
+	return true;
+}
+
+bool UScoreEditorEntryUIBase::LaunchScoreEditor(const FString& TargetMMSFile,int ScoreIndex,int MusicID)
+{
+	if (!_MDATInstance.IsValid()|| !TargetMMSFile.EndsWith(".mms") || !_MDATInstance->IsFileExist(TargetMMSFile))
+		return false;
+	auto* pGameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	FGameArgs tmpGameArgs;
+	tmpGameArgs.bIsEditorMode = true;
+	tmpGameArgs.MDATFilePath = _MDATInstance->GetLocalFileName();
+	tmpGameArgs.ScoreIndex = ScoreIndex;
+	tmpGameArgs.MMSFileName = TargetMMSFile;
+	if (!IMusicManager::Get(this)->FindMusicLocalByID(MusicID, tmpGameArgs.MainMusicInfo))
+		return false;
+	tmpGameArgs._MDAT = _MDATInstance;
+	pGameInstance->FillGameArgs(tmpGameArgs);
+	GetWorld()->SeamlessTravel("/Game/MuthM/Maps/Editor");
 	return true;
 }
