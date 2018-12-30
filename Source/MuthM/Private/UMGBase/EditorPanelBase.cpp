@@ -131,6 +131,7 @@ void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWid
 
 void UEditorPanelBase::NativeConstruct()
 {
+	Super::NativeConstruct();
 	//4 minutes music will be 7200x64,UINT R8,use 0.4MB mem.
 	_SpectrumRenderTarget = UKismetRenderingLibrary::CreateRenderTarget2D(this, GetMusicLength() * 30*ScaleRatio, 64,ETextureRenderTargetFormat::RTF_R8);
 	auto* EditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
