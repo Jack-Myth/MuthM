@@ -34,7 +34,7 @@ protected:
 	TSharedPtr<class FMDATFile> _pMDAT;
 	TScriptInterface<IMMScript> _MainMMSInstance;
 	UPROPERTY()
-		class UVisualizableSoundWave* _GameMainMusic;
+		class UMainSoundWave* _GameMainMusic;
 	UPROPERTY()
 		class UAudioComponent* _MainSoundComponent;
 	//Because the Playback time will be wrong in some platform (Android for example)
@@ -86,7 +86,7 @@ public:
 	void StopGame();
 	virtual void NativeOnGameEnded(FGameEndReason GameEndReason);
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UVisualizableSoundWave* GetGameMainMusic()
+		FORCEINLINE class UMainSoundWave* GetGameMainMusic()
 	{
 		return _GameMainMusic;
 	}

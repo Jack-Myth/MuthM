@@ -18,14 +18,3 @@ void UMusicImportationUIBase::BeginImportMusic(const FString& Title, const FStri
 				OnAsyncImportEnd();
 			}));
 }
-
-class USoundWave* UMusicImportationUIBase::DebugCallConvert()
-{
-	TArray<uint8> MP3Data;
-	TArray<uint8> OGGData;
-	if (!FFileHelper::LoadFileToArray(MP3Data, *MusicFileName))
-		return nullptr;
-	if (!UMuthMBPLib::ConvertMP3ToOGG(MP3Data, OGGData))
-		return nullptr;
-	return UMuthMBPLib::DecodeWaveFromOGG(OGGData);
-}

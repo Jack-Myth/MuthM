@@ -11,7 +11,7 @@
 #include "IImageWrapper.h"
 #include "Sound/SoundWave.h"
 #include "MuthMNativeLib.h"
-#include "Type/VisualizableSoundWave.h"
+#include "MainSoundWave.h"
 #include "JsonReader.h"
 #include "JsonSerializer.h"
 #include "InstructionManager.h"
@@ -24,28 +24,6 @@
 #include "VorbisAudioInfo.h"
 #include "Engine/Engine.h"
 #include "AudioDevice.h"
-
-//Copy from IAudioFormat.h
-struct FSoundQualityInfo
-{
-	/** Holds the quality value ranging from 1 [poor] to 100 [very good]. */
-	int32 Quality;
-
-	/** Holds the number of distinct audio channels. */
-	uint32 NumChannels;
-
-	/** Holds the number of PCM samples per second. */
-	uint32 SampleRate;
-
-	/** Holds the size of sample data in bytes. */
-	uint32 SampleDataSize;
-
-	/** Holds the length of the sound in seconds. */
-	float Duration;
-
-	/** Holds a string for debugging purposes. */
-	FString DebugName;
-};
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 
@@ -223,9 +201,9 @@ TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
 	return JsonObj;
 }
 
-class USoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
+class UMainSoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 {
-	USoundWave* TargetSoundWave = NewObject<USoundWave>();
+	UMainSoundWave* TargetSoundWave = NewObject<UMainSoundWave>();
 	TargetSoundWave->bVirtualizeWhenSilent = true;
 	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
 	bulkData->Lock(LOCK_READ_WRITE);
@@ -243,32 +221,6 @@ class USoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 	TargetSoundWave->Duration = soundQualityInfo.Duration;
 	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
-	return TargetSoundWave;
-}
-
-class UVisualizableSoundWave* UMuthMBPLib::DecodeVisualizableWaveFromOGG(const TArray<uint8>& OGGData)
-{
-	auto* TargetSoundWave = NewObject<UVisualizableSoundWave>();
-	TargetSoundWave->bVirtualizeWhenSilent = true;
-	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
-	bulkData->Lock(LOCK_READ_WRITE);
-	FMemory::Memcpy(bulkData->Realloc(OGGData.Num()), OGGData.GetData(), OGGData.Num());
-	bulkData->Unlock();
-	FSoundQualityInfo soundQualityInfo;
-	FVorbisAudioInfo oggAudioInfo;
-	if (!oggAudioInfo.ReadCompressedInfo(OGGData.GetData(), OGGData.Num(), &soundQualityInfo))
-	{
-		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read OGG Info"));
-		return nullptr;
-	}
-	TargetSoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
-	TargetSoundWave->NumChannels = soundQualityInfo.NumChannels;
-	TargetSoundWave->Duration = soundQualityInfo.Duration;
-	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
-	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
-	//Gen PCM Data
-	TargetSoundWave->_CachedStdPCM.SetNum(soundQualityInfo.SampleDataSize);
-	oggAudioInfo.ExpandFile(TargetSoundWave->_CachedStdPCM.GetData(), &soundQualityInfo);
 	return TargetSoundWave;
 }
 

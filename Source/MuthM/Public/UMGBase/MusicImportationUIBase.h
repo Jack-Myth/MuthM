@@ -22,8 +22,6 @@ public:
 		void BeginImportMusic(const FString& Title, const FString& Musician);
 	UFUNCTION(BlueprintImplementableEvent)
 		void InitMusicInfo(const FString& MusicFileName,const FString& Title, const FString& Musician);
-	UFUNCTION(BlueprintCallable)
-		class USoundWave* DebugCallConvert();
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnAsyncImportStarted();
 	UFUNCTION(BlueprintImplementableEvent)

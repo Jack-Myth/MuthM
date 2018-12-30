@@ -16,10 +16,11 @@
 #include "Engine/Canvas.h"
 #include "UserWidget.h"
 #include "Score/ScoreCore.h"
-#include "Type/VisualizableSoundWave.h"
+#include "MainSoundWave.h"
 #include "MuthMBPLib.h"
 #include "GameUIBase.h"
 #include "GameResultUIBase.h"
+#include "MuthMNativeLib.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
@@ -49,7 +50,7 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
 	TArray<uint8> OGGData;
 	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OGGData);
-	_GameMainMusic =UMuthMBPLib::DecodeVisualizableWaveFromOGG(OGGData);
+	_GameMainMusic =UMuthMBPLib::DecodeWaveFromOGG(OGGData);
 	MusicPlaybackTime = -SuitDelay;
 	if (!::IsValid(_GameMainMusic))
 	{
@@ -144,21 +145,22 @@ void AMuthMInGameMode::ReturnToMainMenu()
 void AMuthMInGameMode::DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
 {
 	float TimeLength = (EndTime - BeginTime) / ResTime;
-	TArray<float> OutArray;
+	TArray<TArray<float>> OutArray;
 	UCanvas* SpectrumCanvas;
 	FCanvasBoxItem tmpBoxItem(FVector2D(0,0),FVector2D(RenderTarget2D->SizeX/ResTime, RenderTarget2D->SizeY / ResFrequency)); 
 	FDrawToRenderTargetContext DrawRenderTargetContext;
 	FVector2D CanvasSize = FVector2D(RenderTarget2D->SizeX, RenderTarget2D->SizeY);
 	UKismetRenderingLibrary::BeginDrawCanvasToRenderTarget(this, RenderTarget2D, SpectrumCanvas, CanvasSize, DrawRenderTargetContext);
+	TArray<uint8> PCMData;
+	_GameMainMusic->DecodePCMFromCompressedData(PCMData);
 	for (uint32 x=0;x<ResTime;x++)
 	{
 		//X for Time
-		_GameMainMusic->CalculateFrequencySpectrumMixed(BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
-		//USoundVisualizationStatics::CalculateFrequencySpectrum(_GameMainMusic, 0, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
-		for (int y=0;y<OutArray.Num();y++)
+		MuthMNativeLib::NativeCalculateFrequencySpectrum(PCMData,_GameMainMusic->GetSampleRate(), _GameMainMusic->NumChannels, false, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
+		for (int y=0;y<OutArray[0].Num();y++)
 		{
 			//Y for Frequency
-			tmpBoxItem.SetColor(FLinearColor(OutArray[y]/150, OutArray[y]/150, OutArray[y]/150));
+			tmpBoxItem.SetColor(FLinearColor(OutArray[0][y]/150, OutArray[0][y]/150, OutArray[0][y]/150));
 			SpectrumCanvas->DrawItem(tmpBoxItem, x*tmpBoxItem.Size.X, y*tmpBoxItem.Size.Y);
 		}
 	}

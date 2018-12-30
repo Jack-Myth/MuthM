@@ -8,20 +8,24 @@
 #include "MusicManager.h"
 #include "InstructionManager.h"
 #include "Components/AudioComponent.h"
-#include "VisualizableSoundWave.h"
+#include "MainSoundWave.h"
 #include "EditorMainUIBase.h"
+#include "MuthMNativeLib.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
 void AMuthMInEditorMode::BeginPlay()
 {
 	Super::BeginPlay();
-	GetMainMMSInstance()->SetPlayType(PT_PIE);
+	TArray<uint8> PCMData;
+	_GameMainMusic->DecodePCMFromCompressedData(PCMData);
+	GetMainMMSInstance()->SetPlayType(EPlayType::PT_PIE);
 	_EditorMMSInstance = IInstructionManager::Get(this)->GenMMScript(true);
 	auto EditorMainUIClass = UUIProvider::Get(this)->GetEditorMainUI();
 	EditorMainUI = Cast<UEditorMainUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), EditorMainUIClass, "EditorMainUI"));
 	EditorMainUI->Init(GetMusicInfo(), _EditorMMSInstance);
-	EditorMainUI->NativeOnFillBPMInfo(GetGameMainMusic()->CalculateBPM());
+	int BPM = MuthMNativeLib::NativeDetectBPMFromPCM(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->NumChannels);
+	EditorMainUI->NativeOnFillBPMInfo(BPM);
 	EditorMainUI->AddToViewport(100);
 }
 

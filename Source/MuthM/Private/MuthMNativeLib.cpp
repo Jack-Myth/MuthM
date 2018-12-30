@@ -13,6 +13,8 @@
 #include "VorbisAudioInfo.h"
 #include "vorbis/codec.h"
 #include "vorbis/vorbisenc.h"
+#include "FileHelper.h"
+#include "Paths.h"
 
 DEFINE_LOG_CATEGORY(MuthMNativeLib)
 //Copy from Unreal Engine 4 Internal Resample function :P
@@ -140,20 +142,6 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 			}
 		}
 		vorbis_analysis_wrote(&vd, targetSampleCount);
-		/*while (vorbis_analysis_blockout(&vd, &vb) == 1)
-		{
-			vorbis_analysis(&vb, &op);
-			vorbis_bitrate_addblock(&vb);
-			while (vorbis_bitrate_flushpacket(&vd, &op))
-			{
-				ogg_stream_packetin(&os, &op);
-				while (ogg_stream_pageout(&os, &og))
-				{
-					OutputOGG.Append(og.header, og.header_len);
-					OutputOGG.Append(og.body, og.body_len);
-				}
-			}
-		}*/
 		sampleCount -= targetSampleCount;
 		processedSample += targetSampleCount;
 	}
@@ -169,7 +157,7 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 			{
 				OutputOGG.Append(og.header, og.header_len);
 				OutputOGG.Append(og.body, og.body_len);
-				if (ogg_page_eos(&og)) break;
+				if (ogg_page_eos(&og)) break;  //TODO: Really needed?
 			}
 		}
 	}
@@ -182,10 +170,9 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 	return true;
 }
 
-void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMInput, int Channels, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums)
+void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMInput, int SampleRate, int Channels, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums)
 {
 	OutSpectrums.Empty();
-	constexpr int SampleRate = 48000;
 	int BeginSampleIndex = BeginTime * SampleRate;
 	int EndSampleIndex = (BeginTime + SampleTimeLength)*SampleRate;
 	int SampleCount = EndSampleIndex - BeginSampleIndex;
@@ -217,6 +204,8 @@ void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMIn
 		}
 	}
 	OutSpectrums.SetNum(Channels);
+	for (int i = 0; i < Channels; i++)
+		OutSpectrums[i].SetNum(SpectrumWidth);
 	for (int cc = 0; cc < Channels; cc++)
 	{
 		kiss_fftnd(fftcfg, inbuf[cc], outbuf[cc]);
@@ -247,16 +236,34 @@ float MuthMNativeLib::NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32
 {
 	//Because <³õÒô¥ß¥¯¤ÎÏûÊ§> is far beyond 200BPM,so set a higher value
 	//Maybe is not necessary.
+	//UNDONE: BeatDetektor Now have a big issue,so return 100 directly.
+	return 100;
 	BeatDetektor m_BeatDetektor(100.f,300.f);
 	m_BeatDetektor.reset();
 	float MusicLength = int(PCMInput.Num() / SampleRate);
 	TArray<TArray<float>> FFTValue;
-	for (float i = 0; i < MusicLength; i+=0.1f)
+	int Sampleperframe = 2048;
+	float Secondperframe = (float)Sampleperframe / SampleRate;
+	for (float i = 0; i < MusicLength; i+= Secondperframe)
 	{
-		NativeCalculateFrequencySpectrum(PCMInput, Channels, false, i, 0.1f, 16, FFTValue);
+		NativeCalculateFrequencySpectrum(PCMInput, SampleRate, Channels, false, i, Secondperframe, Sampleperframe, FFTValue);
 		std::vector<float> stdv;
 		stdv.assign(FFTValue[0].GetData(), FFTValue[0].GetData()+FFTValue[0].Num());
 		m_BeatDetektor.process(i,stdv);
 	}
-	return m_BeatDetektor.current_bpm;
+	return m_BeatDetektor.win_bpm_int_lo;
+}
+
+bool MuthMNativeLib::DecodeOGGToPCM(const uint8* pOGGData, int32 OGGDataLength, TArray<uint8>& PCMData, int& SampleRate, int& Channels)
+{
+	PCMData.Empty();
+	FVorbisAudioInfo tmpVorbisAudioInfo;
+	//XXX: It may not be a right way.
+	FSoundQualityInfo OGGSoundQualityInfo;
+	tmpVorbisAudioInfo.ReadCompressedInfo(pOGGData, OGGDataLength, &OGGSoundQualityInfo);
+	PCMData.SetNum(OGGSoundQualityInfo.SampleDataSize);
+	SampleRate = OGGSoundQualityInfo.SampleRate;
+	Channels = OGGSoundQualityInfo.NumChannels;
+	tmpVorbisAudioInfo.ExpandFile(PCMData.GetData(), &OGGSoundQualityInfo);
+	return true;
 }
