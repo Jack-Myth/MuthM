@@ -47,5 +47,5 @@ public:
 		return _EditorMMSInstance;
 	}
 	virtual void NativeOnGameEnded(FGameEndReason GameEndReason) override;
-
+	class UTexture2D* DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency);
 };

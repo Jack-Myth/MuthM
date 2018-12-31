@@ -19,4 +19,7 @@ public:
 		virtual void PauseGame() {};
 	UFUNCTION(BlueprintCallable)
 		virtual void ResumeGame() {};
+protected:
+	virtual void BeginPlay() override;
+
 };

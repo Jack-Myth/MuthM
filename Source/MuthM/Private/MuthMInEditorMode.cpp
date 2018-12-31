@@ -11,6 +11,7 @@
 #include "MainSoundWave.h"
 #include "EditorMainUIBase.h"
 #include "MuthMNativeLib.h"
+#include "Engine/Texture2D.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
@@ -69,5 +70,29 @@ void AMuthMInEditorMode::NativeOnGameEnded(FGameEndReason GameEndReason)
 			break;
 	}
 	OnGameEnded.Broadcast(GameEndReason);
+}
+void CalculateFrequencySpectrum(TArray<uint8>& PCMData, int Channels, const bool bSplitChannels, const float StartTime, const float TimeLength, const int32 SpectrumWidth, TArray< TArray<float> >& OutSpectrums);
+class UTexture2D* AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
+{
+	float TimeLength = (EndTime - BeginTime) / ResTime;
+	TArray<TArray<float>> OutArray;
+	UTexture2D* SpectrumTexture = UTexture2D::CreateTransient(ResTime, ResFrequency, EPixelFormat::PF_A8);
+	TArray<uint8> PCMData;
+	_GameMainMusic->DecodePCMFromCompressedData(PCMData);
+	uint8* MipmapData = (uint8*)SpectrumTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	for (uint32 x = 0; x < ResTime; x++)
+	{
+		//X for Time
+		CalculateFrequencySpectrum(PCMData, _GameMainMusic->NumChannels, false, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
+		//MuthMNativeLib::NativeCalculateFrequencySpectrum(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->NumChannels, false, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
+		for (int y = 0; y < OutArray[0].Num(); y++)
+		{
+			//Y for Frequency
+			MipmapData[(OutArray[0].Num()-y-1)*ResTime + x] = FMath::Clamp<int>((OutArray[0][y]+50)*2, 0, 255);
+		}
+	}
+	SpectrumTexture->PlatformData->Mips[0].BulkData.Unlock();
+	SpectrumTexture->UpdateResource();
+	return SpectrumTexture;
 }
 

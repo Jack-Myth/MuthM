@@ -93,8 +93,6 @@ public:
 	//This Function will also save the score to disk.
 	void ShowGameResult();
 	void ReturnToMainMenu();
-	//Notice:This function only draw gray map to RenderTarget2D
-	void DrawMainMusicSpectrum(class UTextureRenderTarget2D* RenderTarget2D, float BeginTime, float EndTime,uint32 ResTime,int32 ResFrequency);
 protected:
 	virtual void BeginPlay() override;
 };

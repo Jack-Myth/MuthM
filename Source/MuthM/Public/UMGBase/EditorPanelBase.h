@@ -15,7 +15,7 @@ class MUTHM_API UEditorPanelBase : public UUserWidget
 	GENERATED_BODY()
 
 	UPROPERTY()
-		class UTextureRenderTarget2D* _SpectrumRenderTarget=nullptr;
+		class UTexture2D* _SpectrumTexture=nullptr;
 	UPROPERTY()
 		TArray<class UInstructionWidgetBase*> InstructionWidgets;
 	UPROPERTY()
@@ -43,7 +43,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		FName _FastAddInstructionName;
 	UFUNCTION(BlueprintImplementableEvent,meta=(ToolTip="Notice:This event may be fired before construct event."))
-		void OnSpectrumUpdate(class UTextureRenderTarget2D* Spectrum);
+		void OnSpectrumUpdate(class UTexture2D* Spectrum);
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE TArray<UInstructionWidgetBase*> GetInstructionWidgets()
 	{

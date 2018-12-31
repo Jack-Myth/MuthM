@@ -273,7 +273,7 @@ bool UScoreEditorEntryUIBase::LaunchScoreEditor(const FString& TargetMMSFile,int
 	tmpGameArgs._MDAT = _MDATInstance;
 	pGameInstance->FillGameArgs(tmpGameArgs);
 	//Try prevent from Engine hung.
-	UGameplayStatics::GetGameInstance(this)->CleanupGameViewport();;
+	//UGameplayStatics::GetGameInstance(this)->CleanupGameViewport();;
 	UGameplayStatics::OpenLevel(this, "/Game/MuthM/Maps/Editor");
 	//GetWorld()->SeamlessTravel("");
 	return true;

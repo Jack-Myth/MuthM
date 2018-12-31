@@ -7,7 +7,7 @@ bool UMainSoundWave::DecodePCMFromCompressedData(TArray<uint8>& OutputPCM)
 {
 	FByteBulkData* CompressedDataBulk = GetCompressedData("OGG");
 	if (!CompressedDataBulk)
-		return 0; //No Compressed Data,No way to decode.
+		return false; //No Compressed Data,No way to decode.
 	const uint8* pCompressedData = (const uint8*)CompressedDataBulk->LockReadOnly();
 	int s, c; //Just used to hold return value,I use UMainSoundWave::Samplerate to get the real info.
 	bool IsDecodeSuccessful;

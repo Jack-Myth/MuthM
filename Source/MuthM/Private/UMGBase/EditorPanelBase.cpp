@@ -3,7 +3,6 @@
 #include "EditorPanelBase.h"
 #include "MuthMInEditorMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetRenderingLibrary.h"
 #include "InstructionWidgetBase.h"
 #include "InstructionManager.h"
 #include "MuthMInGameMode.h"
@@ -133,11 +132,9 @@ void UEditorPanelBase::NativeConstruct()
 {
 	Super::NativeConstruct();
 	//4 minutes music will be 7200x64,UINT R8,use 0.4MB mem.
-	_SpectrumRenderTarget = UKismetRenderingLibrary::CreateRenderTarget2D(this, GetMusicLength() * 30*ScaleRatio, 64,ETextureRenderTargetFormat::RTF_R8);
 	auto* EditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
-	check(EditorMode);
-	EditorMode->DrawMainMusicSpectrum(_SpectrumRenderTarget, 0,GetMusicLength(), _SpectrumRenderTarget->SizeX, _SpectrumRenderTarget->SizeY);
-	OnSpectrumUpdate(_SpectrumRenderTarget);
+	_SpectrumTexture = EditorMode->DrawMainMusicSpectrum(0, GetMusicLength(), GetMusicLength() * 30, 128);
+	OnSpectrumUpdate(_SpectrumTexture);
 }
 
 #undef LOCTEXT_NAMESPACE
