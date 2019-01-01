@@ -47,12 +47,15 @@ void AMuthMInEditorMode::ExitPIE()
 void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
 {
 	_MainSoundComponent->SetPaused(false);
+	MusicPlaybackTime = BeginTime;
 	_MainSoundComponent->Play(BeginTime);
+	SetActorTickEnabled(true);
 }
 
 void AMuthMInEditorMode::PauseMusicOnly()
 {
 	_MainSoundComponent->SetPaused(true);
+	SetActorTickEnabled(false);
 }
 
 void AMuthMInEditorMode::NativeOnGameEnded(FGameEndReason GameEndReason)
@@ -71,28 +74,36 @@ void AMuthMInEditorMode::NativeOnGameEnded(FGameEndReason GameEndReason)
 	}
 	OnGameEnded.Broadcast(GameEndReason);
 }
-void CalculateFrequencySpectrum(TArray<uint8>& PCMData, int Channels, const bool bSplitChannels, const float StartTime, const float TimeLength, const int32 SpectrumWidth, TArray< TArray<float> >& OutSpectrums);
-class UTexture2D* AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
+
+TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
 {
-	float TimeLength = (EndTime - BeginTime) / ResTime;
-	TArray<TArray<float>> OutArray;
-	UTexture2D* SpectrumTexture = UTexture2D::CreateTransient(ResTime, ResFrequency, EPixelFormat::PF_A8);
 	TArray<uint8> PCMData;
 	_GameMainMusic->DecodePCMFromCompressedData(PCMData);
-	uint8* MipmapData = (uint8*)SpectrumTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-	for (uint32 x = 0; x < ResTime; x++)
+	TArray<UTexture2D*> SpectrumTextures;
+	int SplitedCount = (EndTime - BeginTime) / 20 + 1;
+	for (int i = 0; i < SplitedCount; i++)
 	{
-		//X for Time
-		CalculateFrequencySpectrum(PCMData, _GameMainMusic->NumChannels, false, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
-		//MuthMNativeLib::NativeCalculateFrequencySpectrum(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->NumChannels, false, BeginTime + x * TimeLength, TimeLength, ResFrequency, OutArray);
-		for (int y = 0; y < OutArray[0].Num(); y++)
+		float PartBeginTime = FMath::Lerp(BeginTime, EndTime, (float)i / SplitedCount);
+		float PartEndTime = FMath::Lerp(BeginTime, EndTime, (float)(i+1) / SplitedCount);
+		uint32 PartResTime = ResTime / SplitedCount;
+		float TimeLength = (PartEndTime - PartBeginTime) / PartResTime;
+		TArray<TArray<float>> OutArray;
+		UTexture2D* SpectrumTexture = UTexture2D::CreateTransient(PartResTime, ResFrequency, EPixelFormat::PF_A8);
+		uint8* MipmapData = (uint8*)SpectrumTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+		for (uint32 x = 0; x < PartResTime; x++)
 		{
-			//Y for Frequency
-			MipmapData[(OutArray[0].Num()-y-1)*ResTime + x] = FMath::Clamp<int>((OutArray[0][y]+50)*2, 0, 255);
+			//X for Time
+			MuthMNativeLib::NativeCalculateFrequencySpectrum(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->NumChannels, false, PartBeginTime+x * TimeLength, TimeLength, ResFrequency, OutArray);
+			for (int y = 0; y < OutArray[0].Num(); y++)
+			{
+				//Y for Frequency
+				MipmapData[(OutArray[0].Num() - y - 1)*PartResTime + x] = FMath::Clamp<int>((OutArray[0][y]+50)*2, 0, 255);
+			}
 		}
+		SpectrumTexture->PlatformData->Mips[0].BulkData.Unlock();
+		SpectrumTexture->UpdateResource();
+		SpectrumTextures.Add(SpectrumTexture);
 	}
-	SpectrumTexture->PlatformData->Mips[0].BulkData.Unlock();
-	SpectrumTexture->UpdateResource();
-	return SpectrumTexture;
+	return SpectrumTextures;
 }
 

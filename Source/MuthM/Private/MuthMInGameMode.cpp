@@ -21,6 +21,7 @@
 #include "GameUIBase.h"
 #include "GameResultUIBase.h"
 #include "MuthMNativeLib.h"
+#include "MuthMInEditorMode.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
@@ -29,7 +30,7 @@ AMuthMInGameMode::AMuthMInGameMode()
 	_MainSoundComponent = CreateDefaultSubobject<UAudioComponent>("_MainAudioComponent");
 	_ScoreCore = CreateDefaultSubobject<UScoreCore>("_ScoreCore");
 	PrimaryActorTick.bCanEverTick = true;
-	SetActorTickEnabled(false);
+	PrimaryActorTick.bStartWithTickEnabled = false;
 	//NOTE: Maybe It's need to Attach to GameMode?
 }
 
@@ -38,19 +39,14 @@ void AMuthMInGameMode::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	MusicPlaybackTime += DeltaSeconds;
 	//UNDONE:
-	OnMusicPlaybackTimeUpdate.Broadcast(MusicPlaybackTime,0);
+	OnMusicPlaybackTimeUpdate.Broadcast(MusicPlaybackTime,_GameMainMusic->GetDuration());
 }
 
 void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData, float BeginTime)
 {
-	_CachedMusicInfo = MusicInfo;
 	_CachedMMSData = MMSData;
-	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MainMMSInstance->LoadFromData(MMSData);
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
-	TArray<uint8> OGGData;
-	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OGGData);
-	_GameMainMusic =UMuthMBPLib::DecodeWaveFromOGG(OGGData);
 	MusicPlaybackTime = -SuitDelay;
 	if (!::IsValid(_GameMainMusic))
 	{
@@ -156,5 +152,12 @@ void AMuthMInGameMode::BeginPlay()
 		//Game will freeze,Then Developer will looking for Logs.
 		return;
 	}
-	StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
+	_CachedMusicInfo = MusicInfo;
+	TArray<uint8> OGGData;
+	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OGGData);
+	_GameMainMusic = UMuthMBPLib::DecodeWaveFromOGG(OGGData);
+	_MainSoundComponent->SetSound(_GameMainMusic);
+	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
+	if (!this->IsA<AMuthMInEditorMode>())
+		StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
 }

@@ -170,75 +170,12 @@ bool MuthMNativeLib::NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 Sa
 	return true;
 }
 
-void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMInput, int SampleRate, int Channels, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums)
-{
-	OutSpectrums.Empty();
-	int BeginSampleIndex = BeginTime * SampleRate;
-	int EndSampleIndex = (BeginTime + SampleTimeLength)*SampleRate;
-	int SampleCount = EndSampleIndex - BeginSampleIndex;
-	TArray<int16> OriginalSampleData;
-	OriginalSampleData.SetNum(SampleCount * 2);
-	FMemory::Memcpy(OriginalSampleData.GetData(), PCMInput.GetData() + BeginSampleIndex, SampleCount * sizeof(uint16) * 2);
-	if (SplitChannels)
-	{
-		for (int i = 0; i < OriginalSampleData.Num()*0.5f; i++)
-			OriginalSampleData[i] = ((int)OriginalSampleData[2 * i] + OriginalSampleData[2 * i + 1])*0.5f;
-		OriginalSampleData.SetNum(OriginalSampleData.Num()*0.5f);
-		Channels = 1;
-	}
-	kiss_fft_cpx* inbuf[2] = { NULL };
-	kiss_fft_cpx* outbuf[2] = { NULL };
-	int32 Dims[1] = { SampleCount };
-	kiss_fftnd_cfg fftcfg = kiss_fftnd_alloc(Dims, 1, 0, NULL, NULL);
-	for (int i = 0; i < Channels; i++)
-	{
-		inbuf[i] = (kiss_fft_cpx*)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx)*SampleCount);
-		outbuf[i] = (kiss_fft_cpx*)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx)*SampleCount);
-	}
-	for (int i = 0; i < SampleCount; i++)
-	{
-		for (int cc = 0; cc < Channels; cc++)
-		{
-			inbuf[cc][i].r = _FFTHannWindow(OriginalSampleData[i], i, SampleCount);
-			inbuf[cc][i].i = 0.f;
-		}
-	}
-	OutSpectrums.SetNum(Channels);
-	for (int i = 0; i < Channels; i++)
-		OutSpectrums[i].SetNum(SpectrumWidth);
-	for (int cc = 0; cc < Channels; cc++)
-	{
-		kiss_fftnd(fftcfg, inbuf[cc], outbuf[cc]);
-		int32 SamplesPerSpectrum = SampleCount / (2 * SpectrumWidth);
-		int32 ExcessSamples = SampleCount % (2 * SpectrumWidth);
-		int BeginIndex = 1;
-		for (int SpectrumIndex = 0; SpectrumIndex < SpectrumWidth; SpectrumIndex++)
-		{
-			int32 SamplesForSpectrum = SamplesPerSpectrum + (ExcessSamples-- > 0 ? 1 : 0);
-			float SampleVal = 0;
-			for (int SpectrumSampleIndex = 0; SpectrumSampleIndex < SamplesForSpectrum; SpectrumSampleIndex++)
-			{
-				float PostScaledR = outbuf[cc][BeginIndex + SpectrumSampleIndex].r * 2.f / SampleCount;
-				float PostScaledI = outbuf[cc][BeginIndex + SpectrumSampleIndex].i * 2.f / SampleCount;
-				SampleVal += 10.f * FMath::LogX(10.f, FMath::Square(PostScaledR) + FMath::Square(PostScaledI));
-			}
-			SampleVal /= SpectrumWidth;
-			OutSpectrums[cc][SpectrumIndex] = SampleVal;
-			BeginIndex += SamplesForSpectrum;
-		}
-		KISS_FFT_FREE(inbuf[cc]);
-		KISS_FFT_FREE(outbuf[cc]);
-	}
-	KISS_FFT_FREE(fftcfg);
-}
-
 float MuthMNativeLib::NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32 SampleRate, int32 Channels)
 {
 	//Because <³õÒô¥ß¥¯¤ÎÏûÊ§> is far beyond 200BPM,so set a higher value
 	//Maybe is not necessary.
 	//UNDONE: BeatDetektor Now have a big issue,so return 100 directly.
-	return 100;
-	BeatDetektor m_BeatDetektor(100.f,300.f);
+	BeatDetektor m_BeatDetektor(50.f,300.f);
 	m_BeatDetektor.reset();
 	float MusicLength = int(PCMInput.Num() / SampleRate);
 	TArray<TArray<float>> FFTValue;
@@ -268,33 +205,10 @@ bool MuthMNativeLib::DecodeOGGToPCM(const uint8* pOGGData, int32 OGGDataLength, 
 	return true;
 }
 
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////
-
-
-float GetFFTInValue(const int16 SampleValue, const int16 SampleIndex, const int16 SampleCount)
-{
-	float FFTValue = SampleValue;
-
-	// Apply the Hann window
-	FFTValue *= 0.5f * (1 - FMath::Cos(2 * PI * SampleIndex / (SampleCount - 1)));
-
-	return FFTValue;
-}
-
-void CalculateFrequencySpectrum(TArray<uint8>& PCMData,int Channels, const bool bSplitChannels, const float StartTime, const float TimeLength, const int32 SpectrumWidth, TArray< TArray<float> >& OutSpectrums)
+void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMData,const int SampleRate,const int NumChannels, const bool bSplitChannels, const float StartTime, const float TimeLength, const int32 SpectrumWidth, TArray< TArray<float> >& OutSpectrums)
 {
 
 	OutSpectrums.Empty();
-
-#if WITH_EDITORONLY_DATA
-	const int32 NumChannels = Channels;
 	if (SpectrumWidth > 0 && NumChannels > 0)
 	{
 		// Setup the output data
@@ -308,177 +222,124 @@ void CalculateFrequencySpectrum(TArray<uint8>& PCMData,int Channels, const bool 
 		if (PCMData.Num() > 0)
 		{
 			// Lock raw wave data.
-			uint8* RawWaveData = PCMData.GetData();
+			const uint8* RawWaveData = PCMData.GetData();
 			int32 RawDataSize = PCMData.Num();
-			FWaveModInfo WaveInfo;
 
-			uint32 SamplesPerSec = 44100;
-			WaveInfo.SampleDataSize = PCMData.Num();
-			WaveInfo.pSamplesPerSec = &SamplesPerSec;
+			int32 SampleCount = 0;
+			int32 SampleCounts[10] = { 0 };
 
-			// parse the wave data
-			if (1)
+			int32 FirstSample = SampleRate * StartTime;
+			int32 LastSample = SampleRate * (StartTime + TimeLength);
+
+			SampleCount = RawDataSize / (2 * NumChannels);
+
+			FirstSample = FMath::Min(SampleCount, FirstSample);
+			LastSample = FMath::Min(SampleCount, LastSample);
+
+			int32 SamplesToRead = LastSample - FirstSample;
+
+			if (SamplesToRead > 0)
 			{
-				int32 SampleCount = 0;
-				int32 SampleCounts[10] = { 0 };
-
-				int32 FirstSample = *WaveInfo.pSamplesPerSec * StartTime;
-				int32 LastSample = *WaveInfo.pSamplesPerSec * (StartTime + TimeLength);
-
-				if (NumChannels <= 2)
+				// Shift the window enough so that we get a power of 2
+				int32 PoT = 2;
+				while (SamplesToRead > PoT) PoT *= 2;
+				FirstSample = FMath::Max(0, FirstSample - (PoT - SamplesToRead) / 2);
+				SamplesToRead = PoT;
+				LastSample = FirstSample + SamplesToRead;
+				if (LastSample > SampleCount)
 				{
-					SampleCount = WaveInfo.SampleDataSize / (2 * NumChannels);
+					FirstSample = LastSample - SamplesToRead;
 				}
-				else
+				if (FirstSample < 0)
 				{
-					for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
-					{
-						SampleCounts[ChannelIndex] = (PCMData.Num()/2 / NumChannels);
-						SampleCount = FMath::Max(SampleCount, SampleCounts[ChannelIndex]);
-						SampleCounts[ChannelIndex] -= FirstSample;
-					}
+					// If we get to this point we can't create a reasonable window so just give up
+					return;
 				}
 
-				FirstSample = FMath::Min(SampleCount, FirstSample);
-				LastSample = FMath::Min(SampleCount, LastSample);
+				kiss_fft_cpx* buf[10] = { 0 };
+				kiss_fft_cpx* out[10] = { 0 };
 
-				int32 SamplesToRead = LastSample - FirstSample;
+				int32 Dims[1] = { SamplesToRead };
+				kiss_fftnd_cfg stf = kiss_fftnd_alloc(Dims, 1, 0, NULL, NULL);
 
-				if (SamplesToRead > 0)
+
+				const int16* SamplePtr = reinterpret_cast<const int16*>(PCMData.GetData());
+				for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
 				{
-					// Shift the window enough so that we get a power of 2
-					int32 PoT = 2;
-					while (SamplesToRead > PoT) PoT *= 2;
-					FirstSample = FMath::Max(0, FirstSample - (PoT - SamplesToRead) / 2);
-					SamplesToRead = PoT;
-					LastSample = FirstSample + SamplesToRead;
-					if (LastSample > SampleCount)
-					{
-						FirstSample = LastSample - SamplesToRead;
-					}
-					if (FirstSample < 0)
-					{
-						// If we get to this point we can't create a reasonable window so just give up
-						return;
-					}
+					buf[ChannelIndex] = (kiss_fft_cpx *)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx) * SamplesToRead);
+					out[ChannelIndex] = (kiss_fft_cpx *)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx) * SamplesToRead);
+				}
 
-					kiss_fft_cpx* buf[10] = { 0 };
-					kiss_fft_cpx* out[10] = { 0 };
+				SamplePtr += (FirstSample * NumChannels);
 
-					int32 Dims[1] = { SamplesToRead };
-					kiss_fftnd_cfg stf = kiss_fftnd_alloc(Dims, 1, 0, NULL, NULL);
-
-
-					const int16* SamplePtr = reinterpret_cast<const int16*>(PCMData.GetData());
-					if (NumChannels <= 2)
-					{
-						for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
-						{
-							buf[ChannelIndex] = (kiss_fft_cpx *)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx) * SamplesToRead);
-							out[ChannelIndex] = (kiss_fft_cpx *)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx) * SamplesToRead);
-						}
-
-						SamplePtr += (FirstSample * NumChannels);
-
-						for (int32 SampleIndex = 0; SampleIndex < SamplesToRead; ++SampleIndex)
-						{
-							for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
-							{
-								buf[ChannelIndex][SampleIndex].r = GetFFTInValue(*SamplePtr, SampleIndex, SamplesToRead);
-								buf[ChannelIndex][SampleIndex].i = 0.f;
-
-								SamplePtr++;
-							}
-						}
-					}
-					else
-					{
-						for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
-						{
-							// Drop this channel out if there isn't the power of 2 number of samples available
-							if (SampleCounts[ChannelIndex] >= SamplesToRead)
-							{
-								buf[ChannelIndex] = (kiss_fft_cpx *)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx) * SamplesToRead);
-								out[ChannelIndex] = (kiss_fft_cpx *)KISS_FFT_MALLOC(sizeof(kiss_fft_cpx) * SamplesToRead);
-
-								for (int32 SampleIndex = 0; SampleIndex < SamplesToRead; ++SampleIndex)
-								{
-									buf[ChannelIndex][SampleIndex].r = GetFFTInValue(*(SamplePtr + FirstSample + SampleIndex /*+ SoundWave->ChannelOffsets[ChannelIndex] / 2*/), SampleIndex, SamplesToRead);
-									buf[ChannelIndex][SampleIndex].i = 0.f;
-								}
-							}
-						}
-					}
-
+				for (int32 SampleIndex = 0; SampleIndex < SamplesToRead; ++SampleIndex)
+				{
 					for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
 					{
-						if (buf[ChannelIndex])
-						{
-							kiss_fftnd(stf, buf[ChannelIndex], out[ChannelIndex]);
-						}
+						buf[ChannelIndex][SampleIndex].r = _FFTHannWindow(*SamplePtr, SampleIndex, SamplesToRead);
+						buf[ChannelIndex][SampleIndex].i = 0.f;
+
+						SamplePtr++;
 					}
+				}
 
-					int32 SamplesPerSpectrum = SamplesToRead / (2 * SpectrumWidth);
-					int32 ExcessSamples = SamplesToRead % (2 * SpectrumWidth);
+				for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
+				{
+					kiss_fftnd(stf, buf[ChannelIndex], out[ChannelIndex]);
+				}
 
-					int32 FirstSampleForSpectrum = 1;
-					for (int32 SpectrumIndex = 0; SpectrumIndex < SpectrumWidth; ++SpectrumIndex)
-					{
-						static bool doLog = false;
+				int32 SamplesPerSpectrum = SamplesToRead / (2 * SpectrumWidth);
+				int32 ExcessSamples = SamplesToRead % (2 * SpectrumWidth);
 
-						int32 SamplesRead = 0;
-						double SampleSum = 0;
-						int32 SamplesForSpectrum = SamplesPerSpectrum + (ExcessSamples-- > 0 ? 1 : 0);
-						for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
-						{
-							if (out[ChannelIndex])
-							{
-								if (bSplitChannels)
-								{
-									SampleSum = 0;
-								}
+				int32 FirstSampleForSpectrum = 1;
+				for (int32 SpectrumIndex = 0; SpectrumIndex < SpectrumWidth; ++SpectrumIndex)
+				{
+					static bool doLog = false;
 
-								for (int32 SampleIndex = 0; SampleIndex < SamplesForSpectrum; ++SampleIndex)
-								{
-									float PostScaledR = out[ChannelIndex][FirstSampleForSpectrum + SampleIndex].r * 2.f / SamplesToRead;
-									float PostScaledI = out[ChannelIndex][FirstSampleForSpectrum + SampleIndex].i * 2.f / SamplesToRead;
-									//float Val = FMath::Sqrt(FMath::Square(PostScaledR) + FMath::Square(PostScaledI));
-									float Val = 10.f * FMath::LogX(10.f, FMath::Square(PostScaledR) + FMath::Square(PostScaledI));
-									SampleSum += Val;
-								}
-
-								if (bSplitChannels)
-								{
-									OutSpectrums[ChannelIndex][SpectrumIndex] = (float)(SampleSum / SamplesForSpectrum);
-								}
-								SamplesRead += SamplesForSpectrum;
-							}
-						}
-
-						if (!bSplitChannels)
-						{
-							OutSpectrums[0][SpectrumIndex] = (float)(SampleSum / SamplesRead);
-						}
-
-						FirstSampleForSpectrum += SamplesForSpectrum;
-					}
-
-					KISS_FFT_FREE(stf);
+					int32 SamplesRead = 0;
+					double SampleSum = 0;
+					int32 SamplesForSpectrum = SamplesPerSpectrum + (ExcessSamples-- > 0 ? 1 : 0);
 					for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
 					{
-						if (buf[ChannelIndex])
-						{
-							KISS_FFT_FREE(buf[ChannelIndex]);
-							KISS_FFT_FREE(out[ChannelIndex]);
-						}
+							if (bSplitChannels)
+							{
+								SampleSum = 0;
+							}
+
+							for (int32 SampleIndex = 0; SampleIndex < SamplesForSpectrum; ++SampleIndex)
+							{
+								float PostScaledR = out[ChannelIndex][FirstSampleForSpectrum + SampleIndex].r * 2.f / SamplesToRead;
+								float PostScaledI = out[ChannelIndex][FirstSampleForSpectrum + SampleIndex].i * 2.f / SamplesToRead;
+								//float Val = FMath::Sqrt(FMath::Square(PostScaledR) + FMath::Square(PostScaledI));
+								float Val = 10.f * FMath::LogX(10.f, FMath::Square(PostScaledR) + FMath::Square(PostScaledI));
+								SampleSum += Val;
+							}
+
+							if (bSplitChannels)
+							{
+								OutSpectrums[ChannelIndex][SpectrumIndex] = (float)(SampleSum / SamplesForSpectrum);
+							}
+							SamplesRead += SamplesForSpectrum;
+					}
+
+					if (!bSplitChannels)
+					{
+						OutSpectrums[0][SpectrumIndex] = (float)(SampleSum / SamplesRead);
+					}
+
+					FirstSampleForSpectrum += SamplesForSpectrum;
+				}
+
+				KISS_FFT_FREE(stf);
+				for (int32 ChannelIndex = 0; ChannelIndex < NumChannels; ++ChannelIndex)
+				{
+					if (buf[ChannelIndex])
+					{
+						KISS_FFT_FREE(buf[ChannelIndex]);
+						KISS_FFT_FREE(out[ChannelIndex]);
 					}
 				}
 			}
 		}
 	}
-#else
-	UE_LOG(LogSoundVisualization, Warning, TEXT("Calculate Frequency Spectrum does not work for cooked builds yet."));
-#endif
 }
-
-//////////////////////////////////////////////////////////////////////////

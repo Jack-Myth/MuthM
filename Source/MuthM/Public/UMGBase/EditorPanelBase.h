@@ -14,8 +14,9 @@ class MUTHM_API UEditorPanelBase : public UUserWidget
 {
 	GENERATED_BODY()
 
+	friend class UEditorMainUIBase;
 	UPROPERTY()
-		class UTexture2D* _SpectrumTexture=nullptr;
+		TArray<class UTexture2D*> _SpectrumTexture;
 	UPROPERTY()
 		TArray<class UInstructionWidgetBase*> InstructionWidgets;
 	UPROPERTY()
@@ -43,7 +44,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		FName _FastAddInstructionName;
 	UFUNCTION(BlueprintImplementableEvent,meta=(ToolTip="Notice:This event may be fired before construct event."))
-		void OnSpectrumUpdate(class UTexture2D* Spectrum);
+		void OnSpectrumUpdate(const TArray<class UTexture2D*>& Spectrum);
+	//UFUNCTION(BlueprintCallable)
+		//class UImage* ConstructImageWidget();
 	UFUNCTION(BlueprintPure)
 	FORCEINLINE TArray<UInstructionWidgetBase*> GetInstructionWidgets()
 	{
@@ -94,6 +97,8 @@ public:
 		float GetMusicLength();
 	UFUNCTION(BlueprintCallable)
 		void PupopDetails(class UInstructionWidgetBase* InstructionWidgetBase);
+	UFUNCTION()
+		void OnMusicProcessCallback(float Current, float Duration);
 protected:
 	virtual void NativeConstruct() override;
 

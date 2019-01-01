@@ -15,6 +15,8 @@
 
 void UEditorPanelBase::SetTimeAxis(float NewTime)
 {
+	if (NewTime == TimeAxis)
+		return;
 	TimeAxis = NewTime;
 	OnTimeAxisChanged(NewTime);
 	if (bFastAddMode)
@@ -128,13 +130,19 @@ void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWid
 	ActivedDetailsWidget->AddToViewport(100);
 }
 
+void UEditorPanelBase::OnMusicProcessCallback(float Current, float Duration)
+{
+	SetTimeAxis(Current);
+}
+
 void UEditorPanelBase::NativeConstruct()
 {
 	Super::NativeConstruct();
-	//4 minutes music will be 7200x64,UINT R8,use 0.4MB mem.
+	//4 minutes music will be 24000x128,UINT A8,use 3MB mem.
 	auto* EditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
-	_SpectrumTexture = EditorMode->DrawMainMusicSpectrum(0, GetMusicLength(), GetMusicLength() * 30, 128);
+	_SpectrumTexture = EditorMode->DrawMainMusicSpectrum(0,GetMusicLength(),GetMusicLength() * 100, 128);
 	OnSpectrumUpdate(_SpectrumTexture);
+	EditorMode->OnMusicPlaybackTimeUpdate.AddDynamic(this, &UEditorPanelBase::OnMusicProcessCallback);
 }
 
 #undef LOCTEXT_NAMESPACE

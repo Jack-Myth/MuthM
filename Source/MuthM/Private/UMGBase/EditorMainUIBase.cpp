@@ -21,7 +21,7 @@ void UEditorMainUIBase::UIExitPIE()
 void UEditorMainUIBase::PlayMusic()
 {
 	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
-	InEditorMode->PlayMusicOnly(_TimePoint);
+	InEditorMode->PlayMusicOnly(GetEditorPanel()->TimeAxis);
 }
 
 void UEditorMainUIBase::PauseMusic()

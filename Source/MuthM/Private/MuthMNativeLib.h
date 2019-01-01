@@ -40,7 +40,7 @@ public:
 	}
 	static bool NativeDecodeMP3ToPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputPCM, int32& SampleRate,int32& Channels);
 	static bool NativeEncodePCMToOGG(const TArray<uint8>& PCMData, int32 SampleRate, int32 Channels/*, int32 TargetBitrate = 192*1024*/, TArray<uint8>& OutputOGG);
-	static void NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMInput, int SampleRate, int Channels, bool SplitChannels, const float BeginTime, const float SampleTimeLength, const int32 SpectrumWidth, TArray<TArray<float>>& OutSpectrums);
+	static void NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMData, const int SampleRate, const int NumChannels, const bool bSplitChannels, const float StartTime, const float TimeLength, const int32 SpectrumWidth, TArray< TArray<float> >& OutSpectrums);
 	static float NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32 SampleRate, int32 Channels);
 	static bool DecodeOGGToPCM(const uint8* pOGGData,int32 OGGDataLength, TArray<uint8>& PCMData,int& SampleRate,int& Channels);
 };

@@ -15,8 +15,6 @@ class MUTHM_API UEditorMainUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 
-	//Current Time.
-	float _TimePoint;
 	class UEditorPanelBase* _EditorPanel;
 public:
 	UFUNCTION(BlueprintCallable)

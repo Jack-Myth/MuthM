@@ -37,9 +37,6 @@ protected:
 		class UMainSoundWave* _GameMainMusic;
 	UPROPERTY()
 		class UAudioComponent* _MainSoundComponent;
-	//Because the Playback time will be wrong in some platform (Android for example)
-	//So calculate playback time by Tick() and control pause and resume by LifeCycleComponent;
-	float MusicPlaybackTime = 0;
 	UPROPERTY()
 		class UPauseUIBase* pPauseUI=nullptr;
 	UPROPERTY()
@@ -54,6 +51,10 @@ protected:
 	{
 		return _MainMMSInstance;
 	}
+
+	//Because the Playback time will be wrong in some platform (Android for example)
+	//So calculate playback time by Tick() and control pause and resume by LifeCycleComponent;
+	float MusicPlaybackTime = 0;
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
