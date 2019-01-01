@@ -60,6 +60,8 @@ public:
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
 	UPROPERTY(BlueprintAssignable)
 		FOnGameEnded OnGameEnded;
+	UPROPERTY()
+		TMap<FName, float> GlobalDataNumber; 
 	AMuthMInGameMode();
 	//GetScoreCore
 	UFUNCTION(BlueprintPure)

@@ -72,10 +72,9 @@ UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, flo
 	const auto* InstructionClass = _InstructionMap.Find(InstructionName);
 	if (InstructionClass)
 	{
-		UInstruction* InstructionPtr = NewObject<UInstruction>(nullptr, InstructionClass->ClassStack.Top());
+		UInstruction* InstructionPtr = NewObject<UInstruction>(this);
 		FBlueprintJsonObject tmpBPJsonArg;
 		tmpBPJsonArg.Object = MakeShareable<FJsonObject>(&JsonArg);
-		InstructionPtr->SetWorld(_WorldContextProvider->GetWorld());
 		InstructionPtr->SetTime(Time);
 		InstructionPtr->OnInstructionLoaded(tmpBPJsonArg);
 		return InstructionPtr;
@@ -85,16 +84,13 @@ UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, flo
 
 void UInstructionManagerImpl::Tick(float CurrentTime)
 {
+	//TODO:UInstructionManagerImpl.Tick
+	if (LastTickTime > CurrentTime)
+		LastTickTime = 0;
 	for (int i = 0; i < _MMScriptInstances.Num(); i++)
 	{
 		_MMScriptInstances[i]->Tick(CurrentTime);
 	}
-}
-
-void UInstructionManagerImpl::SetWorldContextProvider(UObject* Provider)
-{
-	_WorldContextProvider = Provider;
-	LastTickTime = 0;
 }
 
 void UInstructionManagerImpl::DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance)
@@ -107,11 +103,6 @@ void UInstructionManagerImpl::DestroyMMScriptInstance(TScriptInterface<IMMScript
 		PendingKillMMS->RemoveFromRoot();
 		PendingKillMMS->MarkPendingKill();
 	}
-}
-
-UObject* UInstructionManagerImpl::GetWorldProvider()
-{
-	return _WorldContextProvider;
 }
 
 TScriptInterface<IMMScript> UInstructionManagerImpl::GenMMScript(bool bIsEditorMode)

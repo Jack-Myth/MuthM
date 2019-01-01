@@ -55,8 +55,6 @@ public:
 	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) const = 0;
 	virtual UInstruction* GenInstruction(FName InstructionName,float Time, FJsonObject& JsonArg) = 0;
 	virtual void Tick(float CurrentTime) = 0;
-	virtual void SetWorldContextProvider(UObject* Provider) = 0;
-	virtual UObject* GetWorldProvider() = 0;
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) = 0;
 	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) = 0;
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "GenMMScript"))
