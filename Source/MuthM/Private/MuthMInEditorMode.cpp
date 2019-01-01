@@ -33,6 +33,7 @@ void AMuthMInEditorMode::BeginPlay()
 void AMuthMInEditorMode::EnterPIE(float BeginTime)
 {
 	//TODO: Enter PIE
+	SetMusicPlaySpeed(1); //Reset Music play speed
 	StartGame(GetMusicInfo(), _EditorMMSInstance->Serialize());
 	OnEnterPIE.Broadcast();
 }
@@ -105,5 +106,12 @@ TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginT
 		SpectrumTextures.Add(SpectrumTexture);
 	}
 	return SpectrumTextures;
+}
+
+void AMuthMInEditorMode::SetMusicPlaySpeed(float PlaySpeed)
+{
+	PlaySpeed = FMath::Clamp<float>(PlaySpeed, 0.1, 10);
+	this->CustomTimeDilation = PlaySpeed;
+	_MainSoundComponent->SetPitchMultiplier(PlaySpeed);
 }
 

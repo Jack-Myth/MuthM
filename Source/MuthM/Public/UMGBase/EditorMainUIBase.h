@@ -39,6 +39,8 @@ public:
 	void NativeOnFillBPMInfo(float BPM);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnFillBPMInfo(float BPM);
+	UFUNCTION(BlueprintCallable)
+		void SetPlaySpeed(float PlaySpeed);
 	UFUNCTION(BlueprintPure)
 		class UEditorPanelBase* GetEditorPanel()
 	{

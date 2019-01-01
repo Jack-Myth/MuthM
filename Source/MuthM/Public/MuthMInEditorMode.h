@@ -48,4 +48,5 @@ public:
 	}
 	virtual void NativeOnGameEnded(FGameEndReason GameEndReason) override;
 	TArray<class UTexture2D*> DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency);
+	void SetMusicPlaySpeed(float PlaySpeed);
 };
