@@ -1,6 +1,7 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class MuthM : ModuleRules
 {
@@ -37,6 +38,7 @@ public class MuthM : ModuleRules
         {
             PublicDefinitions.Add("_LARGEFILE64_SOURCE=0");
             PublicDefinitions.Add("_FILE_OFFSET_BITS=0");
+            PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private/Compatibility"));
         }
 
         // Uncomment if you are using online features
