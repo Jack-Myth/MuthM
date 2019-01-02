@@ -179,7 +179,9 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	{
 		_PreparedInstructionInstance[i]->OnTick(CurrentTime);
 		if (_PreparedInstructionInstance[i]->GetTime() > mLastTime&&_PreparedInstructionInstance[i]->GetTime() <= CurrentTime)
+		{
 			_PreparedInstructionInstance[i]->OnTimeArrived();
+		}
 	}
 }
 
@@ -194,7 +196,7 @@ void UMMScriptImpl::Destroy()
 	IInstructionManager::Get(this)->DestroyMMScriptInstance(this);
 }
 
-TArray<uint8> UMMScriptImpl::Serialize()
+TArray<uint8> UMMScriptImpl::SerializeToData()
 {
 	TArray<uint8> MMSData;
 	MMSData.Append((const uint8*)"_MMS", 4);

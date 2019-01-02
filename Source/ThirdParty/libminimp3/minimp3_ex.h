@@ -308,14 +308,14 @@ static void mp3dec_close_file(mp3dec_map_info_t *map_info)
 static int mp3dec_open_file(const char *file_name, mp3dec_map_info_t *map_info)
 {
     memset(map_info, 0, sizeof(*map_info));
-	FILE *file;
+	FILE *file=NULL;
 	fopen_s(&file,file_name, "rb");
     if (!file)
         return -1;
-
+	long size = 0;
     if (fseek(file, 0, SEEK_END))
         goto error;
-    long size = ftell(file);
+    size = ftell(file);
     if (size < 0)
         goto error;
     map_info->size = (size_t)size;

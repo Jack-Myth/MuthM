@@ -58,17 +58,17 @@ void AMuthMMainMenuMode::BeginPlay()
 {
 	UGameplayStatics::GetPlayerController(this, 0)->bShowMouseCursor=true;
 	auto* GameInstance =  Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
-	FString MDATFile;
+	FString _MDATFile;
 	int ScoreIndex;
 	bool bIsEditorMode;
-	GameInstance->GetLastScoreInfo(MDATFile,ScoreIndex,bIsEditorMode);
-	if (MDATFile!="")
+	GameInstance->GetLastScoreInfo(_MDATFile,ScoreIndex,bIsEditorMode);
+	if (_MDATFile!="")
 	{
 		// Need to restore Selection UI;
 		if (bIsEditorMode)
-			SelectEditorScore()->OnRestoreScoreSelection(MDATFile, ScoreIndex);
+			SelectEditorScore()->OnRestoreScoreSelection(_MDATFile, ScoreIndex);
 		else
-			SelectGameScore()->OnRestoreScoreSelection(MDATFile, ScoreIndex);
+			SelectGameScore()->OnRestoreScoreSelection(_MDATFile, ScoreIndex);
 	}
 	else
 	{

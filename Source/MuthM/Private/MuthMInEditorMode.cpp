@@ -34,7 +34,7 @@ void AMuthMInEditorMode::EnterPIE(float BeginTime)
 {
 	//TODO: Enter PIE
 	SetMusicPlaySpeed(1); //Reset Music play speed
-	StartGame(GetMusicInfo(), _EditorMMSInstance->Serialize());
+	StartGame(GetMusicInfo(), _EditorMMSInstance->SerializeToData());
 	OnEnterPIE.Broadcast();
 }
 

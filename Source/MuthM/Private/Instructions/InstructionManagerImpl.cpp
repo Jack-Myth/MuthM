@@ -2,6 +2,8 @@
 
 #include "InstructionManagerImpl.h"
 #include "MMScriptImpl.h"
+#include "MuthMInEditorMode.h"
+#include "Kismet/GameplayStatics.h"
 
 bool UInstructionManagerImpl::RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef)
 {
@@ -133,4 +135,10 @@ FName UInstructionManagerImpl::GetInstructionName(TSubclassOf<UInstruction> Inst
 			return it->Key;
 	}
 	return FName();
+}
+
+TScriptInterface<IMMScript> UInstructionManagerImpl::K2_GenMMScript()
+{
+	AGameModeBase* CurGameMode = UGameplayStatics::GetGameMode(this);
+	return GenMMScript(CurGameMode->GetClass()->IsChildOf<AMuthMInEditorMode>());
 }

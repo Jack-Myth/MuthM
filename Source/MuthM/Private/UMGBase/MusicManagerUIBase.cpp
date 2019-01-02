@@ -29,7 +29,7 @@ void UMusicManagerUIBase::ImportMusic()
 	//Currently only support import one music at once.
 	auto UIClass = UUIProvider::Get(this)->GetMusicImportationUI();
 	auto* UIInstance = Cast<UMusicImportationUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UIClass, "MusicImportationUI"));
-	UIInstance->MusicFileName = SelectedFileName[0];
+	UIInstance->_MusicFileName = SelectedFileName[0];
 	UIInstance->InitMusicInfo(SelectedFileName[0], "", "");
 	UIInstance->OnMusicImportFinished.BindLambda([=]()
 		{

@@ -6,6 +6,17 @@
     This software is distributed without any warranty.
     See <http://creativecommons.org/publicdomain/zero/1.0/>.
 */
+
+#ifdef __GNUC__
+//For Non-Windows Build.
+typedef int errno_t;
+errno_t fopen_s(FILE** pFile, const char *filename, const char *mode)
+{
+	*pFile = fopen(filename, mode);
+	return 0;
+}
+#endif
+
 #include <stdint.h>
 
 #define MINIMP3_MAX_SAMPLES_PER_FRAME (1152*2)

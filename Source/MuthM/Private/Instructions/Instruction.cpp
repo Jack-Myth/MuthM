@@ -26,6 +26,12 @@ float UInstruction::GetGlobalNumberData(FName Key) const
 	return InGameMode->GlobalDataNumber.FindRef(Key);
 }
 
+void UInstruction::SetGlobalNumberData(FName Key, float Value)
+{
+	auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
+	InGameMode->GlobalDataNumber.FindOrAdd(Key) = Value;
+}
+
 class UInstructionWidgetBase* UInstruction::GenInstructionWidget_Implementation()
 {
 	auto InstructionWidgetClass = UUIProvider::Get(this)->GetInstructionWidget();

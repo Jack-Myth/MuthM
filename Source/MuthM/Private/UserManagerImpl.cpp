@@ -97,7 +97,7 @@ bool UUserManagerImpl::QueryPlayerAccount(FOnUserQueryResult SelfQueryResult)
 		return false;
 	TSharedPtr<IHttpRequest> Request = INetworkManager::Get(this)->GenRequest();
 	Request->SetURL(FString::Printf(TEXT("%s/query_user_byid.php?UserID=%d"), TEXT(MUTHM_URL_ROOT), _UserID));
-	Request->OnProcessRequestComplete().BindLambda([=](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
+	Request->OnProcessRequestComplete().BindLambda([=](FHttpRequestPtr _Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 		{
 			FUserInfo ResultUsrInfo;
 			if (!bConnectedSuccessfully)
@@ -125,7 +125,7 @@ void UUserManagerImpl::QueryAccountByID(int UserID, FOnUserQueryResult UserQuery
 {
 	TSharedPtr<IHttpRequest> Request = INetworkManager::Get(this)->GenRequest();
 	Request->SetURL(FString::Printf(TEXT("%s/query_user_byid.php?UserID=%d"), TEXT(MUTHM_URL_ROOT), UserID));
-	Request->OnProcessRequestComplete().BindLambda([=](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
+	Request->OnProcessRequestComplete().BindLambda([=](FHttpRequestPtr _Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 		{
 			FUserInfo ResultUsrInfo;
 			if (!bConnectedSuccessfully)

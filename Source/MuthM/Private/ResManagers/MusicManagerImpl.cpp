@@ -54,8 +54,9 @@ void UMusicManagerImpl::FindMusicOnlineByID(int MusicID, FOnMusicQueryFinished Q
 	auto Request = INetworkManager::Get(this)->GenRequest();
 	Request->SetVerb("GET");
 	Request->SetURL(FString(MUTHM_URL_ROOT) + "/query_music_byid.php?MusicID="+FString::FromInt(MusicID));
-	Request->OnProcessRequestComplete().CreateLambda([MusicID, QueryDelegate](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
+	Request->OnProcessRequestComplete().BindLambda([MusicID, QueryDelegate](FHttpRequestPtr _Request, FHttpResponsePtr Response, bool bConnectedSuccessfully)
 		{
+			(void)_Request;
 			if (bConnectedSuccessfully)
 			{
 				TSharedPtr<FJsonObject> JsonObj = UMuthMBPLib::DeserializeJsonFromStr(Response->GetContentAsString());

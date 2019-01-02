@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Instructions/Instruction.h"
-#include "Rhythm.generated.h"
+#include "LoadScene.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MUTHM_API URhythm : public UInstruction
+class ULoadScene : public UInstruction
 {
 	GENERATED_BODY()
+public:
+	void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args);
 };

@@ -13,11 +13,17 @@ public class GameHAL : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
+            "Launch",
             "InputCore" });
 
         PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
         PrivateDependencyModuleNames.AddRange(new string[] {  });
+
+        if (Target.IsInPlatformGroup(UnrealPlatformGroup.Android))
+        {
+            AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "/Private/AndroidUPL.xml"));
+        }
 
 		// Uncomment if you are using Slate UI
 		//PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore","UMG"});

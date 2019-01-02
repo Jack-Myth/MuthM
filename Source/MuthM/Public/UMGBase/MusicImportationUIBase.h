@@ -17,7 +17,7 @@ class MUTHM_API UMusicImportationUIBase : public UUserWidget
 	GENERATED_BODY()
 public:
 	FUIOnMusicImportFinished OnMusicImportFinished;
-	FString MusicFileName;
+	FString _MusicFileName;
 	UFUNCTION(BlueprintCallable)
 		void BeginImportMusic(const FString& Title, const FString& Musician);
 	UFUNCTION(BlueprintImplementableEvent)

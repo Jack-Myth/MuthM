@@ -32,6 +32,7 @@ class MUTHM_API UInstruction:public UObject,public IHasDetails
 
 	UPROPERTY(BlueprintGetter="GetScript")
 		TScriptInterface<class IMMScript> AttachedScript = nullptr;
+	bool bIsFinished = false;
 public:
 	void AttachScript(TScriptInterface<class IMMScript> TargetScript)
 	{
@@ -64,16 +65,17 @@ public:
 		void OnTimeArrived();
 	UFUNCTION(BlueprintImplementableEvent)
 		FBlueprintJsonObject GenArgsJsonObject();
-	UFUNCTION(Blueprintcallable)
+	UFUNCTION(BlueprintCallable,meta=(ToolTip="Please Call this funtion after instruction is finished."))
 		void DestroySelf();
 	UFUNCTION(BlueprintNativeEvent)
 		class UInstructionWidgetBase* GenInstructionWidget();
 	UFUNCTION(BlueprintPure)
 		float GetGlobalNumberData(FName Key) const;
+	UFUNCTION(BlueprintCallable)
+		void SetGlobalNumberData(FName Key, float Value);
 	//Override GetWorld() To provide the WorldContext
 	virtual class UWorld* GetWorld() const override final
 	{
 		return GetOuter()->GetWorld();
 	}
-
 };

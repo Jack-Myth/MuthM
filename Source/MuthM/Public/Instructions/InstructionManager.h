@@ -58,5 +58,5 @@ public:
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) = 0;
 	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) = 0;
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "GenMMScript"))
-		virtual TScriptInterface<IMMScript> K2_GenMMScript();
+		virtual TScriptInterface<IMMScript> K2_GenMMScript() = 0;
 };

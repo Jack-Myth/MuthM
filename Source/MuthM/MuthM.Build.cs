@@ -16,9 +16,9 @@ public class MuthM : ModuleRules
             "InputCore",
             "zlib",
             "Vorbis",
+            "VorbisFile",
             "UEOgg",
             "libminimp3",
-            "UELibSampleRate",
             "AudioPlatformConfiguration",
             "BeatDetektor",
             "Kiss_FFT",
@@ -32,6 +32,12 @@ public class MuthM : ModuleRules
 
 		// Uncomment if you are using Slate UI
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore","UMG"});
+
+        if(Target.IsInPlatformGroup(UnrealPlatformGroup.Android))
+        {
+            PublicDefinitions.Add("_LARGEFILE64_SOURCE=0");
+            PublicDefinitions.Add("_FILE_OFFSET_BITS=0");
+        }
 
         // Uncomment if you are using online features
         // PrivateDependencyModuleNames.Add("OnlineSubsystem");

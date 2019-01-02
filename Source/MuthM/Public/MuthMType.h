@@ -15,7 +15,7 @@ struct FolderTree
  * 
  */
 
-DECLARE_LOG_CATEGORY_EXTERN(MDATFile, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(MDATFileLog, Log, All);
 class MUTHM_API FMDATFile
 {
 	struct FileInfo
@@ -71,12 +71,12 @@ public:
 	FORCEINLINE uint32 GetFileAddress(FString FileName) const
 	{
 		const FileInfo* TargetFileInfo = _Files.Find(FormatFileName(FileName));
-		return TargetFileInfo ? TargetFileInfo->Address : NULL;
+		return TargetFileInfo ? TargetFileInfo->Address : (uint32)NULL;
 	}
 	FORCEINLINE uint32 GetFileCompressedLength(FString FileName) const
 	{
 		const FileInfo* TargetFileInfo = _Files.Find(FormatFileName(FileName));
-		return TargetFileInfo ? TargetFileInfo->CompressedLength : NULL;
+		return TargetFileInfo ? TargetFileInfo->CompressedLength : (uint32)NULL;
 	}
 	FORCEINLINE bool IsFileExist(FString FileName) const
 	{

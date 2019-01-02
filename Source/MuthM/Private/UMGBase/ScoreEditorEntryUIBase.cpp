@@ -157,7 +157,7 @@ bool UScoreEditorEntryUIBase::AddMMSFileToCurrentFolder(const FString& FileName)
 	if (pFolderTreeStack.Top()->Files.Find(TargetFileName)!=INDEX_NONE)
 		return false;
 	//Write Empty Data To MMS.
-	_MDATInstance->AddFile(FileFullName, IInstructionManager::Get(this)->GenMMScript(false)->Serialize());
+	_MDATInstance->AddFile(FileFullName, IInstructionManager::Get(this)->GenMMScript(false)->SerializeToData());
 	pFolderTreeStack.Top()->Files.Add(TargetFileName);
 	return true;
 }

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+  <init>
+    <log text="MuthM Android GameHAL Init"/>
+  </init>
+
+  <proguardAdditions>
+    <insert>
+    </insert>
+  </proguardAdditions>
+
+  <androidManifestUpdates>
+  </androidManifestUpdates>
+
+  <gameActivityImportAdditions>
+    import android.content.Intent;
+    import android.widget.Toast;
+  </gameActivityImportAdditions>
+  <gameActivityOnActivityResultAdditions>
+    <insert>
+      if (requestCode==112)
+      {
+      if (resultCode == RESULT_OK)
+      {
+      Uri uri = data.getData();
+      OpenFileName=getPath(uri);
+      }
+      else
+      {
+      OpenFileName="*Cancelled*";
+      }
+      }
+    </insert>
+  </gameActivityOnActivityResultAdditions>
+  <gameActivityClassAdditions>
+    <insert>
+      String OpenFileName;
+      public void GetOpenFileName(String MIME)
+      {
+      OpenFileName="";
+      Intent intent=new Intent(Intent.ACTION_GET_CONTENT);
+      intent.setType(MIME);
+      intent.addCategory(Intent.CATEGORY_OPENABLE);
+      try {
+      startActivityForResult(Intent.createChooser(intent, "Select File"), 112);
+      } catch (android.content.ActivityNotFoundException ex) {
+      Toast.makeText(this, "Error:No FileManager!!", Toast.LENGTH_SHORT).show();
+      }
+      }
+
+      public String getPath(Uri uri) {
+      if ("content".equalsIgnoreCase(uri.getScheme())) {
+      String[] projection = {"_data"};
+      Cursor cursor = null;
+      try {
+      cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
+      int column_index = cursor.getColumnIndexOrThrow("_data");
+      if (cursor.moveToFirst()) {
+      return cursor.getString(column_index);
+      }
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+      return uri.getPath();
+      }
+      return null;
+    </insert>
+  </gameActivityClassAdditions>
+</root>

@@ -32,7 +32,7 @@ public:
 	virtual float GetRemainingInstructionCount() override;
 	virtual void SetAutoDestroy(bool NewAutoDestroy) override;
 	virtual void Destroy() override;
-	virtual TArray<uint8> Serialize() override;
+	virtual TArray<uint8> SerializeToData() override;
 	virtual float GetSuiltableDelay() override;
 	virtual TArray<TScriptInterface<class IScoreInfo>> CollectScoreInfoArray() override;
 	virtual void SetBeginTime(float BeginTime) override;

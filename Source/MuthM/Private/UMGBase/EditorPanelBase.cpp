@@ -65,7 +65,7 @@ void UEditorPanelBase::OnInstructionTimeInput(class UInstruction* InstructionIns
 {
 	UInstructionWidgetBase* TargetInstructionWidget=nullptr;
 	if (_SelectedWidget->GetInstructionInstance() == InstructionInstance)
-		TargetInstructionWidget;
+		TargetInstructionWidget = _SelectedWidget;
 	else
 	{
 		for (int i = 0; i < InstructionWidgets.Num(); i++)

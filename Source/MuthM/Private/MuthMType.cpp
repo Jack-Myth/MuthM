@@ -7,13 +7,13 @@
 #include "zlib.h"
 #include "PlatformFilemanager.h"
 
-DEFINE_LOG_CATEGORY(MDATFile)
+DEFINE_LOG_CATEGORY(MDATFileLog)
 
 bool FMDATFile::_DeserializeInternal(const uint8* _pData)
 {
 	if (FMemory::Memcmp(_pData, "_MDAT", 5))
 	{
-		UE_LOG(MDATFile, Error, TEXT("Invalid MDAT Data"));
+		UE_LOG(MDATFileLog, Error, TEXT("Invalid MDAT Data"));
 		return false;
 	}
 	const uint8* _pDataOrigin = _pData;
@@ -59,7 +59,7 @@ bool FMDATFile::_DeserializeInternal_Lazy(IFileHandle* FileHandle)
 	FileHandle->Read(tmpData.GetData(), 5);
 	if (FMemory::Memcmp(tmpData.GetData(), "_MDAT", 5))
 	{
-		UE_LOG(MDATFile, Error, TEXT("Invalid MDAT Data"));
+		UE_LOG(MDATFileLog, Error, TEXT("Invalid MDAT Data"));
 		return false;
 	}
 	while (true)
@@ -79,7 +79,7 @@ bool FMDATFile::_DeserializeInternal_Lazy(IFileHandle* FileHandle)
 		FString SimplestFileName = FormatFileName(FileName);
 #if !UE_BUILD_SHIPPING
 		if (FileName!=SimplestFileName)
-			UE_LOG(MDATFile,Warning,TEXT("FileName \"%s\" is not the samplest."),*FileName)
+			UE_LOG(MDATFileLog,Warning,TEXT("FileName \"%s\" is not the samplest."),*FileName)
 #endif
 		FileInfo CurFile;
 		tmpData.SetNum(sizeof(uint32),false);
@@ -132,7 +132,7 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 	IFileHandle* FileHandle = FPlatformFileManager::Get().GetPlatformFile().OpenRead(*_MDATFileName);
 	if (!FileHandle)
 	{
-		UE_LOG(MDATFile, Error, TEXT("Unable to load data,Open MDAT File(%s) Failed!"), *_MDATFileName);
+		UE_LOG(MDATFileLog, Error, TEXT("Unable to load data,Open MDAT File(%s) Failed!"), *_MDATFileName);
 		return;
 	}
 	FileHandle->Seek(pFileInfo->Address + _DataAddressBase);
@@ -141,7 +141,7 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 	if (!FileHandle->Read(CompressedData.GetData(), pFileInfo->CompressedLength))
 	{
 		//Load Failed!
-		UE_LOG(MDATFile, Error, TEXT("Unable to load data from %s!"), *_MDATFileName);
+		UE_LOG(MDATFileLog, Error, TEXT("Unable to load data from %s!"), *_MDATFileName);
 		delete FileHandle;
 		return;
 	}
@@ -208,14 +208,14 @@ bool FMDATFile::LoadFromFile(FString FileName)
 	IFileHandle* FileHandle = FPlatformFileManager::Get().GetPlatformFile().OpenRead(*FileName);
 	if (!FileHandle)
 	{
-		UE_LOG(MDATFile, Error, TEXT("Load File %s Failed!"), *FileName);
+		UE_LOG(MDATFileLog, Error, TEXT("Load File %s Failed!"), *FileName);
 		return false;
 	}
 	bool IsSucceed = _DeserializeInternal_Lazy(FileHandle);
 	delete FileHandle; //Close File
 	if (!IsSucceed)
 	{
-		UE_LOG(MDATFile, Error, TEXT("At File Name:%s"), *FileName);
+		UE_LOG(MDATFileLog, Error, TEXT("At File Name:%s"), *FileName);
 	}
 	else
 	{

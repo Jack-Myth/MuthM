@@ -17,66 +17,6 @@
 #include "Paths.h"
 
 DEFINE_LOG_CATEGORY(MuthMNativeLib)
-//Copy from Unreal Engine 4 Internal Resample function :P
-static void ResampleWaveData(TArray<uint8>& WaveData, size_t& NumBytes, int32 NumChannels, float SourceSampleRate, float DestinationSampleRate)
-{
-	double StartTime = FPlatformTime::Seconds();
-
-	// Set up temporary output buffers:
-	Audio::AlignedFloatBuffer ResamplerInputData;
-	Audio::AlignedFloatBuffer ResamplerOutputData;
-
-	int32 NumSamples = NumBytes / sizeof(int16);
-
-	check(WaveData.Num() == NumBytes);
-	check(NumSamples == NumBytes / 2);
-
-	// Convert wav data from int16 to float:
-	ResamplerInputData.AddUninitialized(NumSamples);
-	int16* InputData = (int16*)WaveData.GetData();
-
-	for (int32 Index = 0; Index < NumSamples; Index++)
-	{
-		ResamplerInputData[Index] = ((float)InputData[Index]) / 32767.0f;
-	}
-
-	// set up converter input params:
-	Audio::FResamplingParameters ResamplerParams = {
-		Audio::EResamplingMethod::BestSinc,
-		NumChannels,
-		SourceSampleRate,
-		DestinationSampleRate,
-		ResamplerInputData
-	};
-
-	// Allocate enough space in output buffer for the resulting audio:
-	ResamplerOutputData.AddUninitialized(Audio::GetOutputBufferSize(ResamplerParams));
-	Audio::FResamplerResults ResamplerResults;
-	ResamplerResults.OutBuffer = &ResamplerOutputData;
-
-	// Resample:
-	if (Audio::Resample(ResamplerParams, ResamplerResults))
-	{
-		// resize WaveData buffer and convert back to int16:
-		int32 NumSamplesGenerated = ResamplerResults.OutputFramesGenerated * NumChannels;
-		WaveData.SetNum(NumSamplesGenerated * sizeof(int16));
-		InputData = (int16*)WaveData.GetData();
-
-		for (int32 Index = 0; Index < NumSamplesGenerated; Index++)
-		{
-			InputData[Index] = (int16)(ResamplerOutputData[Index] * 32767.0f);
-		}
-
-		NumBytes = NumSamplesGenerated * sizeof(int16);
-	}
-	else
-	{
-		UE_LOG(MuthMNativeLib, Error, TEXT("Resampling operation failed."));
-	}
-
-	double TimeDelta = FPlatformTime::Seconds() - StartTime;
-	UE_LOG(MuthMNativeLib, Display, TEXT("Resampling file from %f to %f took %f seconds."), SourceSampleRate, DestinationSampleRate, TimeDelta);
-}
 
 bool MuthMNativeLib::NativeDecodeMP3ToPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputPCM, int32& SampleRate, int32& Channels)
 {

@@ -28,4 +28,6 @@ public:
 	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) override;
 	virtual FName GetInstructionName(FInstructionRef InstructionRef) const override;
 	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) const override;
+	virtual TScriptInterface<IMMScript> K2_GenMMScript() override;
+
 };

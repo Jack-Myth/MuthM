@@ -9,7 +9,7 @@ void UMusicImportationUIBase::BeginImportMusic(const FString& Title, const FStri
 {
 	//XXX:Treat all music file as MP3.
 	OnAsyncImportStarted();
-	IMusicManager::Get(this)->ImportMP3Async(MusicFileName, Title, Musician,
+	IMusicManager::Get(this)->ImportMP3Async(_MusicFileName, Title, Musician,
 		FOnMusicImportFinished::CreateLambda([this](bool IsFinished, const FMusicInfo& MusicInfo) 
 			{
 				if (!OnMusicImportFinished.IsBound())
