@@ -94,6 +94,4 @@ public:
 	UFUNCTION(BlueprintCallable)
 		static void AddCustomItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemCustom CustomItem);
 	//Fill Filter by file extension,if the first element include character '/',it will be treat as MIME Type.
-	UFUNCTION(BlueprintCallable)
-		static bool GetOpenFileName(const FText& Title, TArray<FString> Filters, bool AllowMultipleSelected, TArray<FString>& SelectedFileName, const FString& InitDir = "");
 };

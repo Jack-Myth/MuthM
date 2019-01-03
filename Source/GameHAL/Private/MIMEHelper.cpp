@@ -4,41 +4,34 @@
 #include "Paths.h"
 #include "FileHelper.h"
 
-TMap<FString, FString> MIMEHelper::MIMERecords;// = MIMEHelper::InitMIME();
-TMap<FString, FString> MIMEHelper::InitMIME()
-{
-	TMap<FString, FString> tMIMERecords;
-	TArray<FString> MIMERecText;
-	FFileHelper::LoadFileToStringArray(MIMERecText, *FPaths::Combine(FPaths::ProjectContentDir(), "/Non-Assets/MIME.txt"));
-	for (int i=0;i<MIMERecText.Num();i++)
-	{
-		FString L, R;
-		MIMERecText[i].Split(" ", &L, &R);
-		tMIMERecords.Add(L)=R;
-	}
-	return tMIMERecords;
-}
-
 FString MIMEHelper::ExtensionToMIMEType(FString Extension)
 {
 	if (Extension[0] == TEXT('.'))
 		Extension = Extension.Mid(1);
 	Extension.ToLowerInline();
-	FString* MIMEType;
-	MIMEType = MIMERecords.Find(Extension);
-	if (MIMEType)
-		return *MIMEType;
-	else
-		return MIMERecords["*"];
+	TArray<FString> MIMERecText;
+	FFileHelper::LoadFileToStringArray(MIMERecText, TEXT("/Game/MuthM/Non-Assets/MIME.txt"));
+	for (int i = 0; i < MIMERecText.Num(); i++)
+	{
+		FString L, R;
+		MIMERecText[i].Split(" ", &L, &R);
+		if (L == Extension)
+			return R;
+	}
+	return "*/*";
 }
 
 FString MIMEHelper::MIMETypeToExtension(FString MIMEType)
 {
 	MIMEType.ToLowerInline();
-	for (auto it=MIMERecords.CreateIterator();it;++it)
+	TArray<FString> MIMERecText;
+	FFileHelper::LoadFileToStringArray(MIMERecText, TEXT("/Game/MuthM/Non-Assets/MIME.txt"));
+	for (int i = 0; i < MIMERecText.Num(); i++)
 	{
-		if (it->Value == MIMEType)
-			return it->Key;
+		FString L, R;
+		MIMERecText[i].Split(" ", &L, &R);
+		if (R == MIMEType)
+			return L;
 	}
 	return "*";
 }

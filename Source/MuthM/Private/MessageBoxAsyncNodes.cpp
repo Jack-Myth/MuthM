@@ -5,6 +5,7 @@
 #include "QuestionBoxBase.h"
 #include "MessageBoxBase.h"
 #include "InputBoxBase.h"
+#include "GameHAL.h"
 
 void UPupopMessage::Activate()
 {
@@ -97,4 +98,28 @@ UPupopInput* UPupopInput::PupopInput(UObject* WorldContextObj, FText Message, FT
 	popInput->DefaultInput = DefaultInput;
 	popInput->AllowCancel = AllowCancel;
 	return popInput;
+}
+
+void UPupopOpenFileDialog::Activate()
+{
+	FGameHAL::Get().OpenFileDialog(_Title.ToString(), _InitDir, _Extensions, _AllowMultuipleSelected, FOnGetOpenFileName::CreateUObject(this, &UPupopOpenFileDialog::OnFileReult));
+}
+
+void UPupopOpenFileDialog::OnFileReult(bool IsFileOpened, TArray<FString> FileName)
+{
+	if (IsFileOpened)
+		FileOpened.Broadcast(FileName);
+	else
+		Cancelled.Broadcast();
+	SetReadyToDestroy();
+}
+
+UPupopOpenFileDialog* UPupopOpenFileDialog::PupopOpenFileDialog(UObject* WorldContextObj, FText Title, FString InitDir, TArray<FString> Extensions, bool AllowMultipleSelected /*= false*/)
+{
+	auto* popOpenFileDialog = NewObject<UPupopOpenFileDialog>(WorldContextObj);
+	popOpenFileDialog->_Title = Title;
+	popOpenFileDialog->_InitDir = InitDir;
+	popOpenFileDialog->_Extensions = Extensions;
+	popOpenFileDialog->_AllowMultuipleSelected = AllowMultipleSelected;
+	return popOpenFileDialog;
 }

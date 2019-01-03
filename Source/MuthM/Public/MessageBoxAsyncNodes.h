@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMsgBoxReplied);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInputBoxReplied,const FString&,InputString);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOpenFileResult, const TArray<FString>&, OpenFileName);
 
 /**
  * 
@@ -79,4 +80,26 @@ public:
 		void OnCancel();
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObj"), Category = "MuthM MessageBox")
 		static UPupopInput* PupopInput(UObject* WorldContextObj, FText Message, FText Title = FText(),const FString& DefaultInput="", bool AllowCancel = true);
+};
+
+/**
+ *
+ */
+UCLASS()
+class MUTHM_API UPupopOpenFileDialog : public UBlueprintAsyncActionBase
+{
+	GENERATED_BODY()
+		virtual void Activate() override;
+	FText _Title;
+	FString _InitDir;
+	TArray<FString> _Extensions;
+	bool _AllowMultuipleSelected;
+public:
+	UPROPERTY(BlueprintAssignable)
+		FOnOpenFileResult FileOpened;
+	UPROPERTY(BlueprintAssignable)
+		FOnMsgBoxReplied Cancelled;
+	void OnFileReult(bool IsFileOpened,TArray<FString> FileName);
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObj"), Category = "MuthM MessageBox")
+		static UPupopOpenFileDialog* PupopOpenFileDialog(UObject* WorldContextObj, FText Title, FString InitDir, TArray<FString> Extensions, bool AllowMultipleSelected = false);
 };

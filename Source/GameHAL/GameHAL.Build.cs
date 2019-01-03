@@ -2,6 +2,7 @@
 
 using UnrealBuildTool;
 using System.IO;
+using System;
 
 public class GameHAL : ModuleRules
 {
@@ -13,7 +14,6 @@ public class GameHAL : ModuleRules
             "Core",
             "CoreUObject",
             "Engine",
-            "Launch",
             "InputCore" });
 
         PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
@@ -22,7 +22,10 @@ public class GameHAL : ModuleRules
 
         if (Target.IsInPlatformGroup(UnrealPlatformGroup.Android))
         {
-            AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModuleDirectory, "/Private/AndroidUPL.xml"));
+            PublicDependencyModuleNames.Add("Launch");
+            string ModulePath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
+            Console.Write(ModulePath);
+            AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(ModulePath, "Private/AndroidUPL.xml"));
         }
 
 		// Uncomment if you are using Slate UI

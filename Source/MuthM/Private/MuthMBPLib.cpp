@@ -254,8 +254,3 @@ void UMuthMBPLib::AddCustomItemToCategory(FDetailCategoryStruct& DetailCategory,
 	*mDetail = CustomItem;
 	DetailCategory.ItemList.Add(MakeShareable<FDetailItem>(mDetail));
 }
-
-bool UMuthMBPLib::GetOpenFileName(const FText& Title, TArray<FString> Filters, bool AllowMultipleSelected, TArray<FString>& SelectedFileName, const FString& InitDir/*=""*/)
-{
-	return FGameHAL::Get().OpenFileDialog(Title.ToString(), InitDir, Filters, AllowMultipleSelected, SelectedFileName);
-}

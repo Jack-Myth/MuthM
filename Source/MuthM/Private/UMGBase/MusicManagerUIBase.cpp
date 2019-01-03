@@ -6,6 +6,7 @@
 #include "MusicImportationUIBase.h"
 #include "MuthMGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameHAL.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -23,19 +24,19 @@ void UMusicManagerUIBase::ImportMusic()
 {
 	TArray<FString> Filters;
 	Filters.Add("MP3");
-	TArray<FString> SelectedFileName;
-	if (!UMuthMBPLib::GetOpenFileName(LOCTEXT("Select Music", "Select Music"), Filters, false, SelectedFileName))
-		return;
-	//Currently only support import one music at once.
-	auto UIClass = UUIProvider::Get(this)->GetMusicImportationUI();
-	auto* UIInstance = Cast<UMusicImportationUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UIClass, "MusicImportationUI"));
-	UIInstance->_MusicFileName = SelectedFileName[0];
-	UIInstance->InitMusicInfo(SelectedFileName[0], "", "");
-	UIInstance->OnMusicImportFinished.BindLambda([=]()
+	FGameHAL::Get().OpenFileDialog(LOCTEXT("Select Music", "Select Music").ToString(), "", Filters, false, FOnGetOpenFileName::CreateLambda([=](bool IsSuccessful,TArray<FString> SelectedFileName)
 		{
-			OnInitMusicList();
-		});
-	UIInstance->AddToViewport(102);
+			//Currently only support import one music at once.
+			auto UIClass = UUIProvider::Get(this)->GetMusicImportationUI();
+			auto* UIInstance = Cast<UMusicImportationUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UIClass, "MusicImportationUI"));
+			UIInstance->_MusicFileName = SelectedFileName[0];
+			UIInstance->InitMusicInfo(SelectedFileName[0], "", "");
+			UIInstance->OnMusicImportFinished.BindLambda([=]()
+				{
+					OnInitMusicList();
+				});
+			UIInstance->AddToViewport(102);
+		}));
 }
 
 void UMusicManagerUIBase::UploadMusic(int ID, const FString& Title, const FString& Musician)

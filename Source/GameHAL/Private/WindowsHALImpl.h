@@ -9,7 +9,7 @@ class WindowsHALImpl :public IGameHAL
 {
 
 public:
-	virtual bool OpenFileDialog(const FString& Title, const FString& DefaultPath, const TArray<FString>& Filters, bool AllowMultipleSelected, TArray<FString>& OpenFileName) override;
+	virtual void OpenFileDialog(const FString& Title, const FString& DefaultPath, const TArray<FString>& Filters, bool AllowMultipleSelected, FOnGetOpenFileName Delegate) override;
 
 };
 
