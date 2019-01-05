@@ -42,10 +42,13 @@ void UMusicManagerImpl::PrepareDownloadMusic(int MusicID, bool IsMusicExist,cons
 
 bool UMusicManagerImpl::LoadMusicDataByID(int ID, TArray<uint8>& MusicData)
 {
-	if (ID>=0)
-		return FFileHelper::LoadFileToArray(MusicData,*ConstructMusicFileName(ID));
+	bool LoadSucceed;
+	if (ID >= 0)
+		LoadSucceed = FFileHelper::LoadFileToArray(MusicData, *ConstructMusicFileName(ID));
 	else
-		return FFileHelper::LoadFileToArray(MusicData, *ConstructOfflineMusicFileName(ID));
+		LoadSucceed = FFileHelper::LoadFileToArray(MusicData, *ConstructOfflineMusicFileName(ID));
+	UE_LOG(LogTemp, Display, TEXT("LoadResult:%d,LoadSize:%d for Path:%s"), LoadSucceed ? 1 : 0,MusicData.Num(), *ConstructOfflineMusicFileName(ID));
+	return LoadSucceed;
 }
 
 void UMusicManagerImpl::FindMusicOnlineByID(int MusicID, FOnMusicQueryFinished QueryDelegate)

@@ -91,6 +91,10 @@ TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginT
 		TArray<TArray<float>> OutArray;
 		UTexture2D* SpectrumTexture = UTexture2D::CreateTransient(PartResTime, ResFrequency, EPixelFormat::PF_A8);
 		uint8* MipmapData = (uint8*)SpectrumTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+#if !defined(PLATFORM_WINDOWS)||!PLATFORM_WINDOWS
+		uint32 alignment= SpectrumTexture->PlatformData->Mips[0].BulkData.GetBulkDataAlignment();
+		uint32 AlignedWidth = PartResTime + (4 - PartResTime % 4) % 4;
+#endif
 		for (uint32 x = 0; x < PartResTime; x++)
 		{
 			//X for Time
@@ -98,7 +102,11 @@ TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginT
 			for (int y = 0; y < OutArray[0].Num(); y++)
 			{
 				//Y for Frequency
-				MipmapData[(OutArray[0].Num() - y - 1)*PartResTime + x] = FMath::Clamp<int>((OutArray[0][y]+50)*2, 0, 255);
+#if !defined(PLATFORM_WINDOWS)||!PLATFORM_WINDOWS
+				MipmapData[(OutArray[0].Num() - y - 1)*AlignedWidth + x] = FMath::Clamp<int>((OutArray[0][y] + 50) * 2, 0, 255);
+#else
+				MipmapData[(OutArray[0].Num() - y - 1)*PartResTime + x] = FMath::Clamp<int>((OutArray[0][y] + 50) * 2, 0, 255);
+#endif
 			}
 		}
 		SpectrumTexture->PlatformData->Mips[0].BulkData.Unlock();

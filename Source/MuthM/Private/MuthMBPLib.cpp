@@ -204,10 +204,13 @@ TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
 class UMainSoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 {
 	UMainSoundWave* TargetSoundWave = NewObject<UMainSoundWave>();
-	TargetSoundWave->bVirtualizeWhenSilent = true;
 	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
+	UE_LOG(MuthMBPLib, Log, TEXT("OGGData Length:%d"), OGGData.Num());
 	bulkData->Lock(LOCK_READ_WRITE);
-	FMemory::Memcpy(bulkData->Realloc(OGGData.Num()), OGGData.GetData(), OGGData.Num());
+	void* pbulkData = bulkData->Realloc(OGGData.Num());
+	FMemory::Memcpy(pbulkData, OGGData.GetData(), OGGData.Num());
+	if (FMemory::Memcmp(pbulkData, OGGData.GetData(), OGGData.Num()))
+		UE_LOG(MuthMBPLib, Error, TEXT("Bulk Data is not equal to OGGData!"));
 	bulkData->Unlock();
 	FSoundQualityInfo soundQualityInfo;
 	FVorbisAudioInfo oggAudioInfo;
@@ -221,6 +224,12 @@ class UMainSoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGDat
 	TargetSoundWave->Duration = soundQualityInfo.Duration;
 	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
+	TargetSoundWave->bVirtualizeWhenSilent = true;
+#if !defined(PLATFORM_WINDOWS)||!PLATFORM_WINDOWS
+	TargetSoundWave->DecompressionType = EDecompressionType::DTYPE_Native;
+	TargetSoundWave->RawPCMData = (uint8*)FMemory::Malloc(TargetSoundWave->RawPCMDataSize);
+	oggAudioInfo.ExpandFile(TargetSoundWave->RawPCMData, &soundQualityInfo);
+#endif
 	return TargetSoundWave;
 }
 
