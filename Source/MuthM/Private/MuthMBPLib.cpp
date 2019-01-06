@@ -201,9 +201,9 @@ TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
 	return JsonObj;
 }
 
-class UMainSoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
+class USoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGData)
 {
-	UMainSoundWave* TargetSoundWave = NewObject<UMainSoundWave>();
+	USoundWave* TargetSoundWave = NewObject<USoundWave>();
 	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
 	UE_LOG(MuthMBPLib, Log, TEXT("OGGData Length:%d"), OGGData.Num());
 	bulkData->Lock(LOCK_READ_WRITE);
@@ -226,7 +226,7 @@ class UMainSoundWave* UMuthMBPLib::DecodeWaveFromOGG(const TArray<uint8>& OGGDat
 	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
 	TargetSoundWave->bVirtualizeWhenSilent = true;
 #if !defined(PLATFORM_WINDOWS)||!PLATFORM_WINDOWS
-	TargetSoundWave->DecompressionType = EDecompressionType::DTYPE_Native;
+	TargetSoundWave->DecompressionType = EDecompressionType::DTYPE_Setup;
 	TargetSoundWave->RawPCMData = (uint8*)FMemory::Malloc(TargetSoundWave->RawPCMDataSize);
 	oggAudioInfo.ExpandFile(TargetSoundWave->RawPCMData, &soundQualityInfo);
 #endif

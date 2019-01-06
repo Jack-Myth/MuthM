@@ -32,9 +32,13 @@ struct FSoundQualityInfo
 DECLARE_LOG_CATEGORY_EXTERN(MuthMNativeLib,Log,All)
 class MuthMNativeLib
 {
+
+#ifdef _MUTHM_USE_FMOD
+	class FMOD::System* pFModSystemSingleton;
+#endif
 public:
 
-	FORCEINLINE static float _FFTHannWindow(const int16& SampleValue, int SampleIndex, int SampleCount)
+	static float _FFTHannWindow(const int16& SampleValue, int SampleIndex, int SampleCount)
 	{
 		return SampleValue * 0.5f * (1 - FMath::Cos(2 * PI * SampleIndex / (SampleCount - 1)));
 	}
@@ -43,4 +47,7 @@ public:
 	static void NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMData, const int SampleRate, const int NumChannels, const bool bSplitChannels, const float StartTime, const float TimeLength, const int32 SpectrumWidth, TArray< TArray<float> >& OutSpectrums);
 	static float NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32 SampleRate, int32 Channels);
 	static bool DecodeOGGToPCM(const uint8* pOGGData,int32 OGGDataLength, TArray<uint8>& PCMData,int& SampleRate,int& Channels);
+#ifdef _MUTHM_USE_FMOD
+	static FMOD::System* GetFModSystem();
+#endif
 };

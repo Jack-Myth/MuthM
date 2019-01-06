@@ -120,6 +120,7 @@ void AMuthMInEditorMode::SetMusicPlaySpeed(float PlaySpeed)
 {
 	PlaySpeed = FMath::Clamp<float>(PlaySpeed, 0.1, 10);
 	this->CustomTimeDilation = PlaySpeed;
+	_MainSoundComponent->SetPaused(true);
 	_MainSoundComponent->SetPitchMultiplier(PlaySpeed);
 }
 

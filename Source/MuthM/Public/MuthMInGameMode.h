@@ -34,7 +34,7 @@ protected:
 	TSharedPtr<class FMDATFile> _pMDAT;
 	TScriptInterface<IMMScript> _MainMMSInstance;
 	UPROPERTY()
-		class UMainSoundWave* _GameMainMusic;
+		class FMOD::Sound* _GameMainMusic;
 	UPROPERTY()
 		class UAudioComponent* _MainSoundComponent;
 	UPROPERTY()

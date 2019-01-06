@@ -64,6 +64,7 @@ public:
 		virtual bool ImportMP3(const FString& LocalFileName, const FString& Title, const FString& Musician) = 0;
 	//Async Import MP3
 	virtual void ImportMP3Async(const FString& LocalFileName, const FString& Title, const FString& Musician, FOnMusicImportFinished OnImportFinishedDelegate) = 0;
+	virtual TScriptInterface<class IMainSoundWave> LoadMainSoundByID(int ID) = 0;
 	UFUNCTION()
 		virtual bool AddMusicUploadTask(int ID,const FString& Title, const FString& Musician) = 0;
 	UFUNCTION()

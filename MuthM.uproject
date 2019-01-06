@@ -36,7 +36,7 @@
 	"Plugins": [
 		{
 			"Name": "UE4EditorCustomize",
-			"Enabled": true,
+			"Enabled": false,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/0d22d9af59624886a6fccd9573fefa90"
 		},
 		{
@@ -50,6 +50,18 @@
 		},
 		{
 			"Name": "WebBrowserWidget",
+			"Enabled": true
+		},
+		{
+			"Name": "Synthesis",
+			"Enabled": true
+		},
+		{
+			"Name": "SoundUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "FMODStudio",
 			"Enabled": true
 		}
 	],

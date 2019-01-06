@@ -21,6 +21,7 @@
 #include "Async.h"
 #include "UserManager.h"
 #include "GenericPlatformHttp.h"
+#include "fmod.hpp"
 
 DEFINE_LOG_CATEGORY(MuthMMusicManager)
 
@@ -274,6 +275,29 @@ bool UMusicManagerImpl::UploadMusicLinkOnly(int ID, const FString& MusicURL, con
 	FString URL = FString::Printf(TEXT("%s/upload_music.php?Title=%s&LinkOnly=true&MusicURL=%s&Description=%s"), *EncodedTitle, *MusicURL, *EncodedMusician);
 	Request->SetURL(URL);
 	return Request->ProcessRequest();
+}
+
+TSharedPtr<class FMOD::Sound> UMusicManagerImpl::LoadMainSoundByID(int ID)
+{
+	TSharedPtr<class FMOD::Sound> pSound;
+	FString TargetFileName;
+	if (ID < 0)
+		TargetFileName = ConstructOfflineMusicFileName(ID);
+	else
+		TargetFileName = ConstructMusicFileName(ID);
+	if (IFileManager::Get().FileExists(*TargetFileName))
+	{
+		FMOD_CREATESOUNDEXINFO exinfo = {NULL};
+		exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+		exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_OGGVORBIS;
+		FMOD::Sound* tmpSoundPointer;
+		FMOD::System::createSound(TCHAR_TO_UTF8(*TargetFileName),FMOD_DEFAULT, &exinfo, &tmpSoundPointer);
+		if (tmpSoundPointer)
+		{
+			pSound = MakeShareable(tmpSoundPointer);
+		}
+	}
+	return pSound;
 }
 
 bool UMusicManagerImpl::AddMusicUploadTask(int ID, const FString& Title, const FString& Musician)

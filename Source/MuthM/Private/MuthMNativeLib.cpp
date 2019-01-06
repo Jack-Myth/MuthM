@@ -15,9 +15,11 @@
 #include "vorbis/vorbisenc.h"
 #include "FileHelper.h"
 #include "Paths.h"
+#include "fmod.hpp"
 
 DEFINE_LOG_CATEGORY(MuthMNativeLib)
 
+class FMOD::System* MuthMNativeLib::pFModSystemSingleton = nullptr;
 bool MuthMNativeLib::NativeDecodeMP3ToPCM(const TArray<uint8>& _MP3Data, TArray<uint8>& OutputPCM, int32& SampleRate, int32& Channels)
 {
 	if (!_MP3Data.Num())
@@ -143,6 +145,13 @@ bool MuthMNativeLib::DecodeOGGToPCM(const uint8* pOGGData, int32 OGGDataLength, 
 	Channels = OGGSoundQualityInfo.NumChannels;
 	tmpVorbisAudioInfo.ExpandFile(PCMData.GetData(), &OGGSoundQualityInfo);
 	return true;
+}
+
+FMOD::System* MuthMNativeLib::GetFModSystem()
+{
+	if (!pFModSystemSingleton)
+		FMOD::System_Create(&pFModSystemSingleton);
+	return pFModSystemSingleton;
 }
 
 void MuthMNativeLib::NativeCalculateFrequencySpectrum(const TArray<uint8>& PCMData,const int SampleRate,const int NumChannels, const bool bSplitChannels, const float StartTime, const float TimeLength, const int32 SpectrumWidth, TArray< TArray<float> >& OutSpectrums)

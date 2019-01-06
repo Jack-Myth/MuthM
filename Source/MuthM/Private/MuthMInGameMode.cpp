@@ -22,6 +22,7 @@
 #include "GameResultUIBase.h"
 #include "MuthMNativeLib.h"
 #include "MuthMInEditorMode.h"
+#include "fmod.hpp"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
@@ -155,7 +156,7 @@ void AMuthMInGameMode::BeginPlay()
 	_CachedMusicInfo = MusicInfo;
 	TArray<uint8> OGGData;
 	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OGGData);
-	_GameMainMusic = UMuthMBPLib::DecodeWaveFromOGG(OGGData);
+	_GameMainMusic = FMOD::System::createSound()
 	_MainSoundComponent->SetSound(_GameMainMusic);
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	if (!this->IsA<AMuthMInEditorMode>())

@@ -1,12 +1,9 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 #include "MusicManager.h"
-#include "MusicManagerImpl.h"
 #include "MuthMGameInstance.h"
+#include "MusicManagerImpl.h"
 #include "Kismet/GameplayStatics.h"
-
-
-// Add default functionality here for any IMusicManager functions that are not pure virtual.
 
 TScriptInterface<IMusicManager> IMusicManager::Get(const UObject* WorldContextObj)
 {

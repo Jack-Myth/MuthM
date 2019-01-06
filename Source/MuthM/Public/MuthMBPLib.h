@@ -84,7 +84,7 @@ public:
 	static TSharedPtr<FJsonObject> DeserializeJsonFromUTF8(const TArray<uint8>& CharArray);
 	static TSharedPtr<FJsonObject> DeserializeJsonFromStr(FString JsonStr);
 	UFUNCTION(BlueprintCallable)
-		static class UMainSoundWave* DecodeWaveFromOGG(const TArray<uint8>& OGGData);
+		static class USoundWave* DecodeWaveFromOGG(const TArray<uint8>& OGGData);
 	UFUNCTION(BlueprintCallable)
 		static bool ConvertMP3ToOGG(const TArray<uint8>& MP3File,TArray<uint8>& OGGOutput);
 	UFUNCTION(BlueprintCallable)

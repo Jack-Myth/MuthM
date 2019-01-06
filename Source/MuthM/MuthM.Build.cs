@@ -27,6 +27,7 @@ public class MuthM : ModuleRules
             "PakFile",
             "HTTP",
             "GameHAL",
+            "Synthesis",
             "BlueprintJson" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
@@ -39,6 +40,10 @@ public class MuthM : ModuleRules
             PublicDefinitions.Add("_LARGEFILE64_SOURCE=0");
             PublicDefinitions.Add("_FILE_OFFSET_BITS=0");
             PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private/Compatibility"));
+        }
+
+        {
+            PublicDefinitions.Add("_MUTHM_USE_FMOD");
         }
 
         // Uncomment if you are using online features

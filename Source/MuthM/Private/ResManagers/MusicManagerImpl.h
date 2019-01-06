@@ -10,7 +10,7 @@
 /**
  * Implemention of IMusicManager
  */
-UCLASS()
+UCLASS(Abstract)
 class UMusicManagerImpl : public UObject,public IMusicManager
 {
 	GENERATED_BODY()
@@ -40,4 +40,6 @@ public:
 	virtual void OnMusicUploaded(bool IsSuccessful, int MusicID, const FString& ExternInfo) override;
 	virtual bool AddMusicUploadTask(int ID, const FString& Title, const FString& Musician) override;
 	virtual bool UploadMusicLinkOnly(int ID, const FString& MusicURL, const FString& Title, const FString& Musician) override;
+	virtual TSharedPtr<class FMOD::Sound *> LoadMainSoundByID(int ID) override;
+
 };
