@@ -80,3 +80,8 @@ DerivedDataCache/*
 PersistentDownloadDir/
 
 [Rr]elease
+
+# Include FMOD Lib
+!Source/ThirdParty/FMOD/Lib/**/*.so
+!Source/ThirdParty/FMOD/Lib/**/*.lib
+!Source/ThirdParty/FMOD/Lib/**/*.dll
