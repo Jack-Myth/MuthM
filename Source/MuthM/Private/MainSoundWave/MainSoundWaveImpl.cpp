@@ -22,3 +22,18 @@ bool UMainSoundWaveImpl::GenPCMData(TArray<uint8>& OutputPCM)
 	UE_LOG(LogTemp, Display, TEXT("PCMDecodeResult:%d,Size:%d"), IsDecodeSuccessful ? 1 : 0, OutputPCM.Num());
 	return IsDecodeSuccessful;
 }
+
+float UMainSoundWaveImpl::GetSoundDuration() const
+{
+	return Duration;
+}
+
+int32 UMainSoundWaveImpl::GetSampleRate() const
+{
+	return SampleRate;
+}
+
+int32 UMainSoundWaveImpl::GetNumChannels() const
+{
+	return NumChannels;
+}

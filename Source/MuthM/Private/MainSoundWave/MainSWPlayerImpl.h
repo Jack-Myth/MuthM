@@ -16,13 +16,20 @@ class MUTHM_API UMainSWPlayerImpl : public UObject, public IMainSWPlayer
 
 	UPROPERTY()
 		class UAudioComponent* audioComponent;
+
+	TArray<FOnPlaybackPercent> OnPlaybackPercentDelegates;
+
+	void OnPlaybackPercentCallback(const class UAudioComponent* AudioComponent,const class USoundWave* SoundWave,float PlaybackPercent);
+
+protected:
+	float _CachedCurPos = 0;
 public:
 	UMainSWPlayerImpl();
 	
 	virtual void SetMainSoundWave(TScriptInterface<class IMainSoundWave> MainSoundWave) override;
 
 
-	virtual void Play(float StartTime) override;
+	virtual void Play(float StartTime = 0) override;
 
 
 	virtual void SetPaused(bool Paused) override;
@@ -31,6 +38,18 @@ public:
 	virtual bool IsPlaying() const override;
 
 
-	virtual void SetPlaySpeed(float newSpeed = 1.f) override;
+	virtual void SetPitch(float newPitch = 1.f) override;
+
+
+	virtual TScriptInterface<class IMainSoundWave> GetMainSoundWave() const override;
+
+
+	virtual void Stop() override;
+
+
+	virtual float GetPlaybackPosition() const override;
+
+
+	virtual void AddOnPlaybackPercent(FOnPlaybackPercent Delegate) override;
 
 };

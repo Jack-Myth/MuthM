@@ -28,7 +28,6 @@ DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
 AMuthMInGameMode::AMuthMInGameMode()
 {
-	_MainSoundComponent = CreateDefaultSubobject<UAudioComponent>("_MainAudioComponent");
 	_ScoreCore = CreateDefaultSubobject<UScoreCore>("_ScoreCore");
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
@@ -40,7 +39,7 @@ void AMuthMInGameMode::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	MusicPlaybackTime += DeltaSeconds;
 	//UNDONE:
-	OnMusicPlaybackTimeUpdate.Broadcast(MusicPlaybackTime,_GameMainMusic->GetDuration());
+	OnMusicPlaybackTimeUpdate.Broadcast(MusicPlaybackTime,_GameMainMusic->GetSoundDuration());
 }
 
 void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData, float BeginTime)
@@ -49,13 +48,13 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	_MainMMSInstance->LoadFromData(MMSData);
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
 	MusicPlaybackTime = -SuitDelay;
-	if (!::IsValid(_GameMainMusic))
+	if (!::IsValid(_GameMainMusic.GetObject()))
 	{
 		UE_LOG(MuthMInGameMode, Warning, TEXT("Load Main Music Failed"));
 	}
 	else
 	{
-		_MainSoundComponent->SetSound(_GameMainMusic);
+		_MainSoundComponent->SetMainSoundWave(_GameMainMusic);
 		FTimerHandle tmpTimeHandle; //No Need this TimeHandle anymore.
 		GetWorld()->GetTimerManager().SetTimer(tmpTimeHandle, [=]()
 			{
@@ -154,10 +153,9 @@ void AMuthMInGameMode::BeginPlay()
 		return;
 	}
 	_CachedMusicInfo = MusicInfo;
-	TArray<uint8> OGGData;
-	IMusicManager::Get(this)->LoadMusicDataByID(MusicInfo.ID, OGGData);
-	_GameMainMusic = FMOD::System::createSound()
-	_MainSoundComponent->SetSound(_GameMainMusic);
+	_GameMainMusic = IMusicManager::Get(this)->LoadMainSoundByID(MusicInfo.ID);
+	_MainSoundComponent = UMuthMBPLib::GenMainSWPlayer(this);
+	_MainSoundComponent->SetMainSoundWave(_GameMainMusic);
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	if (!this->IsA<AMuthMInEditorMode>())
 		StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));

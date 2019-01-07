@@ -6,6 +6,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "DetailStructures.h"
 #include "BlueprintJsonLibrary.h"
+#include "MainSWPlayer.h"
 #include "MuthMBPLib.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMBPLib, Log, All);
@@ -93,5 +94,7 @@ public:
 		static void AddNumberItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemNumber NumberItem);
 	UFUNCTION(BlueprintCallable)
 		static void AddCustomItemToCategory(UPARAM(ref) FDetailCategoryStruct& DetailCategory, FDetailItemCustom CustomItem);
-	//Fill Filter by file extension,if the first element include character '/',it will be treat as MIME Type.
+
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObj"))
+		static TScriptInterface<IMainSWPlayer> GenMainSWPlayer(const UObject* WorldContextObj);
 };

@@ -21,4 +21,10 @@ class MUTHM_API IMainSoundWave
 public:
 	virtual bool GenPCMData(TArray<uint8>& OutputPCM) = 0;
 
+	virtual float GetSoundDuration() const = 0;
+
+	virtual int32 GetSampleRate() const = 0;
+	
+	virtual int32 GetNumChannels() const = 0;
+
 };

@@ -34,9 +34,9 @@ protected:
 	TSharedPtr<class FMDATFile> _pMDAT;
 	TScriptInterface<IMMScript> _MainMMSInstance;
 	UPROPERTY()
-		class FMOD::Sound* _GameMainMusic;
+		TScriptInterface<class IMainSoundWave> _GameMainMusic;
 	UPROPERTY()
-		class UAudioComponent* _MainSoundComponent;
+		TScriptInterface<class IMainSWPlayer> _MainSoundComponent;
 	UPROPERTY()
 		class UPauseUIBase* pPauseUI=nullptr;
 	UPROPERTY()
@@ -89,7 +89,7 @@ public:
 	void StopGame();
 	virtual void NativeOnGameEnded(FGameEndReason GameEndReason);
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UMainSoundWave* GetGameMainMusic()
+		FORCEINLINE TScriptInterface<class IMainSoundWave> GetGameMainMusic()
 	{
 		return _GameMainMusic;
 	}

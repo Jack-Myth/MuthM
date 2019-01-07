@@ -10,6 +10,7 @@ public class MuthM : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         MinFilesUsingPrecompiledHeaderOverride = 1;
         bFasterWithoutUnity = true;
+        bool bUseFMod = true;
         PublicDependencyModuleNames.AddRange(new string[] {
             "Core",
             "CoreUObject",
@@ -42,8 +43,10 @@ public class MuthM : ModuleRules
             PrivateIncludePaths.Add(Path.Combine(ModuleDirectory, "Private/Compatibility"));
         }
 
+        if(bUseFMod)
         {
             PublicDefinitions.Add("_MUTHM_USE_FMOD");
+            PublicDependencyModuleNames.Add("FMOD");
         }
 
         // Uncomment if you are using online features

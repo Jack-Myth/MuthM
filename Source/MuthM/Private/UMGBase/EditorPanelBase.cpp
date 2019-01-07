@@ -103,7 +103,7 @@ void UEditorPanelBase::DeleteCurrentInstruction()
 
 float UEditorPanelBase::GetMusicLength()
 {
-	return Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this))->GetGameMainMusic()->GetDuration();
+	return Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this))->GetGameMainMusic()->GetSoundDuration();
 }
 
 void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWidgetBase)

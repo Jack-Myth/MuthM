@@ -27,6 +27,15 @@
 
 DEFINE_LOG_CATEGORY(MuthMBPLib)
 
+#ifdef _MUTHM_USE_FMOD
+#include "MainSoundWave/MainSWPlayerImplFMod.h"
+#define MAINSWPLAYER_CLASS UMainSWPlayerImplFMod
+#else
+#include "MainSoundWave/MainSWPlayerImpl.h"
+#define MAINSWPLAYER_CLASS UMainSWPlayerImpl
+#endif // _MUTHM_USE_FMOD
+#include "MainSWPlayer.h"
+
 TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager(const UObject* WorldContextObj)
 {
 	return IInstructionManager::Get(WorldContextObj);
@@ -262,4 +271,9 @@ void UMuthMBPLib::AddCustomItemToCategory(FDetailCategoryStruct& DetailCategory,
 	FDetailItemCustom* mDetail = new FDetailItemCustom();
 	*mDetail = CustomItem;
 	DetailCategory.ItemList.Add(MakeShareable<FDetailItem>(mDetail));
+}
+
+TScriptInterface<IMainSWPlayer> UMuthMBPLib::GenMainSWPlayer(const UObject* WorldContextObj)
+{
+	return NewObject<MAINSWPLAYER_CLASS>(WorldContextObj->GetWorld());
 }

@@ -26,6 +26,13 @@ struct FSoundQualityInfo
 	FString DebugName;
 };
 
+#ifdef _MUTHM_USE_FMOD
+namespace FMOD
+{
+	class System;
+}
+#endif
+
 /**
  * 
  */
@@ -34,7 +41,7 @@ class MuthMNativeLib
 {
 
 #ifdef _MUTHM_USE_FMOD
-	class FMOD::System* pFModSystemSingleton;
+	static class FMOD::System* pFModSystemSingleton;
 #endif
 public:
 

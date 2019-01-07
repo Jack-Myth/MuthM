@@ -10,11 +10,14 @@
 /**
  * Implemention of IMusicManager
  */
-UCLASS(Abstract)
+UCLASS()
 class UMusicManagerImpl : public UObject,public IMusicManager
 {
 	GENERATED_BODY()
 		//
+	UFUNCTION()
+		void PrepareDownloadMusic(int MusicID, bool IsMusicExist, const FMusicInfo& MusicInfo);
+protected:
 	static FString ConstructMusicFileName(int MusicID)
 	{
 		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), TEXT("/Music/"), FString::FromInt(MusicID) + ".Ogg");
@@ -23,8 +26,6 @@ class UMusicManagerImpl : public UObject,public IMusicManager
 	{
 		return FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), TEXT("/Music/Offline/"), FString::FromInt(ID) + ".Ogg");
 	}
-	UFUNCTION()
-		void PrepareDownloadMusic(int MusicID, bool IsMusicExist, const FMusicInfo& MusicInfo);
 public:
 	virtual bool LoadMusicDataByID(int ID, TArray<uint8>& MusicData) override;
 
@@ -40,6 +41,6 @@ public:
 	virtual void OnMusicUploaded(bool IsSuccessful, int MusicID, const FString& ExternInfo) override;
 	virtual bool AddMusicUploadTask(int ID, const FString& Title, const FString& Musician) override;
 	virtual bool UploadMusicLinkOnly(int ID, const FString& MusicURL, const FString& Title, const FString& Musician) override;
-	virtual TSharedPtr<class FMOD::Sound *> LoadMainSoundByID(int ID) override;
+	virtual TScriptInterface<class IMainSoundWave> LoadMainSoundByID(int ID) override;
 
 };

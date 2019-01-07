@@ -17,5 +17,14 @@ class MUTHM_API UMainSoundWaveImpl : public USoundWave,public IMainSoundWave
 	
 public:
 
-	virtual bool GenPCMData(TArray<uint8>& OutputPCM) override = 0;
+	virtual bool GenPCMData(TArray<uint8>& OutputPCM) override;
+
+	virtual float GetSoundDuration() const override;
+
+
+	virtual int32 GetSampleRate() const override;
+
+
+	virtual int32 GetNumChannels() const override;
+
 };

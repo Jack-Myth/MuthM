@@ -12,6 +12,7 @@
 #include "EditorMainUIBase.h"
 #include "MuthMNativeLib.h"
 #include "Engine/Texture2D.h"
+#include "MainSWPlayer.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
@@ -19,13 +20,13 @@ void AMuthMInEditorMode::BeginPlay()
 {
 	Super::BeginPlay();
 	TArray<uint8> PCMData;
-	_GameMainMusic->DecodePCMFromCompressedData(PCMData);
+	_GameMainMusic->GenPCMData(PCMData);
 	GetMainMMSInstance()->SetPlayType(EPlayType::PT_PIE);
 	_EditorMMSInstance = IInstructionManager::Get(this)->GenMMScript(true);
 	auto EditorMainUIClass = UUIProvider::Get(this)->GetEditorMainUI();
 	EditorMainUI = Cast<UEditorMainUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), EditorMainUIClass, "EditorMainUI"));
 	EditorMainUI->Init(GetMusicInfo(), _EditorMMSInstance);
-	int BPM = MuthMNativeLib::NativeDetectBPMFromPCM(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->NumChannels);
+	int BPM = MuthMNativeLib::NativeDetectBPMFromPCM(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->GetNumChannels());
 	EditorMainUI->NativeOnFillBPMInfo(BPM);
 	EditorMainUI->AddToViewport(100);
 }
@@ -47,7 +48,7 @@ void AMuthMInEditorMode::ExitPIE()
 
 void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
 {
-	_MainSoundComponent->SetPaused(false);
+	_MainSoundComponent->SetPaused(true);
 	MusicPlaybackTime = BeginTime;
 	_MainSoundComponent->Play(BeginTime);
 	SetActorTickEnabled(true);
@@ -79,7 +80,7 @@ void AMuthMInEditorMode::NativeOnGameEnded(FGameEndReason GameEndReason)
 TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
 {
 	TArray<uint8> PCMData;
-	_GameMainMusic->DecodePCMFromCompressedData(PCMData);
+	_GameMainMusic->GenPCMData(PCMData);
 	TArray<UTexture2D*> SpectrumTextures;
 	int SplitedCount = (EndTime - BeginTime) / 20 + 1;
 	for (int i = 0; i < SplitedCount; i++)
@@ -98,7 +99,7 @@ TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginT
 		for (uint32 x = 0; x < PartResTime; x++)
 		{
 			//X for Time
-			MuthMNativeLib::NativeCalculateFrequencySpectrum(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->NumChannels, false, PartBeginTime+x * TimeLength, TimeLength, ResFrequency, OutArray);
+			MuthMNativeLib::NativeCalculateFrequencySpectrum(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->GetNumChannels(), false, PartBeginTime+x * TimeLength, TimeLength, ResFrequency, OutArray);
 			for (int y = 0; y < OutArray[0].Num(); y++)
 			{
 				//Y for Frequency
@@ -121,6 +122,6 @@ void AMuthMInEditorMode::SetMusicPlaySpeed(float PlaySpeed)
 	PlaySpeed = FMath::Clamp<float>(PlaySpeed, 0.1, 10);
 	this->CustomTimeDilation = PlaySpeed;
 	_MainSoundComponent->SetPaused(true);
-	_MainSoundComponent->SetPitchMultiplier(PlaySpeed);
+	_MainSoundComponent->SetPitch(PlaySpeed);
 }
 

@@ -6,6 +6,11 @@
 #include "MainSWPlayer.h"
 #include "MainSWPlayerImplFMod.generated.h"
 
+namespace FMOD
+{
+	class Channel;
+}
+
 /**
  *
  */
@@ -14,16 +19,21 @@ class MUTHM_API UMainSWPlayerImplFMod : public UObject, public IMainSWPlayer
 {
 	GENERATED_BODY()
 
-	UProperty()
+	UPROPERTY()
 		class UMainSoundWaveImplFMod* pMainSoundWave=nullptr;
-	class FMOD::Channel* pFModChannel=nullptr;
+	TSharedPtr<class FMOD::Channel> pFModChannel;
+	TArray<FOnPlaybackPercent> OnPlaybackPercentDelegates;
+	FTimerHandle TickHandle;
+
+private:
+	
+	void OnTick();
 public:
-	UMainSWPlayerImpl();
 
 	virtual void SetMainSoundWave(TScriptInterface<class IMainSoundWave> MainSoundWave) override;
 
 
-	virtual void Play(float StartTime) override;
+	virtual void Play(float StartTime = 0) override;
 
 
 	virtual void SetPaused(bool Paused) override;
@@ -36,5 +46,17 @@ public:
 
 
 	virtual void SetPitch(float newPitch = 1.f) override;
+
+
+	virtual TScriptInterface<class IMainSoundWave> GetMainSoundWave() const override;
+
+
+	virtual ~UMainSWPlayerImplFMod();
+
+	virtual float GetPlaybackPosition() const override;
+
+
+
+	virtual void AddOnPlaybackPercent(FOnPlaybackPercent Delegate) override;
 
 };

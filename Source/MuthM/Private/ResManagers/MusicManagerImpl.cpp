@@ -21,7 +21,9 @@
 #include "Async.h"
 #include "UserManager.h"
 #include "GenericPlatformHttp.h"
-#include "fmod.hpp"
+#include "MainSoundWave/MainSoundWaveImpl.h"
+#include "VorbisAudioInfo.h"
+#include "MuthMNativeLib.h"
 
 DEFINE_LOG_CATEGORY(MuthMMusicManager)
 
@@ -277,27 +279,33 @@ bool UMusicManagerImpl::UploadMusicLinkOnly(int ID, const FString& MusicURL, con
 	return Request->ProcessRequest();
 }
 
-TSharedPtr<class FMOD::Sound> UMusicManagerImpl::LoadMainSoundByID(int ID)
+TScriptInterface<class IMainSoundWave> UMusicManagerImpl::LoadMainSoundByID(int ID)
 {
-	TSharedPtr<class FMOD::Sound> pSound;
-	FString TargetFileName;
-	if (ID < 0)
-		TargetFileName = ConstructOfflineMusicFileName(ID);
-	else
-		TargetFileName = ConstructMusicFileName(ID);
-	if (IFileManager::Get().FileExists(*TargetFileName))
+	TArray<uint8> OGGData;
+	if (!LoadMusicDataByID(ID, OGGData))
+		return nullptr;
+	UMainSoundWaveImpl* TargetSoundWave = NewObject<UMainSoundWaveImpl>();
+	FByteBulkData* bulkData = &TargetSoundWave->CompressedFormatData.GetFormat(TEXT("OGG"));
+	bulkData->Lock(LOCK_READ_WRITE);
+	void* pbulkData = bulkData->Realloc(OGGData.Num());
+	FMemory::Memcpy(pbulkData, OGGData.GetData(), OGGData.Num());
+	if (FMemory::Memcmp(pbulkData, OGGData.GetData(), OGGData.Num()))
+		UE_LOG(MuthMBPLib, Error, TEXT("Bulk Data is not equal to OGGData!"));
+	bulkData->Unlock();
+	FSoundQualityInfo soundQualityInfo;
+	FVorbisAudioInfo oggAudioInfo;
+	if (!oggAudioInfo.ReadCompressedInfo(OGGData.GetData(), OGGData.Num(), &soundQualityInfo))
 	{
-		FMOD_CREATESOUNDEXINFO exinfo = {NULL};
-		exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
-		exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_OGGVORBIS;
-		FMOD::Sound* tmpSoundPointer;
-		FMOD::System::createSound(TCHAR_TO_UTF8(*TargetFileName),FMOD_DEFAULT, &exinfo, &tmpSoundPointer);
-		if (tmpSoundPointer)
-		{
-			pSound = MakeShareable(tmpSoundPointer);
-		}
+		UE_LOG(MuthMBPLib, Error, TEXT("Unable to read OGG Info"));
+		return nullptr;
 	}
-	return pSound;
+	TargetSoundWave->SoundGroup = ESoundGroup::SOUNDGROUP_Default;
+	TargetSoundWave->NumChannels = soundQualityInfo.NumChannels;
+	TargetSoundWave->Duration = soundQualityInfo.Duration;
+	TargetSoundWave->RawPCMDataSize = soundQualityInfo.SampleDataSize;
+	TargetSoundWave->SetSampleRate(soundQualityInfo.SampleRate);
+	TargetSoundWave->bVirtualizeWhenSilent = true;
+	return TargetSoundWave;
 }
 
 bool UMusicManagerImpl::AddMusicUploadTask(int ID, const FString& Title, const FString& Musician)

@@ -150,7 +150,10 @@ bool MuthMNativeLib::DecodeOGGToPCM(const uint8* pOGGData, int32 OGGDataLength, 
 FMOD::System* MuthMNativeLib::GetFModSystem()
 {
 	if (!pFModSystemSingleton)
+	{
 		FMOD::System_Create(&pFModSystemSingleton);
+		pFModSystemSingleton->init(2, FMOD_INIT_NORMAL, nullptr);
+	}
 	return pFModSystemSingleton;
 }
 
