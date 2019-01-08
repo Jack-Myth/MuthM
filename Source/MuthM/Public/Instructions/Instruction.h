@@ -33,7 +33,11 @@ class MUTHM_API UInstruction:public UObject,public IHasDetails
 	UPROPERTY(BlueprintGetter="GetScript")
 		TScriptInterface<class IMMScript> AttachedScript = nullptr;
 	bool bIsFinished = false;
+protected:
+	UFUNCTION()
+		void OnTimeChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 public:
+
 	void AttachScript(TScriptInterface<class IMMScript> TargetScript)
 	{
 		AttachedScript = TargetScript;
@@ -44,7 +48,7 @@ public:
 		return AttachedScript;
 	}
 	UFUNCTION(BlueprintGetter)
-		FORCEINLINE float GetTime()
+		FORCEINLINE float GetTime() const
 	{
 		return InstructionTime;
 	}
@@ -78,4 +82,6 @@ public:
 	{
 		return GetOuter()->GetWorld();
 	}
+
+	void OnBuildingDetails_Implementation(const TScriptInterface<IDetailsBuilder>& DetailsBuilder);
 };

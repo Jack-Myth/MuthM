@@ -11,5 +11,5 @@ void UDetailInputNumberBase::FireOnValueChanged()
 void UDetailInputNumberBase::ValueInit(TSharedPtr<FDetailItemNumber> DetailItemInfo)
 {
 	_DetailItemInfo = DetailItemInfo;
-	K2_OnValueInit(_DetailItemInfo->DisplayName, _DetailItemInfo->InstructionInstance, _DetailItemInfo->NumberValue);
+	K2_OnValueInit(_DetailItemInfo->DisplayName, _DetailItemInfo->InstructionInstance, _DetailItemInfo->NumberValue,_DetailItemInfo->SlideUnit);
 }

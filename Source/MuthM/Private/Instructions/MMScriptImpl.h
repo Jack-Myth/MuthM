@@ -43,4 +43,7 @@ public:
 
 	virtual float GetGameTime() const override;
 
+
+	virtual void UpdateInstructions() override;
+
 };

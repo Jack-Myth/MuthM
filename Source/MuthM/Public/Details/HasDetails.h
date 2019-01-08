@@ -22,6 +22,6 @@ class MUTHM_API IHasDetails
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 		void OnBuildingDetails(const TScriptInterface<IDetailsBuilder>& DetailsBuilder);
 };

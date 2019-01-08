@@ -57,6 +57,8 @@ public:
 		float NumberValue;
 	UPROPERTY(BlueprintReadWrite)
 		FDetailCallbackNumber DetailCallbackNumber;
+	UPROPERTY(BlueprintReadWrite)
+		float SlideUnit = 0;
 };
 
 USTRUCT(BlueprintType)

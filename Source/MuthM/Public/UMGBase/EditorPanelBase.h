@@ -31,6 +31,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 		float TimeAxis;
 public:
+
 	UPROPERTY(BlueprintReadWrite)
 		float _BPM;
 	UPROPERTY(BlueprintReadWrite)

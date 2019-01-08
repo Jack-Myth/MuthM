@@ -118,14 +118,11 @@ void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWid
 	FDetailCategoryStruct InstructionCategory;
 	InstructionCategory.Title = "Instruction";
 	InstructionCategory.DisplayTitle = LOCTEXT("Instruction", "Instruction");
-	FDetailItemNumber* TimeInput = new FDetailItemNumber();
-	TimeInput->Name = "Time";
-	TimeInput->DisplayName = LOCTEXT("Time", "Time");
-	TimeInput->NumberValue = InstructionWidgetBase->GetInstructionInstance()->GetTime();
-	TimeInput->DetailCallbackNumber.BindUFunction(this, "OnInstructionTimeInput");
-	TimeInput->InstructionInstance = InstructionWidgetBase->GetInstructionInstance();
-	TSharedPtr <FDetailItem> pTimeInput = MakeShareable(TimeInput);
-	InstructionCategory.ItemList.Add(pTimeInput);
+	if (bShouldAlignBPM)
+	{
+		auto TimeDetailItem = InstructionCategory.ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
+		((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
+	}
 	ActivedDetailsWidget = DetailsBuilder->GenDetails();
 	ActivedDetailsWidget->AddToViewport(100);
 }

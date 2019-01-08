@@ -52,5 +52,7 @@ public:
 		virtual TArray<UInstruction*> GetAllPreparedInstructionByType(TSubclassOf<UInstruction> TargetClass) const = 0;
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Same as MuthMInGameMode::GetGameTime()"))
 		virtual float GetGameTime() const = 0;
+	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Notify MMS to Reorder Instructions"))
+		virtual void UpdateInstructions() = 0;
 };
 

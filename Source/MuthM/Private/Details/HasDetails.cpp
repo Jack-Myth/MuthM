@@ -3,3 +3,5 @@
 #include "HasDetails.h"
 
 
+void IHasDetails::OnBuildingDetails_Implementation(const TScriptInterface<IDetailsBuilder>& DetailsBuilder)
+{}
