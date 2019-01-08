@@ -9,35 +9,17 @@
 
 #ifdef _MUTHM_USE_FMOD
 
-void UMainSWPlayerImplFMod::OnTick()
-{
-	if (!IsPlaying())
-		return;
-	uint32 Position,Duration;
-	pFModChannel->getPosition(&Position, FMOD_TIMEUNIT_MS);
-	pMainSoundWave->GetFModSound().Get()->getLength(&Duration,FMOD_TIMEUNIT_MS);
-	float CurPos = (float)Position / Duration;
-	for (auto it=OnPlaybackPercentDelegates.CreateIterator();it;++it)
-	{
-		if (it->IsBound())
-			it->Execute(pMainSoundWave, CurPos);
-		else
-			it.RemoveCurrent();
-	}
-}
-
 void UMainSWPlayerImplFMod::SetMainSoundWave(TScriptInterface<class IMainSoundWave> MainSoundWave)
 {
 	Stop();
 	pMainSoundWave = Cast<UMainSoundWaveImplFMod>(MainSoundWave.GetObject());
 	FMOD::Channel* pTmpFModChannel;
-	if (MuthMNativeLib::GetFModSystem()->playSound(pMainSoundWave->GetFModSound().Get(), nullptr, true, &pTmpFModChannel) == FMOD_OK)
+	if (!pMainSoundWave->GetFModSound())
+		return;
+	if (MuthMNativeLib::GetFModSystem()->playSound(pMainSoundWave->GetFModSound(), nullptr, true, &pTmpFModChannel) == FMOD_OK)
 	{
-		pFModChannel = MakeShareable(pTmpFModChannel);
-		if (!TickHandle.IsValid())
-		{
-			GetWorld()->GetTimerManager().SetTimer(TickHandle, this, &UMainSWPlayerImplFMod::OnTick, 0, true, 0);
-		}
+		pFModChannel = pTmpFModChannel;
+		//MuthMNativeLib::GetFModSystem()->update();
 	}
 }
 
@@ -71,8 +53,8 @@ bool UMainSWPlayerImplFMod::IsPlaying() const
 	if (pFModChannel)
 	{
 		bool bIsPlaying;
-		pFModChannel->isPlaying(&bIsPlaying);
-		return bIsPlaying;
+		pFModChannel->getPaused(&bIsPlaying);
+		return !bIsPlaying;
 	}
 	return false;
 }
@@ -110,6 +92,28 @@ float UMainSWPlayerImplFMod::GetPlaybackPosition() const
 void UMainSWPlayerImplFMod::AddOnPlaybackPercent(FOnPlaybackPercent Delegate)
 {
 	OnPlaybackPercentDelegates.Add(Delegate);
+}
+
+void UMainSWPlayerImplFMod::Tick(float DeltaTime)
+{
+	if (!IsPlaying())
+		return;
+	uint32 Position, Duration;
+	pFModChannel->getPosition(&Position, FMOD_TIMEUNIT_MS);
+	pMainSoundWave->GetFModSound()->getLength(&Duration, FMOD_TIMEUNIT_MS);
+	float CurPos = (float)Position / Duration;
+	for (auto it = OnPlaybackPercentDelegates.CreateIterator(); it; ++it)
+	{
+		if (it->IsBound())
+			it->Execute(pMainSoundWave, CurPos);
+		else
+			it.RemoveCurrent();
+	}
+}
+
+TStatId UMainSWPlayerImplFMod::GetStatId() const
+{
+	return TStatId();
 }
 
 #endif

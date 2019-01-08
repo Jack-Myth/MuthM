@@ -53,17 +53,17 @@ public:
 	{
 		InstructionTime = NewTime;
 	}
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 		void OnInstructionLoaded(FBlueprintJsonObject Args);
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 		void OnPrepare();
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 		void OnTick(float CurrentTime);
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 		void OnInstructionDestroy(EInstructionDestroyReason DestroyReason);
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 		void OnTimeArrived();
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintNativeEvent)
 		FBlueprintJsonObject GenArgsJsonObject();
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Please Call this funtion after instruction is finished."))
 		void DestroySelf();

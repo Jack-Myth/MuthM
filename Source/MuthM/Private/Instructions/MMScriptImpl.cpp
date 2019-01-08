@@ -185,7 +185,7 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	}
 }
 
-float UMMScriptImpl::GetRemainingInstructionCount()
+float UMMScriptImpl::GetRemainingInstructionCount() const
 {
 	return _InstructionInstances.Num() + _PreparedInstructionInstance.Num();
 }
@@ -278,6 +278,23 @@ void UMMScriptImpl::AddInstruction(class UInstruction* InstructionInstance)
 		{
 			return a.GetTime() < b.GetTime();
 		});
+}
+
+TArray<UInstruction *> UMMScriptImpl::GetAllPreparedInstructionByType(TSubclassOf<UInstruction> TargetClass) const
+{
+	TArray<UInstruction*> InstructionCollection;
+	for (int i=0;i<_PreparedInstructionInstance.Num();i++)
+	{
+		if (_PreparedInstructionInstance[i]->GetClass()->IsChildOf(TargetClass))
+			InstructionCollection.Add(_PreparedInstructionInstance[i]);
+	}
+	return InstructionCollection;
+}
+
+float UMMScriptImpl::GetGameTime() const
+{
+	auto* InGameEditor = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
+	return InGameEditor->GetGameTime();
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

@@ -30,16 +30,12 @@ AMuthMInGameMode::AMuthMInGameMode()
 {
 	_ScoreCore = CreateDefaultSubobject<UScoreCore>("_ScoreCore");
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = false;
 	//NOTE: Maybe It's need to Attach to GameMode?
 }
 
-void AMuthMInGameMode::Tick(float DeltaSeconds)
+void AMuthMInGameMode::OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainSoundWave, float PlaybackPercent)
 {
-	Super::Tick(DeltaSeconds);
-	MusicPlaybackTime += DeltaSeconds;
-	//UNDONE:
-	OnMusicPlaybackTimeUpdate.Broadcast(MusicPlaybackTime,_GameMainMusic->GetSoundDuration());
+	OnMusicPlaybackTimeUpdate.Broadcast(MainSoundWave->GetSoundDuration()*PlaybackPercent, _GameMainMusic->GetSoundDuration());
 }
 
 void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData, float BeginTime)
@@ -47,19 +43,23 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	_CachedMMSData = MMSData;
 	_MainMMSInstance->LoadFromData(MMSData);
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
-	MusicPlaybackTime = -SuitDelay;
 	if (!::IsValid(_GameMainMusic.GetObject()))
 	{
 		UE_LOG(MuthMInGameMode, Warning, TEXT("Load Main Music Failed"));
 	}
 	else
 	{
+		DelayCounter = SuitDelay;
 		_MainSoundComponent->SetMainSoundWave(_GameMainMusic);
 		FTimerHandle tmpTimeHandle; //No Need this TimeHandle anymore.
-		GetWorld()->GetTimerManager().SetTimer(tmpTimeHandle, [=]()
+		GetWorld()->GetTimerManager().SetTimer(DelayTimerHandle, [=]()
 			{
-				_MainSoundComponent->Play();
-			}, 0, false, SuitDelay);
+				DelayCounter -= 0.02f;
+				if (DelayCounter <= 0)
+					_MainSoundComponent->Play();
+				else
+					OnMusicPositionCallback(_GameMainMusic, -(DelayCounter / _GameMainMusic->GetSoundDuration()));
+			}, 0.02f, true,0.02f);
 	}
 	//UNDONE: Debug
 	//TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get(this)->GetGameUI();
@@ -71,7 +71,6 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 
 void AMuthMInGameMode::PauseGame()
 {
-	SetActorTickEnabled(false);
 	UGameplayStatics::SetGamePaused(this, true);
 	//Prevent to construct duplicated widget.
 	//And ensure the PauseUI has been generated.
@@ -90,7 +89,6 @@ void AMuthMInGameMode::PauseGame()
 
 void AMuthMInGameMode::ResumeGame()
 {
-	SetActorTickEnabled(true);
 	UGameplayStatics::SetGamePaused(this, false);
 	if (pPauseUI->OnGameResumed())
 		pPauseUI = nullptr;
@@ -108,6 +106,8 @@ void AMuthMInGameMode::StopGame()
 	_MainMMSInstance->Destroy();
 	_MainMMSInstance = nullptr;
 	_MainGameUI->RemoveFromParent();
+	if (DelayTimerHandle.IsValid())
+		GetWorld()->GetTimerManager().ClearTimer(DelayTimerHandle);
 }
 
 void AMuthMInGameMode::NativeOnGameEnded(FGameEndReason GameEndReason)
@@ -156,6 +156,9 @@ void AMuthMInGameMode::BeginPlay()
 	_GameMainMusic = IMusicManager::Get(this)->LoadMainSoundByID(MusicInfo.ID);
 	_MainSoundComponent = UMuthMBPLib::GenMainSWPlayer(this);
 	_MainSoundComponent->SetMainSoundWave(_GameMainMusic);
+	FOnPlaybackPercent MusicCallback;
+	MusicCallback.BindUFunction(this, "OnMusicPositionCallback");
+	_MainSoundComponent->AddOnPlaybackPercent(MusicCallback);
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	if (!this->IsA<AMuthMInEditorMode>())
 		StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));

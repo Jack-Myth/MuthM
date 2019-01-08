@@ -16,19 +16,27 @@ class MUTHM_API URhythmTap : public URhythm
 	GENERATED_BODY()
 
 protected:
+
 	float LROffset;
 	class AStaticMeshActor* RhythmObj;
 	FLinearColor RhythmColor;
 	float Speed;
 	UMaterialInstanceDynamic* RhythmTapMatDynamic;
 	float Width;
+	float SceneHalfWidth;
+	class UParticleSystem* TapEffect=nullptr;
+	float CheckWidthScale=1.f;
+	float MaxScore = 100;
 public:
-	void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args);
+	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args);
 
-	void OnPrepare_Implementation();
-	void OnTick_Implementation(float CurrentTime);
+	virtual void OnPrepare_Implementation();
+	virtual void OnTick_Implementation(float CurrentTime);
 	UFUNCTION(BlueprintNativeEvent)
 		void GetRhythmMaterial(class UMaterialInstanceDynamic*& ReturnedMaterial);
 	UFUNCTION(BlueprintNativeEvent)
 		void SetAlpha(class UMaterialInstanceDynamic* RhythmDMI,float Alpha);
+
+	virtual bool OnBeginTouched_Implementation(float X, float Y);
+	virtual float RequestPlainMaxScore_Implementation();
 };

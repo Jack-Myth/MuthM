@@ -30,6 +30,10 @@ class MUTHM_API AMuthMInGameMode : public AMuthMGameModeBase
 {
 	GENERATED_BODY()
 
+
+
+	FTimerHandle DelayTimerHandle;
+	float DelayCounter = 0;
 protected:
 	TSharedPtr<class FMDATFile> _pMDAT;
 	TScriptInterface<IMMScript> _MainMMSInstance;
@@ -43,6 +47,7 @@ protected:
 		class UGameUIBase* _MainGameUI;
 	UPROPERTY()
 		class UScoreCore* _ScoreCore;
+	float _GameTime = 0;
 	//The two cached variable is prepared for RestartGame.
 	FMusicInfo _CachedMusicInfo;
 	TArray<uint8> _CachedMMSData;
@@ -52,15 +57,16 @@ protected:
 		return _MainMMSInstance;
 	}
 
-	//Because the Playback time will be wrong in some platform (Android for example)
-	//So calculate playback time by Tick() and control pause and resume by LifeCycleComponent;
-	float MusicPlaybackTime = 0;
+
+	UFUNCTION()
+		void OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainSoundWave, float PlaybackPercent);
+
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
 	UPROPERTY(BlueprintAssignable)
 		FOnGameEnded OnGameEnded;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		TMap<FName, float> GlobalDataNumber; 
 	AMuthMInGameMode();
 	//GetScoreCore
@@ -77,7 +83,6 @@ public:
 	{
 		return _CachedMusicInfo;
 	}
-	virtual void Tick(float DeltaSeconds) override;
 	void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData,float BeginTime);
 	FORCEINLINE void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 	{
@@ -96,6 +101,18 @@ public:
 	//This Function will also save the score to disk.
 	void ShowGameResult();
 	void ReturnToMainMenu();
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE TScriptInterface<IMMScript> GetGameMMScript() const
+	{
+		return _MainMMSInstance;
+	}
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE float GetGameTime()const
+	{
+		return _GameTime;
+	}
 protected:
 	virtual void BeginPlay() override;
 };

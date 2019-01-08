@@ -49,7 +49,6 @@ void AMuthMInEditorMode::ExitPIE()
 void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
 {
 	_MainSoundComponent->SetPaused(true);
-	MusicPlaybackTime = BeginTime;
 	_MainSoundComponent->Play(BeginTime);
 	SetActorTickEnabled(true);
 }

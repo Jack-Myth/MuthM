@@ -18,14 +18,15 @@ UCLASS()
 class MUTHM_API UMainSoundWaveImplFMod : public UObject,public IMainSoundWave
 {
 	GENERATED_BODY()
-	friend class UMusicManagerImplFMod;
 	
-	TSharedPtr<class FMOD::Sound> pFModSound;
+	class FMOD::Sound* pFModSound=nullptr;
+protected:
+	void ReleaseSound();
 public:
 
 	virtual bool GenPCMData(TArray<uint8>& OutputPCM) override;
 
-	TSharedPtr<class FMOD::Sound> GetFModSound()
+	class FMOD::Sound* GetFModSound()
 	{
 		return pFModSound;
 	}
@@ -37,6 +38,10 @@ public:
 
 
 	virtual int32 GetNumChannels() const override;
+
+
+	void UpdateSoundResource(class FMOD::Sound* newFModSound);
+
 
 	virtual ~UMainSoundWaveImplFMod();
 };

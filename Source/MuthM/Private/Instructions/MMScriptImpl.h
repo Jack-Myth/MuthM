@@ -29,7 +29,7 @@ public:
 	virtual	void RemoveInstructionByType(TSubclassOf<UInstruction> InstructionType, EInstructionDestroyReason Reason) override;
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) override;
 	void Tick(float CurrentTime);
-	virtual float GetRemainingInstructionCount() override;
+	virtual float GetRemainingInstructionCount() const override;
 	virtual void SetAutoDestroy(bool NewAutoDestroy) override;
 	virtual void Destroy() override;
 	virtual TArray<uint8> SerializeToData() override;
@@ -38,5 +38,9 @@ public:
 	virtual void SetBeginTime(float BeginTime) override;
 	virtual void SetPlayType(EPlayType PlayType) override;
 	virtual void AddInstruction(class UInstruction* InstructionInstance) override;
+	virtual TArray<UInstruction *> GetAllPreparedInstructionByType(TSubclassOf<UInstruction> TargetClass) const override;
+
+
+	virtual float GetGameTime() const override;
 
 };

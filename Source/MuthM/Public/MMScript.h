@@ -37,7 +37,7 @@ public:
 	virtual	void RemoveInstructionByType(TSubclassOf<UInstruction> InstructionType,EInstructionDestroyReason Reason) = 0;
 	virtual void RemoveInstruction(UInstruction* Instance, EInstructionDestroyReason Reason) = 0;
 	UFUNCTION(BlueprintCallable)
-		virtual float GetRemainingInstructionCount() = 0;
+		virtual float GetRemainingInstructionCount() const = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual void SetAutoDestroy(bool NewAutoDestroy) = 0;
 	UFUNCTION(BlueprintCallable)
@@ -48,5 +48,9 @@ public:
 	virtual void SetPlayType(EPlayType PlayType) = 0;
 	UFUNCTION(BlueprintCallable)
 		virtual void SetBeginTime(float BeginTime) = 0;
+	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Get All Instruction that is or is subclass of the Given Class"))
+		virtual TArray<UInstruction*> GetAllPreparedInstructionByType(TSubclassOf<UInstruction> TargetClass) const = 0;
+	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Same as MuthMInGameMode::GetGameTime()"))
+		virtual float GetGameTime() const = 0;
 };
 

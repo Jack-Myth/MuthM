@@ -10,7 +10,6 @@
 
 TScriptInterface<class IMainSoundWave> UMusicManagerImplFMod::LoadMainSoundByID(int ID)
 {
-	TSharedPtr<class FMOD::Sound> pSound;
 	FString TargetFileName;
 	if (ID < 0)
 		TargetFileName = UMusicManagerImpl::ConstructOfflineMusicFileName(ID);
@@ -21,13 +20,12 @@ TScriptInterface<class IMainSoundWave> UMusicManagerImplFMod::LoadMainSoundByID(
 		FMOD_CREATESOUNDEXINFO exinfo = { NULL };
 		exinfo.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
 		exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_OGGVORBIS;
-		FMOD::Sound* tmpSoundPointer;
-		MuthMNativeLib::GetFModSystem()->createSound(TCHAR_TO_UTF8(*TargetFileName), FMOD_DEFAULT, &exinfo, &tmpSoundPointer);
-		if (tmpSoundPointer)
+		class FMOD::Sound* pSound = nullptr;
+		MuthMNativeLib::GetFModSystem()->createSound(TCHAR_TO_UTF8(*TargetFileName), FMOD_DEFAULT, &exinfo, &pSound);
+		if (pSound)
 		{
-			pSound = MakeShareable(tmpSoundPointer);
 			UMainSoundWaveImplFMod* MainSoundWave = NewObject<UMainSoundWaveImplFMod>(this);
-			MainSoundWave->pFModSound = pSound;
+			MainSoundWave->UpdateSoundResource(pSound);
 			return MainSoundWave;
 		}
 	}

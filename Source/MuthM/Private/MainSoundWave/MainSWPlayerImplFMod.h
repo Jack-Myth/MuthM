@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MainSWPlayer.h"
+#include "Tickable.h"
 #include "MainSWPlayerImplFMod.generated.h"
 
 namespace FMOD
@@ -15,19 +16,17 @@ namespace FMOD
  *
  */
 UCLASS()
-class MUTHM_API UMainSWPlayerImplFMod : public UObject, public IMainSWPlayer
+class MUTHM_API UMainSWPlayerImplFMod : public UObject,public FTickableGameObject, public IMainSWPlayer
 {
 	GENERATED_BODY()
 
 	UPROPERTY()
 		class UMainSoundWaveImplFMod* pMainSoundWave=nullptr;
-	TSharedPtr<class FMOD::Channel> pFModChannel;
+	class FMOD::Channel* pFModChannel;
 	TArray<FOnPlaybackPercent> OnPlaybackPercentDelegates;
-	FTimerHandle TickHandle;
 
 private:
-	
-	void OnTick();
+
 public:
 
 	virtual void SetMainSoundWave(TScriptInterface<class IMainSoundWave> MainSoundWave) override;
@@ -58,5 +57,11 @@ public:
 
 
 	virtual void AddOnPlaybackPercent(FOnPlaybackPercent Delegate) override;
+
+
+	virtual void Tick(float DeltaTime) override;
+
+
+	virtual TStatId GetStatId() const override;
 
 };

@@ -4,6 +4,15 @@
 #include "MuthMNativeLib.h"
 #include "fmod.hpp"
 
+void UMainSoundWaveImplFMod::ReleaseSound()
+{
+	if (pFModSound)
+	{
+		pFModSound->release();
+		MuthMNativeLib::GetFModSystem()->update();
+	}
+}
+
 bool UMainSoundWaveImplFMod::GenPCMData(TArray<uint8>& OutputPCM)
 {
 	uint32 PCMByteLength;
@@ -41,7 +50,16 @@ int32 UMainSoundWaveImplFMod::GetNumChannels() const
 	return Channels;
 }
 
+void UMainSoundWaveImplFMod::UpdateSoundResource(class FMOD::Sound* newFModSound)
+{
+	if (newFModSound)
+	{
+		ReleaseSound();
+		pFModSound = newFModSound;
+	}
+}
+
 UMainSoundWaveImplFMod::~UMainSoundWaveImplFMod()
 {
-	pFModSound.Reset();
+	ReleaseSound();
 }
