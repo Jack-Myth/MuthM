@@ -65,13 +65,15 @@ void UInstruction::SetGlobalNumberData(FName Key, float Value)
 	InGameMode->GlobalDataNumber.FindOrAdd(Key) = Value;
 }
 
-void UInstruction::OnBuildingDetails_Implementation(const TScriptInterface<IDetailsBuilder>& DetailsBuilder)
+void UInstruction::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder)
 {
 	//Super::OnBuildingDetails_Implementation(DetailsBuilder);
 	//No need to call Super class
 
 	//Add Time
 	FDetailCategoryStruct DetailCategory;
+	DetailCategory.Title = "Instruction";
+	DetailCategory.DisplayTitle = LOCTEXT("Instruction", "Instruction");
 	TSharedPtr<FDetailItemNumber> TimeDetail=MakeShareable(new FDetailItemNumber());
 	TimeDetail->Name = "Time";
 	TimeDetail->InstructionInstance = this;

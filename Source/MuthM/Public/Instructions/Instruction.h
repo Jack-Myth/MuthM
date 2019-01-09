@@ -83,5 +83,5 @@ public:
 		return GetOuter()->GetWorld();
 	}
 
-	void OnBuildingDetails_Implementation(const TScriptInterface<IDetailsBuilder>& DetailsBuilder);
+	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
 };

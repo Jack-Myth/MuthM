@@ -22,12 +22,15 @@ class MUTHM_API UInstructionManagerImpl : public UObject, public IInstructionMan
 public:
 	virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) override;
 	virtual void UnregisterInstruction(const FInstructionRef InstructionRef) override;
-	virtual UInstruction* GenInstruction(FName InstructionName, float Time, FJsonObject& JsonArg) override;
+	virtual UInstruction* GenInstruction(FName InstructionName, float Time, const FJsonObject& JsonArg) override;
 	virtual void Tick(float CurrentTime) override;
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) override;
 	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) override;
 	virtual FName GetInstructionName(FInstructionRef InstructionRef) const override;
 	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) const override;
 	virtual TScriptInterface<IMMScript> K2_GenMMScript() override;
+
+
+	virtual TArray<FName> ListAllInstructionName() const override;
 
 };

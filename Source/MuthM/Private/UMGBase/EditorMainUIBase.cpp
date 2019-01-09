@@ -34,7 +34,7 @@ void UEditorMainUIBase::Init(FMusicInfo MusicInfo, TScriptInterface<class IMMScr
 {
 	//Add Editor Panel
 	OnFillMusicInfo(MusicInfo);
-	_EditorPanel = Cast<UEditorPanelBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetEditorPanel(), "EditorPanel"));
+	_EditorPanel = Cast<UEditorPanelBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetEditorPanel(), NAME_None));
 	OnPlaceEditorPanel(_EditorPanel);
 }
 

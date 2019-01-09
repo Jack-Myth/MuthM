@@ -300,9 +300,9 @@ float UMMScriptImpl::GetGameTime() const
 void UMMScriptImpl::UpdateInstructions()
 {
 	//Reorder instructions
-	auto Pred = [](const UInstruction*& a, const UInstruction*& b) {return a->GetTime() < b->GetTime(); };
-	_InstructionInstances.Sort(Pred);
-	_PreparedInstructionInstance.Sort(Pred);
+	auto Pred = [](const UInstruction* a, const UInstruction* b) {return a->GetTime() < b->GetTime(); };
+	Algo::Sort(_InstructionInstances, Pred);
+	Algo::Sort(_PreparedInstructionInstance, Pred);
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

@@ -69,14 +69,14 @@ void UInstructionManagerImpl::UnregisterInstruction(const FInstructionRef Instru
 	}
 }
 
-UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, float Time, FJsonObject& JsonArg)
+UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, float Time, const FJsonObject& JsonArg)
 {
 	const auto* InstructionClass = _InstructionMap.Find(InstructionName);
 	if (InstructionClass)
 	{
-		UInstruction* InstructionPtr = NewObject<UInstruction>(this);
+		UInstruction* InstructionPtr = NewObject<UInstruction>(this,InstructionClass->ClassStack.Top());
 		FBlueprintJsonObject tmpBPJsonArg;
-		tmpBPJsonArg.Object = MakeShareable<FJsonObject>(&JsonArg);
+		tmpBPJsonArg.Object = MakeShareable<FJsonObject>(new FJsonObject(JsonArg));
 		InstructionPtr->SetTime(Time);
 		InstructionPtr->OnInstructionLoaded(tmpBPJsonArg);
 		return InstructionPtr;
@@ -141,4 +141,11 @@ TScriptInterface<IMMScript> UInstructionManagerImpl::K2_GenMMScript()
 {
 	AGameModeBase* CurGameMode = UGameplayStatics::GetGameMode(this);
 	return GenMMScript(CurGameMode->GetClass()->IsChildOf<AMuthMInEditorMode>());
+}
+
+TArray<FName> UInstructionManagerImpl::ListAllInstructionName() const
+{
+	TArray<FName> InstrucitonNameCollection;
+	_InstructionMap.GetKeys(InstrucitonNameCollection);
+	return InstrucitonNameCollection;
 }

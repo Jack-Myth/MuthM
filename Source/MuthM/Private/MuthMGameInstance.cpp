@@ -5,6 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "MuthMGameModeBase.h"
 #include "ResManagers/GlobalSaveGame.h"
+#include "InstructionManager.h"
+#include "RhythmTap.h"
+#include "LoadScene.h"
 
 UMuthMGameInstance::UMuthMGameInstance()
 {
@@ -86,4 +89,20 @@ void UMuthMGameInstance::SaveGlobalSaveGame()
 {
 	if (GlobalSaveGame.IsValid())
 		UGameplayStatics::SaveGameToSlot(GlobalSaveGame.Pin().Get(), "GlobalSaveGame", 0);
+}
+
+void UMuthMGameInstance::Init()
+{
+	//Initialize the whole game.
+
+	//Register Instructions
+	auto InstructionManager = IInstructionManager::Get(this);
+	TMap<FName, TSubclassOf<UInstruction>> InstructionClasses;
+	//Fill Classes.
+	InstructionClasses.Add("LoadScene") = ULoadScene::StaticClass();
+	InstructionClasses.Add("RhythmTap") = URhythmTap::StaticClass();
+	CachedInstructionRef.SetNum(InstructionClasses.Num());
+	int InstructionRefIndex = 0;
+	for (auto it=InstructionClasses.CreateIterator();it;++it)
+		InstructionManager->RegisterInstruction(it->Key, it->Value, CachedInstructionRef[InstructionRefIndex++]);
 }

@@ -63,7 +63,7 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	}
 	//UNDONE: Debug
 	//TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get(this)->GetGameUI();
-	//_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, "GameUI"));
+	//_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, NAME_None));
 	//_MainGameUI->Init(MusicInfo);
 	//_MainGameUI->AddToViewport(50);
 	SetActorTickEnabled(true);
@@ -77,7 +77,7 @@ void AMuthMInGameMode::PauseGame()
 	if (!::IsValid(pPauseUI))
 	{
 		TSubclassOf<UPauseUIBase> PauseUIClass = UUIProvider::Get(this)->GetPauseUI();
-		UPauseUIBase* PauseUIInstance = Cast<UPauseUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), PauseUIClass, "PauseUI"));
+		UPauseUIBase* PauseUIInstance = Cast<UPauseUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), PauseUIClass, NAME_None));
 		//It's ready for mod,Framework shouldn't load failed.
 		check(PauseUIInstance)
 		PauseUIInstance->AddToViewport(1000);
@@ -128,7 +128,7 @@ void AMuthMInGameMode::ShowGameResult()
 {
 	GetScoreCore()->SaveScoreRecord();
 	auto GameResultUIClass = UUIProvider::Get(this)->GetGameResultUI();
-	auto* GameResultUI = Cast<UGameResultUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameResultUIClass, "GameResultUI"));
+	auto* GameResultUI = Cast<UGameResultUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameResultUIClass, NAME_None));
 	GameResultUI->Init();
 	GameResultUI->AddToViewport(120);
 }

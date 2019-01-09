@@ -2,6 +2,7 @@
 
 #include "DetailInputNumberBase.h"
 #include "DetailStructures.h"
+#include "SpinBox.h"
 
 void UDetailInputNumberBase::FireOnValueChanged()
 {
@@ -11,5 +12,10 @@ void UDetailInputNumberBase::FireOnValueChanged()
 void UDetailInputNumberBase::ValueInit(TSharedPtr<FDetailItemNumber> DetailItemInfo)
 {
 	_DetailItemInfo = DetailItemInfo;
-	K2_OnValueInit(_DetailItemInfo->DisplayName, _DetailItemInfo->InstructionInstance, _DetailItemInfo->NumberValue,_DetailItemInfo->SlideUnit);
+	K2_OnValueInit(_DetailItemInfo->DisplayName, _DetailItemInfo->InstructionInstance, _DetailItemInfo->NumberValue,_DetailItemInfo->SlideUnit,_DetailItemInfo->SlideMin,_DetailItemInfo->SlideMax);
+}
+
+void UDetailInputNumberBase::SetSpinBoxDelta(class USpinBox* SpinBox, float Delta)
+{
+	SpinBox->Delta = Delta;
 }

@@ -13,7 +13,7 @@ bool UWelcomeUIBase::FindAndLoadMods()
 void UWelcomeUIBase::LoadMainMenuUI()
 {
 		auto MainMenuUIClass = UUIProvider::Get(this)->GetMainMenuUI();
-		auto* MainMenuUI = Cast<UMainMenuUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), MainMenuUIClass, "MainMenuUI"));
+		auto* MainMenuUI = Cast<UMainMenuUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), MainMenuUIClass, NAME_None));
 		if (MainMenuUI)
 			MainMenuUI->AddToViewport(100);
 

@@ -13,15 +13,22 @@
 #include "Kismet/GameplayStatics.h"
 #include "ScoreCore.h"
 
+#define LOCTEXT_NAMESPACE "MuthM"
+
+void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
+{
+
+}
+
 void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 {
 	TSharedPtr<FJsonObject> JsonArgs = Args.Object;
 	LROffset = JsonArgs->GetNumberField("LROffset");
 	TSharedPtr<FJsonObject> ColorObj = JsonArgs->GetObjectField("Color");
-	RhythmColor.R = ColorObj->GetNumberField("R") * 255;
-	RhythmColor.G = ColorObj->GetNumberField("G") * 255;
-	RhythmColor.B = ColorObj->GetNumberField("B") * 255;
-	RhythmColor.A = ColorObj->GetNumberField("A") * 255;
+	RhythmColor.R = ColorObj->GetNumberField("R");
+	RhythmColor.G = ColorObj->GetNumberField("G");
+	RhythmColor.B = ColorObj->GetNumberField("B");
+	RhythmColor.A = ColorObj->GetNumberField("A");
 	Width = JsonArgs->GetNumberField("Width");
 	float tmpMaxScore = JsonArgs->GetNumberField("MaxScore");
 	if (tmpMaxScore)
@@ -31,15 +38,15 @@ void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 void URhythmTap::OnPrepare_Implementation()
 {
 	//Super::OnPrepare_Implementation();
-	SceneHalfWidth = GetGlobalNumberData("_MUTHM_3DDROP_WIDTH") / 2.f;  //Convert to Half
-	CheckWidthScale = GetGlobalNumberData("_MUTHM_3DDROP_CHECK_WIDTH");
+	SceneHalfWidth = GetGlobalNumberData("_MUTHM_3DDROP_SCENE_WIDTH") / 2.f;  //Convert to Half
+	CheckWidthScale = GetGlobalNumberData("_MUTHM_3DDROP_CHECK_WIDTH_SCALE");
 	CheckWidthScale = CheckWidthScale == 0 ? 1.f : CheckWidthScale; //Reset if Scale not exist.
 	UStaticMesh* PlaneMesh = LoadObject<UStaticMesh>(nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
 	RhythmObj = GetWorld()->SpawnActor<AStaticMeshActor>(FVector(1000.f, LROffset*SceneHalfWidth, 10.f),FRotator(0,90.f,0));
 	RhythmObj->SetMobility(EComponentMobility::Movable);
 	GetRhythmMaterial(RhythmTapMatDynamic);
 	RhythmObj->GetStaticMeshComponent()->SetMaterial(0, RhythmTapMatDynamic);
-	RhythmObj->SetActorScale3D(FVector(Width, 1, 1));
+	RhythmObj->SetActorScale3D(FVector(Width*SceneHalfWidth / 50, 1, 1));
 	RhythmObj->SetActorEnableCollision(false);
 	Speed = GetGlobalNumberData("_MMSpeed");
 	if (!Speed)
@@ -123,6 +130,57 @@ float URhythmTap::RequestPlainMaxScore_Implementation()
 	return MaxScore;
 }
 
+FBlueprintJsonObject URhythmTap::GenArgsJsonObject_Implementation()
+{
+	FBlueprintJsonObject SuperJsonObj = Super::GenArgsJsonObject_Implementation();
+	SuperJsonObj.Object->SetNumberField("LROffset", LROffset);
+	SuperJsonObj.Object->SetNumberField("Width", Width);
+	SuperJsonObj.Object->SetNumberField("MaxScore", MaxScore);
+	TSharedPtr<FJsonObject> ColorObj = MakeShareable(new FJsonObject());
+	ColorObj->SetNumberField("R", RhythmColor.R);
+	ColorObj->SetNumberField("G", RhythmColor.G);
+	ColorObj->SetNumberField("B", RhythmColor.B);
+	ColorObj->SetNumberField("A", RhythmColor.A);
+	SuperJsonObj.Object->SetObjectField("Color", ColorObj);
+	return SuperJsonObj;
+}
+
+void URhythmTap::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder)
+{
+	Super::OnBuildingDetails_Implementation(DetailsBuilder);
+	FDetailCategoryStruct RhythmCategory;
+	RhythmCategory.Title = "RhythmTap";
+	RhythmCategory.DisplayTitle = LOCTEXT("RhythmTap", "RhythmTap");
+	TSharedPtr<FDetailItemNumber> LROffsetDetail = MakeShareable(new FDetailItemNumber());
+	LROffsetDetail->Name = "LROffset";
+	LROffsetDetail->DisplayName = LOCTEXT("PositionOffset", "Position Offset");
+	LROffsetDetail->InstructionInstance = this;
+	LROffsetDetail->NumberValue = LROffset;
+	LROffsetDetail->SlideMax = 1.f;
+	LROffsetDetail->SlideMin = -1.f;
+	LROffsetDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
+	RhythmCategory.ItemList.Add(LROffsetDetail);	
+
+	TSharedPtr<FDetailItemNumber> WidthDetail = MakeShareable(new FDetailItemNumber());
+	WidthDetail->Name = "Width";
+	WidthDetail->DisplayName = LOCTEXT("Width", "Width");
+	WidthDetail->InstructionInstance = this;
+	WidthDetail->NumberValue = Width;
+	WidthDetail->SlideMax = 1.f;
+	WidthDetail->SlideMin = -1.f;
+	WidthDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
+	RhythmCategory.ItemList.Add(WidthDetail);
+
+	TSharedPtr<FDetailItemNumber> MaxScoreDetail = MakeShareable(new FDetailItemNumber());
+	MaxScoreDetail->Name = "MaxScore";
+	MaxScoreDetail->DisplayName = LOCTEXT("MaxScore", "MaxScore");
+	MaxScoreDetail->InstructionInstance = this;
+	MaxScoreDetail->NumberValue = MaxScore;
+	MaxScoreDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
+	RhythmCategory.ItemList.Add(MaxScoreDetail);
+	DetailsBuilder->AddCategory(RhythmCategory);
+}
+
 void URhythmTap::SetAlpha_Implementation(class UMaterialInstanceDynamic* RhythmDMI, float Alpha)
 {
 	RhythmDMI->SetScalarParameterValue("Alpha", Alpha);
@@ -135,3 +193,5 @@ void URhythmTap::GetRhythmMaterial_Implementation(class UMaterialInstanceDynamic
 	_RhythmTapMatDynamic->SetVectorParameterValue("RhythmColor", RhythmColor);
 	ReturnedMaterial = _RhythmTapMatDynamic;
 }
+
+#undef LOCTEXT_NAMESPACE

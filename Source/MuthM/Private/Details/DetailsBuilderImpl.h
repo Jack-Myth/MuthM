@@ -22,9 +22,11 @@ class UDetailsBuilderImpl : public UObject,public IDetailsBuilder
 	TArray<FDetailCategoryStruct> _DetailCategorylist;
 public:
 	virtual void AddCategory(FDetailCategoryStruct Category) override;
-	virtual class UDetailsListBase* GenDetails() override;
+	virtual void CollectDetails() override;
+	virtual class UDetailsListBase* GenDetailsWidget() override;
 	virtual class UWorld* GetWorld() const override;
 	virtual void SetDetailsHolder(TScriptInterface<class IHasDetails> _DetailsHolder) override;
 	virtual void AddCategoryBefore(FDetailCategoryStruct Category, FName Before) override;
+	virtual FDetailCategoryStruct* FindCategoryByName(FName CategoryName) override;
 
 };

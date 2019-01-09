@@ -23,5 +23,5 @@ class MUTHM_API IHasDetails
 
 public:
 	UFUNCTION(BlueprintNativeEvent)
-		void OnBuildingDetails(const TScriptInterface<IDetailsBuilder>& DetailsBuilder);
+		void OnBuildingDetails(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder);
 };

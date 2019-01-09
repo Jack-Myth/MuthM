@@ -6,6 +6,7 @@
 #include "MusicManager.h"
 #include "Engine/GameInstance.h"
 #include "ResManagers/GlobalSaveGame.h"
+#include "InstructionManager.h"
 #include "MuthMGameInstance.generated.h"
 
 USTRUCT()
@@ -32,6 +33,7 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 	UPROPERTY()
 		FGameArgs _GameArgs;
 	TWeakPtr<class UGlobalSaveGame> GlobalSaveGame;
+	TArray<FInstructionRef> CachedInstructionRef;
 public:
 	//Hold Reference of Managers and UIProvider.
 	UPROPERTY()
@@ -70,4 +72,7 @@ public:
 
 	TSharedPtr<class UGlobalSaveGame> GetGlobalSaveGame();
 	void SaveGlobalSaveGame();
+
+	virtual void Init() override;
+
 };

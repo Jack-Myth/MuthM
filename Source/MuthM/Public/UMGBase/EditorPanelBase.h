@@ -30,7 +30,14 @@ protected:
 		float ScaleRatio=1.f;
 	UPROPERTY(BlueprintReadOnly)
 		float TimeAxis;
+	UFUNCTION()
+		void OnInstructionTimeInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
+	UFUNCTION(BlueprintCallable)
+		void AddInstructionAtTime(float Time);
 public:
+
+	UPROPERTY(BlueprintReadWrite)
+		class UInstruction* InstructionTemplate = nullptr;
 
 	UPROPERTY(BlueprintReadWrite)
 		float _BPM;
@@ -72,7 +79,7 @@ public:
 	//To Handle all Instruction's behavior.
 	void ClickWidget(class UInstructionWidgetBase* newClickedWidget);
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Use to handle the click(or touch) event on Panel"))
-		void OnClickHandler(float Time);
+		void OnClickHandler(float Time,float VerticleOffset);
 	UFUNCTION(BlueprintPure)
 	void GetAlignBPMInfo(float& AlignOffset, float& AlignTime)
 	{
@@ -83,8 +90,6 @@ public:
 		void OnInstructionSelected(class UInstructionWidgetBase* SelectedWidget);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInstructionDeselected(class UInstructionWidgetBase* DeselectedWidget);
-	UFUNCTION()
-		void OnInstructionTimeInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 	UFUNCTION(BlueprintCallable)
 		void RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove);
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Set if Next click on panel will add an instruction widget"))
@@ -98,8 +103,12 @@ public:
 		float GetMusicLength();
 	UFUNCTION(BlueprintCallable)
 		void PupopDetails(class UInstructionWidgetBase* InstructionWidgetBase);
+	UFUNCTION(BlueprintCallable)
+		void PupopTemplateDetails();
 	UFUNCTION()
 		void OnMusicProcessCallback(float Current, float Duration);
+	UFUNCTION(BlueprintCallable)
+		void SetInstructionTemplateByName(FName TemplateInstructionName);
 protected:
 	virtual void NativeConstruct() override;
 

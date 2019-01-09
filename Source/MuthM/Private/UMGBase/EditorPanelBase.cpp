@@ -35,17 +35,11 @@ void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidge
 	}
 }
 
-void UEditorPanelBase::OnClickHandler(float Time)
+void UEditorPanelBase::OnClickHandler(float Time,float VerticleOffset)
 {
 	if (bFastAddMode)
 	{
-		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
-		check(InEditorMode);
-		FJsonObject EmptyJsonObj;
-		auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(_FastAddInstructionName, TimeAxis, EmptyJsonObj);
-		auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
-		InstructionWidget->Init(InstructionInstance);
-		InstructionWidgets.Add(InstructionWidget);
+		AddInstructionAtTime(TimeAxis);
 	}
 	else
 	{
@@ -57,6 +51,11 @@ void UEditorPanelBase::OnClickHandler(float Time)
 			//Second Notify EditorPanel.
 			OnInstructionDeselected(_SelectedWidget);
 			_SelectedWidget = nullptr;
+		}
+		if (_NextToAdd)
+		{
+			_NextToAdd = false;
+			AddInstructionAtTime(Time);
 		}
 	}
 }
@@ -81,6 +80,18 @@ void UEditorPanelBase::OnInstructionTimeInput(class UInstruction* InstructionIns
 	float LastTime = InstructionInstance->GetTime();
 	InstructionInstance->SetTime(NumberValue);
 	OnInstructionWidgetTimeChanged(TargetInstructionWidget, LastTime, NumberValue);
+}
+
+void UEditorPanelBase::AddInstructionAtTime(float Time)
+{
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	check(InEditorMode);
+	FBlueprintJsonObject BpJsonObj;
+	BpJsonObj = InstructionTemplate->GenArgsJsonObject();
+	auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(_FastAddInstructionName, Time, *BpJsonObj.Object);
+	auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
+	InstructionWidget->Init(InstructionInstance);
+	InstructionWidgets.Add(InstructionWidget);
 }
 
 void UEditorPanelBase::RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove)
@@ -115,21 +126,54 @@ void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWid
 	}
 	auto DetailsBuilder = IDetailsBuilder::GenNewBuilder();
 	DetailsBuilder->SetDetailsHolder(InstructionWidgetBase->GetInstructionInstance());
-	FDetailCategoryStruct InstructionCategory;
-	InstructionCategory.Title = "Instruction";
-	InstructionCategory.DisplayTitle = LOCTEXT("Instruction", "Instruction");
-	if (bShouldAlignBPM)
+	DetailsBuilder->CollectDetails();
+	auto* pInstructionCategory = DetailsBuilder->FindCategoryByName("Time");
+	if (pInstructionCategory)
 	{
-		auto TimeDetailItem = InstructionCategory.ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
-		((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
+		auto* TimeDetailItem = pInstructionCategory->ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
+		((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnInstructionTimeInput");
+		if (bShouldAlignBPM)
+		{
+			((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
+		}
 	}
-	ActivedDetailsWidget = DetailsBuilder->GenDetails();
+	ActivedDetailsWidget = DetailsBuilder->GenDetailsWidget();
+	ActivedDetailsWidget->AddToViewport(100);
+}
+
+void UEditorPanelBase::PupopTemplateDetails()
+{
+	auto DetailsBuilder = IDetailsBuilder::GenNewBuilder();
+	DetailsBuilder->SetDetailsHolder(InstructionTemplate);
+	DetailsBuilder->CollectDetails();
+	auto* pInstructionCategory = DetailsBuilder->FindCategoryByName("Time");
+	if (pInstructionCategory)
+	{
+		auto* TimeDetailItem = pInstructionCategory->ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
+		((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnInstructionTimeInput");
+		if (bShouldAlignBPM)
+		{
+			((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
+		}
+	}
+	ActivedDetailsWidget = DetailsBuilder->GenDetailsWidget();
 	ActivedDetailsWidget->AddToViewport(100);
 }
 
 void UEditorPanelBase::OnMusicProcessCallback(float Current, float Duration)
 {
 	SetTimeAxis(Current);
+}
+
+void UEditorPanelBase::SetInstructionTemplateByName(FName TemplateInstructionName)
+{
+	auto* tmpInstructionTemplate = IInstructionManager::Get(this)->GenInstruction(TemplateInstructionName,0, FJsonObject());
+	if (tmpInstructionTemplate)
+	{
+		//Replace current template and pupop details.
+		InstructionTemplate = tmpInstructionTemplate;
+		PupopTemplateDetails();
+	}
 }
 
 void UEditorPanelBase::NativeConstruct()
