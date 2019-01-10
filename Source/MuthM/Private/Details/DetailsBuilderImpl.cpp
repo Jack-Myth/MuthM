@@ -26,6 +26,8 @@ void UDetailsBuilderImpl::AddCategory(FDetailCategoryStruct Category)
 
 void UDetailsBuilderImpl::CollectDetails()
 {
+	if (!::IsValid(DetailsHolder.GetObject()))
+		return;
 	_DetailCategorylist.Empty();
 	TScriptInterface<IDetailsBuilder> thisBuilder = this;
 	IHasDetails::Execute_OnBuildingDetails(DetailsHolder.GetObject(),thisBuilder);

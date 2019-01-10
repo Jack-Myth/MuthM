@@ -26,10 +26,13 @@ void UEditorPanelBase::SetTimeAxis(float NewTime)
 void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidget)
 {
 	if (newClickedWidget == _SelectedWidget)
-		return;
+		GetSelectedWidget()->OnWidgetSelected();
 	else
 	{
-		GetSelectedWidget()->OnWidgetDeselected();
+		if (GetSelectedWidget())
+			GetSelectedWidget()->OnWidgetDeselected();
+		if (ActivedDetailsWidget)
+			ActivedDetailsWidget->CloseDetails();
 		_SelectedWidget = newClickedWidget;
 		GetSelectedWidget()->OnWidgetSelected();
 	}
@@ -51,6 +54,8 @@ void UEditorPanelBase::OnClickHandler(float Time,float VerticleOffset)
 			//Second Notify EditorPanel.
 			OnInstructionDeselected(_SelectedWidget);
 			_SelectedWidget = nullptr;
+			if (ActivedDetailsWidget)
+				ActivedDetailsWidget->CloseDetails();
 		}
 		if (_NextToAdd)
 		{
@@ -84,14 +89,28 @@ void UEditorPanelBase::OnInstructionTimeInput(class UInstruction* InstructionIns
 
 void UEditorPanelBase::AddInstructionAtTime(float Time)
 {
+	if (!::IsValid(InstructionTemplate))
+		return;
 	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	FBlueprintJsonObject BpJsonObj;
 	BpJsonObj = InstructionTemplate->GenArgsJsonObject();
-	auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(_FastAddInstructionName, Time, *BpJsonObj.Object);
+	auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(InstructionTemplate->GetRegisterName(), Time, *BpJsonObj.Object);
+	if (!InstructionInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Add Instruction Failed!\nTemplate:%s,Register Name:%s"),*InstructionTemplate->GetName(),*InstructionTemplate->GetRegisterName().ToString());
+		return;
+	}
+	InEditorMode->GetEditorMMS()->AddInstruction(InstructionInstance);
 	auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
 	InstructionWidget->Init(InstructionInstance);
 	InstructionWidgets.Add(InstructionWidget);
+	OnInstructionWidgetAdded(InstructionWidget);
+}
+
+void UEditorPanelBase::OnDetailListClosed(class UDetailsListBase* DetailsListWidget)
+{
+	_SelectedWidget = nullptr;
 }
 
 void UEditorPanelBase::RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove)
@@ -109,6 +128,7 @@ void UEditorPanelBase::DeleteCurrentInstruction()
 	if (_SelectedWidget)
 	{
 		RemoveInstruction(_SelectedWidget);
+		ActivedDetailsWidget->CloseDetails();
 	}
 }
 
@@ -119,42 +139,39 @@ float UEditorPanelBase::GetMusicLength()
 
 void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWidgetBase)
 {
-	if (ActivedDetailsWidget)
-	{
-		ActivedDetailsWidget->RemoveFromParent();
-		ActivedDetailsWidget = nullptr;
-	}
 	auto DetailsBuilder = IDetailsBuilder::GenNewBuilder();
 	DetailsBuilder->SetDetailsHolder(InstructionWidgetBase->GetInstructionInstance());
 	DetailsBuilder->CollectDetails();
-	auto* pInstructionCategory = DetailsBuilder->FindCategoryByName("Time");
-	if (pInstructionCategory)
+	auto* pInstructionCategory = DetailsBuilder->FindCategoryByName("Instruction");
+	if (!pInstructionCategory)
+		return;
+	if (ActivedDetailsWidget)
 	{
-		auto* TimeDetailItem = pInstructionCategory->ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
-		((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnInstructionTimeInput");
-		if (bShouldAlignBPM)
-		{
-			((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
-		}
+		ActivedDetailsWidget->CloseDetails();
+		ActivedDetailsWidget = nullptr;
+	}
+	_SelectedWidget = InstructionWidgetBase;
+	auto* TimeDetailItem = pInstructionCategory->ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
+	((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnInstructionTimeInput");
+	if (bShouldAlignBPM)
+	{
+		((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
 	}
 	ActivedDetailsWidget = DetailsBuilder->GenDetailsWidget();
+	ActivedDetailsWidget->OnDetailsListClosed.AddUObject(this, &UEditorPanelBase::OnDetailListClosed);
 	ActivedDetailsWidget->AddToViewport(100);
 }
 
 void UEditorPanelBase::PupopTemplateDetails()
 {
+	_SelectedWidget = nullptr;
 	auto DetailsBuilder = IDetailsBuilder::GenNewBuilder();
 	DetailsBuilder->SetDetailsHolder(InstructionTemplate);
 	DetailsBuilder->CollectDetails();
-	auto* pInstructionCategory = DetailsBuilder->FindCategoryByName("Time");
+	auto* pInstructionCategory = DetailsBuilder->FindCategoryByName("Instruction");
 	if (pInstructionCategory)
 	{
-		auto* TimeDetailItem = pInstructionCategory->ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
-		((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnInstructionTimeInput");
-		if (bShouldAlignBPM)
-		{
-			((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
-		}
+		pInstructionCategory->ItemList.RemoveAll([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
 	}
 	ActivedDetailsWidget = DetailsBuilder->GenDetailsWidget();
 	ActivedDetailsWidget->AddToViewport(100);

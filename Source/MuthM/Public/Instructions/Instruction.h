@@ -38,6 +38,8 @@ protected:
 		void OnTimeChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 public:
 
+	FName GetRegisterName() const;
+
 	void AttachScript(TScriptInterface<class IMMScript> TargetScript)
 	{
 		AttachedScript = TargetScript;

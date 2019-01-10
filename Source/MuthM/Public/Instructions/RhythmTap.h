@@ -22,7 +22,7 @@ protected:
 	FLinearColor RhythmColor;
 	float Speed;
 	UMaterialInstanceDynamic* RhythmTapMatDynamic;
-	float Width;
+	float Width=0.2;
 	float SceneHalfWidth;
 	class UParticleSystem* TapEffect=nullptr;
 	float CheckWidthScale=1.f;

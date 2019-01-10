@@ -264,7 +264,7 @@ void UMMScriptImpl::SetBeginTime(float BeginTime)
 
 void UMMScriptImpl::SetPlayType(EPlayType PlayType)
 {
-	this->_PlayType = _PlayType;
+	this->_PlayType = PlayType;
 }
 
 void UMMScriptImpl::AddInstruction(class UInstruction* InstructionInstance)

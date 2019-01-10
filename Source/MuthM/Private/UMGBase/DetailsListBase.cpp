@@ -2,6 +2,8 @@
 
 #include "DetailsListBase.h"
 
-
-
-
+void UDetailsListBase::CloseDetails()
+{
+	OnDetailsListClosed.Broadcast(this);
+	OnDetailsClosed();
+}

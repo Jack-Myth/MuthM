@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "JsonObject.h"
 #include "DetailStructures.h"
+#include "InstructionManager.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -38,6 +39,11 @@ void UInstruction::OnTimeChanged(class UInstruction* InstructionInstance, FName 
 	SetTime(NumberValue);
 	//Reorder MMS Data
 	GetScript()->UpdateInstructions();
+}
+
+FName UInstruction::GetRegisterName() const
+{
+	return IInstructionManager::Get(this)->GetInstructionName(GetClass());
 }
 
 void UInstruction::DestroySelf()

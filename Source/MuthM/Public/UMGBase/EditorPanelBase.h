@@ -34,6 +34,8 @@ protected:
 		void OnInstructionTimeInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 	UFUNCTION(BlueprintCallable)
 		void AddInstructionAtTime(float Time);
+	UFUNCTION()
+		void OnDetailListClosed(class UDetailsListBase* DetailsListWidget);
 public:
 
 	UPROPERTY(BlueprintReadWrite)

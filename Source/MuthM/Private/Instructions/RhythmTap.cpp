@@ -17,7 +17,18 @@
 
 void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
 {
-
+	if (PropertyName=="LROffset")
+	{
+		LROffset = NumberValue;
+	}
+	else if (PropertyName=="Width")
+	{
+		Width = NumberValue;
+	}
+	else if (PropertyName=="MaxScore")
+	{
+		MaxScore = NumberValue;
+	}
 }
 
 void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
@@ -29,10 +40,16 @@ void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 	RhythmColor.G = ColorObj->GetNumberField("G");
 	RhythmColor.B = ColorObj->GetNumberField("B");
 	RhythmColor.A = ColorObj->GetNumberField("A");
-	Width = JsonArgs->GetNumberField("Width");
-	float tmpMaxScore = JsonArgs->GetNumberField("MaxScore");
-	if (tmpMaxScore)
+	double tmpWidth;
+	if (JsonArgs->TryGetNumberField("Width", tmpWidth))
+		Width = tmpWidth;
+	else
+		Width = 0.2f;
+	double tmpMaxScore = 0;
+	if (JsonArgs->TryGetNumberField("MaxScore", tmpMaxScore))
 		MaxScore = tmpMaxScore;
+	else
+		MaxScore = 100;
 }
 
 void URhythmTap::OnPrepare_Implementation()
@@ -167,7 +184,7 @@ void URhythmTap::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<I
 	WidthDetail->InstructionInstance = this;
 	WidthDetail->NumberValue = Width;
 	WidthDetail->SlideMax = 1.f;
-	WidthDetail->SlideMin = -1.f;
+	WidthDetail->SlideMin = 0.1f;
 	WidthDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
 	RhythmCategory.ItemList.Add(WidthDetail);
 

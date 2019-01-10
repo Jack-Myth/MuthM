@@ -14,8 +14,7 @@ class MUTHM_API UInstructionWidgetBase : public UUserWidget
 {
 	GENERATED_BODY()
 
-	//Don't Use UPROPERTY
-	//MMS will hold the ref of Instruction.
+	UPROPERTY()
 	class UInstruction* _InstructionInstance;
 public:
 	void Init(class UInstruction* InstructionInstance);
