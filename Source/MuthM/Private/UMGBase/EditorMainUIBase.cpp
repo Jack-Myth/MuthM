@@ -38,12 +38,6 @@ void UEditorMainUIBase::Init(FMusicInfo MusicInfo, TScriptInterface<class IMMScr
 	OnPlaceEditorPanel(_EditorPanel);
 }
 
-void UEditorMainUIBase::NativeOnFillBPMInfo(float BPM)
-{
-	//XXX:It may be a wrong design,because it's the panel to hold instruction's alignment.
-	OnFillBPMInfo(BPM);
-}
-
 void UEditorMainUIBase::SetPlaySpeed(float PlaySpeed)
 {
 	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));

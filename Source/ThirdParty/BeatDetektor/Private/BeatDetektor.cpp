@@ -50,18 +50,19 @@ void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 	
 	total_time+=last_update;
 	
-	unsigned int range_step = (fft_data.size()/BD_DETECTION_RANGES);
+	float range_step = (fft_data.size()/(float)BD_DETECTION_RANGES);
 	unsigned int range = 0;
 	unsigned int i,x;
-	float v;
+	float v,k;
 	
 	float bpm_floor = 60.0/BPM_MAX;
 	float bpm_ceil = 60.0/BPM_MIN;
 	
 	if (current_bpm != current_bpm) current_bpm = 0;
 	
-	for (x=0; x<fft_data.size(); x+=range_step)
+	for (k =0; k<fft_data.size(); k +=range_step)
 	{
+		x = (unsigned int)k;
 		if (!src)
 		{
 			a_freq_range[range] = 0;

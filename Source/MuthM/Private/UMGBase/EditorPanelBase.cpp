@@ -13,6 +13,12 @@
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
+void UEditorPanelBase::FillBPMInfo(float BPM)
+{
+	_BPM = BPM;
+	OnFillBPMInfo(_BPM);
+}
+
 void UEditorPanelBase::SetTimeAxis(float NewTime)
 {
 	if (NewTime == TimeAxis)
@@ -38,11 +44,11 @@ void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidge
 	}
 }
 
-void UEditorPanelBase::OnClickHandler(float Time,float VerticleOffset)
+void UEditorPanelBase::OnClickHandler(float Time,float VerticalOffset)
 {
 	if (bFastAddMode)
 	{
-		AddInstructionAtTime(TimeAxis);
+		AddInstructionAtTime(TimeAxis,bIgnoreVerticalPosition?0.f:VerticalOffset);
 	}
 	else
 	{
@@ -60,12 +66,12 @@ void UEditorPanelBase::OnClickHandler(float Time,float VerticleOffset)
 		if (_NextToAdd)
 		{
 			_NextToAdd = false;
-			AddInstructionAtTime(Time);
+			AddInstructionAtTime(Time, bIgnoreVerticalPosition?0.f:VerticalOffset);
 		}
 	}
 }
 
-void UEditorPanelBase::OnInstructionTimeInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
+void UEditorPanelBase::OnEditorPropertyInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
 {
 	UInstructionWidgetBase* TargetInstructionWidget=nullptr;
 	if (_SelectedWidget->GetInstructionInstance() == InstructionInstance)
@@ -82,12 +88,20 @@ void UEditorPanelBase::OnInstructionTimeInput(class UInstruction* InstructionIns
 		}
 	}
 	check(TargetInstructionWidget);
-	float LastTime = InstructionInstance->GetTime();
-	InstructionInstance->SetTime(NumberValue);
-	OnInstructionWidgetTimeChanged(TargetInstructionWidget, LastTime, NumberValue);
+	if (PropertyName == "Time")
+	{
+		float LastTime = InstructionInstance->GetTime();
+		InstructionInstance->SetTime(NumberValue);
+		OnInstructionWidgetTimeChanged(TargetInstructionWidget, LastTime, NumberValue);
+	}
+	else if (PropertyName == "__VisualVerticalOffset")
+	{
+		InstructionInstance->EditorVisualVerticalOffset = NumberValue;
+		OnVerticalOffsetUpdate(TargetInstructionWidget, NumberValue);
+	}
 }
 
-void UEditorPanelBase::AddInstructionAtTime(float Time)
+void UEditorPanelBase::AddInstructionAtTime(float Time,float VerticalOffset)
 {
 	if (!::IsValid(InstructionTemplate))
 		return;
@@ -95,12 +109,22 @@ void UEditorPanelBase::AddInstructionAtTime(float Time)
 	check(InEditorMode);
 	FBlueprintJsonObject BpJsonObj;
 	BpJsonObj = InstructionTemplate->GenArgsJsonObject();
+	if (bShouldAlignBPM)
+	{
+		float Offset = 60.f / _BPM * _AlignOffset;
+		float a = Time / (60.f / (_BPM * _BeatDenominator));
+		a = FMath::RoundToFloat(a);
+		Time = a * (60.f / (_BPM * _BeatDenominator)) + Offset;
+	}
 	auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(InstructionTemplate->GetRegisterName(), Time, *BpJsonObj.Object);
 	if (!InstructionInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Add Instruction Failed!\nTemplate:%s,Register Name:%s"),*InstructionTemplate->GetName(),*InstructionTemplate->GetRegisterName().ToString());
 		return;
 	}
+	FEditorExtraInfo EEI;
+	EEI.VerticalOffset = VerticalOffset;
+	InstructionInstance->OnInstructionLoaded_EditorExtra(EEI);
 	InEditorMode->GetEditorMMS()->AddInstruction(InstructionInstance);
 	auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
 	InstructionWidget->Init(InstructionInstance);
@@ -111,6 +135,7 @@ void UEditorPanelBase::AddInstructionAtTime(float Time)
 void UEditorPanelBase::OnDetailListClosed(class UDetailsListBase* DetailsListWidget)
 {
 	_SelectedWidget = nullptr;
+	ActivedDetailsWidget = nullptr;
 }
 
 void UEditorPanelBase::RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove)
@@ -151,12 +176,28 @@ void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWid
 		ActivedDetailsWidget = nullptr;
 	}
 	_SelectedWidget = InstructionWidgetBase;
+	//Handle Time Input
 	auto* TimeDetailItem = pInstructionCategory->ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
-	((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnInstructionTimeInput");
+	((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnEditorPropertyInput");
 	if (bShouldAlignBPM)
 	{
-		((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / BeatDenominator;
+		((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / _BeatDenominator;
 	}
+
+	//Add Editor Property.
+	FDetailCategoryStruct EditorDetails;
+	TSharedPtr<FDetailItemNumber> VisualVerticalOffset=MakeShareable(new FDetailItemNumber());
+	EditorDetails.Title = "Editor";
+	EditorDetails.DisplayTitle = LOCTEXT("Editor", "Editor");
+	VisualVerticalOffset->Name = "__VisualVerticalOffset";
+	VisualVerticalOffset->DisplayName = LOCTEXT("VisualVerticalOffset", "Vertical Offset");
+	VisualVerticalOffset->SlideMax = 1.f;
+	VisualVerticalOffset->SlideMin = -1.f;
+	VisualVerticalOffset->NumberValue = InstructionWidgetBase->GetInstructionInstance()->EditorVisualVerticalOffset;
+	VisualVerticalOffset->InstructionInstance = InstructionWidgetBase->GetInstructionInstance();
+	VisualVerticalOffset->DetailCallbackNumber.BindUFunction(this, "OnEditorPropertyInput");
+	EditorDetails.ItemList.Add(VisualVerticalOffset);
+	DetailsBuilder->AddCategory(EditorDetails);
 	ActivedDetailsWidget = DetailsBuilder->GenDetailsWidget();
 	ActivedDetailsWidget->OnDetailsListClosed.AddUObject(this, &UEditorPanelBase::OnDetailListClosed);
 	ActivedDetailsWidget->AddToViewport(100);

@@ -30,13 +30,31 @@ protected:
 		float ScaleRatio=1.f;
 	UPROPERTY(BlueprintReadOnly)
 		float TimeAxis;
+	UFUNCTION(BlueprintImplementableEvent, meta = (ToolTip = "Notice:This event may be fired before construct event."))
+		void OnSpectrumUpdate(const TArray<class UTexture2D*>& Spectrum);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInstructionWidgetAdded(class UInstructionWidgetBase* InstructionWidget);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInstructionWidgetTimeChanged(class UInstructionWidgetBase* InstructionWidget, float LastTime, float CurrentTime);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInstructionSelected(class UInstructionWidgetBase* SelectedWidget);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInstructionDeselected(class UInstructionWidgetBase* DeselectedWidget);
 	UFUNCTION()
-		void OnInstructionTimeInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
-	UFUNCTION(BlueprintCallable)
-		void AddInstructionAtTime(float Time);
+		void OnEditorPropertyInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
+	UFUNCTION(BlueprintCallable,meta=(ToolTip="VerticalOffset should between -1 and 1"))
+		void AddInstructionAtTime(float Time,float VerticalOffset);
 	UFUNCTION()
 		void OnDetailListClosed(class UDetailsListBase* DetailsListWidget);
+	UPROPERTY(BlueprintReadWrite)
+		bool bIgnoreVerticalPosition=true;
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnVerticalOffsetUpdate(class UInstructionWidgetBase* TargetWidget,float Value);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnFillBPMInfo(float BPM);
 public:
+
+	void FillBPMInfo(float BPM);
 
 	UPROPERTY(BlueprintReadWrite)
 		class UInstruction* InstructionTemplate = nullptr;
@@ -46,15 +64,13 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		float _AlignOffset;
 	UPROPERTY(BlueprintReadWrite)
-		int BeatDenominator = 4;
+		int _BeatDenominator = 4;
 	UPROPERTY(BlueprintReadWrite)
 		bool bShouldAlignBPM;
 	UPROPERTY(BlueprintReadWrite)
 		bool bFastAddMode = false;
 	UPROPERTY(BlueprintReadWrite)
 		FName _FastAddInstructionName;
-	UFUNCTION(BlueprintImplementableEvent,meta=(ToolTip="Notice:This event may be fired before construct event."))
-		void OnSpectrumUpdate(const TArray<class UTexture2D*>& Spectrum);
 	//UFUNCTION(BlueprintCallable)
 		//class UImage* ConstructImageWidget();
 	UFUNCTION(BlueprintPure)
@@ -62,10 +78,6 @@ public:
 	{
 		return InstructionWidgets;
 	}
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnInstructionWidgetAdded(class UInstructionWidgetBase* InstructionWidget);
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnInstructionWidgetTimeChanged(class UInstructionWidgetBase* InstructionWidget,float LastTime,float CurrentTime);
 	UFUNCTION(BlueprintCallable)
 		void SetTimeAxis(float NewTime);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -80,18 +92,14 @@ public:
 	//Bind To Instruction Widget's onClick Event
 	//To Handle all Instruction's behavior.
 	void ClickWidget(class UInstructionWidgetBase* newClickedWidget);
-	UFUNCTION(BlueprintCallable,meta=(ToolTip="Use to handle the click(or touch) event on Panel"))
-		void OnClickHandler(float Time,float VerticleOffset);
+	UFUNCTION(BlueprintCallable,meta=(ToolTip="Use to handle the click(or touch) event on Panel\nVerticalOffset should between -1 and 1"))
+		void OnClickHandler(float Time,float VerticalOffset);
 	UFUNCTION(BlueprintPure)
 	void GetAlignBPMInfo(float& AlignOffset, float& AlignTime)
 	{
 		AlignOffset = _AlignOffset;
-		AlignTime = 60.f / _BPM / BeatDenominator;
+		AlignTime = 60.f / _BPM / _BeatDenominator;
 	}
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnInstructionSelected(class UInstructionWidgetBase* SelectedWidget);
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnInstructionDeselected(class UInstructionWidgetBase* DeselectedWidget);
 	UFUNCTION(BlueprintCallable)
 		void RemoveInstruction(class UInstructionWidgetBase* WidgetToRemove);
 	UFUNCTION(BlueprintCallable,meta=(ToolTip="Set if Next click on panel will add an instruction widget"))

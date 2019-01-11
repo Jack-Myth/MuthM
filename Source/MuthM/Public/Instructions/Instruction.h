@@ -19,6 +19,14 @@ enum class EInstructionDestroyReason :uint8
 	IDR_ExitPIE UMETA(DisplayName = "ExitPIE")
 };
 
+USTRUCT(BlueprintType)
+struct FEditorExtraInfo
+{
+	GENERATED_BODY()
+		//
+	float VerticalOffset=0;
+};
+
 /**
  * The Base UClass of all MMS Instructions
  */
@@ -37,6 +45,8 @@ protected:
 	UFUNCTION()
 		void OnTimeChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 public:
+
+	float EditorVisualVerticalOffset;
 
 	FName GetRegisterName() const;
 
@@ -61,6 +71,8 @@ public:
 	}
 	UFUNCTION(BlueprintNativeEvent)
 		void OnInstructionLoaded(FBlueprintJsonObject Args);
+	UFUNCTION(BlueprintNativeEvent)
+		void OnInstructionLoaded_EditorExtra(FEditorExtraInfo EditorExtraInfo);
 	UFUNCTION(BlueprintNativeEvent)
 		void OnPrepare();
 	UFUNCTION(BlueprintNativeEvent)

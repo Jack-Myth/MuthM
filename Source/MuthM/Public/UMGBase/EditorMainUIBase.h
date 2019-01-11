@@ -36,9 +36,6 @@ public:
 	void Init(FMusicInfo MusicInfo,TScriptInterface<class IMMScript> MMScript);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnPlaceEditorPanel(class UEditorPanelBase* EditorPanel);
-	void NativeOnFillBPMInfo(float BPM);
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnFillBPMInfo(float BPM);
 	UFUNCTION(BlueprintCallable)
 		void SetPlaySpeed(float PlaySpeed);
 	UFUNCTION(BlueprintPure)

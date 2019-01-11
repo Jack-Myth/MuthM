@@ -13,6 +13,7 @@
 #include "MuthMNativeLib.h"
 #include "Engine/Texture2D.h"
 #include "MainSWPlayer.h"
+#include "EditorPanelBase.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
@@ -27,7 +28,7 @@ void AMuthMInEditorMode::BeginPlay()
 	EditorMainUI = Cast<UEditorMainUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), EditorMainUIClass, NAME_None));
 	EditorMainUI->Init(GetMusicInfo(), _EditorMMSInstance);
 	int BPM = MuthMNativeLib::NativeDetectBPMFromPCM(PCMData, _GameMainMusic->GetSampleRate(), _GameMainMusic->GetNumChannels());
-	EditorMainUI->NativeOnFillBPMInfo(BPM);
+	EditorMainUI->GetEditorPanel()->FillBPMInfo(BPM);
 	EditorMainUI->AddToViewport(100);
 }
 
@@ -103,9 +104,9 @@ TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginT
 			{
 				//Y for Frequency
 #if !defined(PLATFORM_WINDOWS)||!PLATFORM_WINDOWS
-				MipmapData[(OutArray[0].Num() - y - 1)*AlignedWidth + x] = FMath::Clamp<int>((OutArray[0][y] + 50) * 2, 0, 255);
+				MipmapData[(OutArray[0].Num() - y - 1)*AlignedWidth + x] = FMath::IsFinite(OutArray[0][y]) ? FMath::Clamp<int>((OutArray[0][y] + 50) * 2, 0, 255) : 0.f;
 #else
-				MipmapData[(OutArray[0].Num() - y - 1)*PartResTime + x] = FMath::Clamp<int>((OutArray[0][y] + 50) * 2, 0, 255);
+				MipmapData[(OutArray[0].Num() - y - 1)*PartResTime + x] = FMath::IsFinite(OutArray[0][y]) ? FMath::Clamp<int>((OutArray[0][y] + 50) * 2, 0, 255) : 0.f;
 #endif
 			}
 		}

@@ -16,6 +16,7 @@
 #include "FileHelper.h"
 #include "Paths.h"
 #include "fmod.hpp"
+#include <algorithm>
 
 DEFINE_LOG_CATEGORY(MuthMNativeLib)
 
@@ -119,15 +120,17 @@ float MuthMNativeLib::NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32
 	//UNDONE: BeatDetektor Now have a big issue,so return 100 directly.
 	BeatDetektor m_BeatDetektor(50.f,300.f);
 	m_BeatDetektor.reset();
-	float MusicLength = int(PCMInput.Num() / SampleRate);
+	float MusicLength = int(PCMInput.Num() / sizeof(int16) / Channels / SampleRate);
 	TArray<TArray<float>> FFTValue;
-	int Sampleperframe = 2048;
-	float Secondperframe = (float)Sampleperframe / SampleRate;
+	int Sampleperframe = 1024;
+	float Secondperframe = (float)Sampleperframe / (float)SampleRate;
+	std::vector<float> stdv;
+	stdv.resize(Sampleperframe * 2);
 	for (float i = 0; i < MusicLength; i+= Secondperframe)
 	{
 		NativeCalculateFrequencySpectrum(PCMInput, SampleRate, Channels, false, i, Secondperframe, Sampleperframe, FFTValue);
-		std::vector<float> stdv;
-		stdv.assign(FFTValue[0].GetData(), FFTValue[0].GetData()+FFTValue[0].Num());
+		std::reverse_copy(FFTValue[0].GetData(), FFTValue[0].GetData() + FFTValue[0].Num(), stdv.data());
+		FMemory::Memcpy(stdv.data() + FFTValue[0].Num(), FFTValue[0].GetData(), FFTValue[0].Num());
 		m_BeatDetektor.process(i,stdv);
 	}
 	return m_BeatDetektor.win_bpm_int_lo;

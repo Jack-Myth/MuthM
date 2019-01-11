@@ -46,6 +46,9 @@ FName UInstruction::GetRegisterName() const
 	return IInstructionManager::Get(this)->GetInstructionName(GetClass());
 }
 
+void UInstruction::OnInstructionLoaded_EditorExtra_Implementation(FEditorExtraInfo EditorExtraInfo)
+{}
+
 void UInstruction::DestroySelf()
 {
 	if (AttachedScript)
