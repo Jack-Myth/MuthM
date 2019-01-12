@@ -163,8 +163,7 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	//Find the Instructions that need to be prepared.
 	for (auto it = _InstructionInstances.CreateIterator(); it; ++it)
 	{
-		//UNDONE: Find a suit way to Calculate Prepare Time.
-		if (0)
+		if ((*it)->IsInstructionReady())
 		{
 			UInstruction* TargetInstruction = *it;
 			it.RemoveCurrent();

@@ -13,7 +13,7 @@ void UInstructionWidgetBase::Init(class UInstruction* InstructionInstance)
 	_InstructionInstance = InstructionInstance;
 }
 
-float UInstructionWidgetBase::GetInstructionTime()
+float UInstructionWidgetBase::GetInstructionTime() const
 {
 	return GetInstructionInstance()->GetTime();
 }
@@ -30,6 +30,14 @@ void UInstructionWidgetBase::DestroyInstruction()
 	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	InEditorMode->GetEditorMainUI()->GetEditorPanel()->RemoveInstruction(this);
+}
+
+void UInstructionWidgetBase::SetVerticalOffset(float Offset)
+{
+	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	check(InEditorMode);
+	float HalfHeight = InEditorMode->GetEditorMainUI()->GetEditorPanel()->GetPanelHalfHeight();
+	OnVerticalOffset(Offset, HalfHeight);
 }
 
 void UInstructionWidgetBase::OnWidgetSelected_Implementation()

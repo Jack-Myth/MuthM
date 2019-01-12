@@ -23,8 +23,16 @@ protected:
 		float DefaultCheckWidthSafe = 0.4f;
 	UPROPERTY(BlueprintReadOnly)
 		float DefaultCheckWidthBad = 0.5f;
+
+	UPROPERTY(BlueprintReadWrite)
+		float SceneHalfWidth;
+	UPROPERTY(BlueprintReadWrite)
+		float Speed;
 public:
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 		bool OnBeginTouched(float X,float Y);
+	
+	virtual void OnPrepare_Implementation() override;
+	virtual bool IsInstructionReady_Implementation() const override;
 };

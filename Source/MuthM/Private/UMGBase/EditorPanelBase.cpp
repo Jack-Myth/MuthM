@@ -19,6 +19,12 @@ void UEditorPanelBase::FillBPMInfo(float BPM)
 	OnFillBPMInfo(_BPM);
 }
 
+TArray<UInstructionWidgetBase*> UEditorPanelBase::GetOrderedInstructionWidgets()
+{
+	Algo::Sort(InstructionWidgets, [](const UInstructionWidgetBase* a, const UInstructionWidgetBase* b) {return a->GetInstructionTime() < b->GetInstructionTime(); });
+	return InstructionWidgets;
+}
+
 void UEditorPanelBase::SetTimeAxis(float NewTime)
 {
 	if (NewTime == TimeAxis)
@@ -200,7 +206,7 @@ void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWid
 	DetailsBuilder->AddCategory(EditorDetails);
 	ActivedDetailsWidget = DetailsBuilder->GenDetailsWidget();
 	ActivedDetailsWidget->OnDetailsListClosed.AddUObject(this, &UEditorPanelBase::OnDetailListClosed);
-	ActivedDetailsWidget->AddToViewport(100);
+	ActivedDetailsWidget->AddToViewport(102);
 }
 
 void UEditorPanelBase::PupopTemplateDetails()

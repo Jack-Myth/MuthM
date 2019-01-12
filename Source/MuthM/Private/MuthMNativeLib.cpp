@@ -122,13 +122,31 @@ float MuthMNativeLib::NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32
 	m_BeatDetektor.reset();
 	float MusicLength = int(PCMInput.Num() / sizeof(int16) / Channels / SampleRate);
 	TArray<TArray<float>> FFTValue;
-	int Sampleperframe = 1024;
+	int Sampleperframe = 768;
 	float Secondperframe = (float)Sampleperframe / (float)SampleRate;
 	std::vector<float> stdv;
 	stdv.resize(Sampleperframe * 2);
 	for (float i = 0; i < MusicLength; i+= Secondperframe)
 	{
 		NativeCalculateFrequencySpectrum(PCMInput, SampleRate, Channels, false, i, Secondperframe, Sampleperframe, FFTValue);
+		bool abandon = true;
+		for (int k = 0; k < 64; k++)
+		{
+			if (FMath::IsFinite(FFTValue[0][k]))
+			{
+				abandon = false;
+				break;
+			}
+		}
+		if (abandon)
+		{
+			FMemory::Memzero(stdv.data(), stdv.size());
+		}
+		else
+		{
+			FMemory::Memcpy(stdv.data(), FFTValue[0].GetData(), FFTValue[0].Num());
+			std::reverse_copy(FFTValue[0].GetData(), FFTValue[0].GetData() + FFTValue[0].Num(), stdv.data() + FFTValue[0].Num());
+		}
 		std::reverse_copy(FFTValue[0].GetData(), FFTValue[0].GetData() + FFTValue[0].Num(), stdv.data());
 		FMemory::Memcpy(stdv.data() + FFTValue[0].Num(), FFTValue[0].GetData(), FFTValue[0].Num());
 		m_BeatDetektor.process(i,stdv);

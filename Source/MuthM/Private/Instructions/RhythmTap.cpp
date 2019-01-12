@@ -12,6 +12,7 @@
 #include "MuthMInGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "ScoreCore.h"
+#include "InstructionWidgetBase.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -20,6 +21,8 @@ void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance
 	if (PropertyName=="LROffset")
 	{
 		LROffset = NumberValue;
+		if (_CachedInstructionWidget)
+			_CachedInstructionWidget->SetVerticalOffset(LROffset);
 	}
 	else if (PropertyName=="Width")
 	{
@@ -52,10 +55,14 @@ void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 		MaxScore = 100;
 }
 
+void URhythmTap::OnInstructionLoaded_EditorExtra_Implementation(FEditorExtraInfo EditorExtraInfo)
+{
+	LROffset = EditorExtraInfo.VerticalOffset;
+}
+
 void URhythmTap::OnPrepare_Implementation()
 {
-	//Super::OnPrepare_Implementation();
-	SceneHalfWidth = GetGlobalNumberData("_MUTHM_3DDROP_SCENE_WIDTH") / 2.f;  //Convert to Half
+	Super::OnPrepare_Implementation();
 	CheckWidthScale = GetGlobalNumberData("_MUTHM_3DDROP_CHECK_WIDTH_SCALE");
 	CheckWidthScale = CheckWidthScale == 0 ? 1.f : CheckWidthScale; //Reset if Scale not exist.
 	UStaticMesh* PlaneMesh = LoadObject<UStaticMesh>(nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
@@ -65,7 +72,6 @@ void URhythmTap::OnPrepare_Implementation()
 	RhythmObj->GetStaticMeshComponent()->SetMaterial(0, RhythmTapMatDynamic);
 	RhythmObj->SetActorScale3D(FVector(Width*SceneHalfWidth / 50, 1, 1));
 	RhythmObj->SetActorEnableCollision(false);
-	Speed = GetGlobalNumberData("_MMSpeed");
 	if (!Speed)
 		Speed = 1000;
 }

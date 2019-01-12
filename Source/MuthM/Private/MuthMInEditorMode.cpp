@@ -32,7 +32,7 @@ void AMuthMInEditorMode::BeginPlay()
 	EditorMainUI->AddToViewport(100);
 }
 
-void AMuthMInEditorMode::EnterPIE(float BeginTime)
+void AMuthMInEditorMode::EnterPIE()
 {
 	//TODO: Enter PIE
 	SetMusicPlaySpeed(1); //Reset Music play speed

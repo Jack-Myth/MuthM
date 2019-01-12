@@ -46,6 +46,11 @@ FName UInstruction::GetRegisterName() const
 	return IInstructionManager::Get(this)->GetInstructionName(GetClass());
 }
 
+bool UInstruction::IsInstructionReady_Implementation() const
+{
+	return false;
+}
+
 void UInstruction::OnInstructionLoaded_EditorExtra_Implementation(FEditorExtraInfo EditorExtraInfo)
 {}
 
@@ -96,7 +101,8 @@ void UInstruction::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface
 class UInstructionWidgetBase* UInstruction::GenInstructionWidget_Implementation()
 {
 	auto InstructionWidgetClass = UUIProvider::Get(this)->GetInstructionWidget();
-	return Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));
+	_CachedInstructionWidget = Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));;
+	return _CachedInstructionWidget;
 }
 
 #undef LOCTEXT_NAMESPACE

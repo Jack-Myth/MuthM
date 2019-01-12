@@ -52,23 +52,22 @@ void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 	
 	float range_step = (fft_data.size()/(float)BD_DETECTION_RANGES);
 	unsigned int range = 0;
-	unsigned int i,x;
-	float v,k;
+	//unsigned int i,x;
+	float v;
 	
 	float bpm_floor = 60.0/BPM_MAX;
 	float bpm_ceil = 60.0/BPM_MIN;
 	
 	if (current_bpm != current_bpm) current_bpm = 0;
 	
-	for (k =0; k<fft_data.size(); k +=range_step)
+	for (float x =0; x<fft_data.size(); x +=range_step)
 	{
-		x = (unsigned int)k;
 		if (!src)
 		{
 			a_freq_range[range] = 0;
 			
 			// accumulate frequency values for this range
-			for (i = x; i<x+range_step; i++)
+			for (int i = x; i<x+range_step; i++)
 			{
 				v = fabs(fft_data[i]);
 				a_freq_range[range] += v;
@@ -120,7 +119,7 @@ void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 			{		
 				// compute gap and award quality
 				
-				for (i = 0; i < REWARD_VALS; i++)
+				for (int i = 0; i < REWARD_VALS; i++)
 				{
 					if (fabs(ma_bpm_range[range]-trigger_gap) < ma_bpm_range[range]*reward_tolerances[i])
 					{
@@ -145,7 +144,7 @@ void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 				// test for 2* beat
 				trigger_gap /= 2.0;
 				// && fabs((60.0/trigger_gap)-(60.0/ma_bpm_range[range])) < 50.0
-				if (trigger_gap < bpm_ceil && trigger_gap > (bpm_floor)) for (i = 0; i < REWARD_VALS; i++)
+				if (trigger_gap < bpm_ceil && trigger_gap > (bpm_floor)) for (int i = 0; i < REWARD_VALS; i++)
 				{
 					if (fabs(ma_bpm_range[range]-trigger_gap) < ma_bpm_range[range]*reward_tolerances[i])
 					{
@@ -220,7 +219,7 @@ void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 	
 	
 	// accumulate quality weight total
-	for (x=0; x<BD_DETECTION_RANGES; x++)
+	for (int x=0; x<BD_DETECTION_RANGES; x++)
 	{
 		quality_total += detection_quality[x];
 	}
@@ -244,7 +243,7 @@ void BeatDetektor::process(float timer_seconds, std::vector<float> &fft_data)
 	std::map<int,float> fract_draft;
 	
 	{
-		for (x=0; x<BD_DETECTION_RANGES; x++)
+		for (int x=0; x<BD_DETECTION_RANGES; x++)
 		{
 			// if this detection range weight*tolerance is higher than the average weight then add it's moving average contribution 
 			if (detection_quality[x]*BD_QUALITY_TOLERANCE >= ma_quality_avg)

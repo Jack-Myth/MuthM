@@ -20,10 +20,8 @@ protected:
 	float LROffset;
 	class AStaticMeshActor* RhythmObj;
 	FLinearColor RhythmColor;
-	float Speed;
 	UMaterialInstanceDynamic* RhythmTapMatDynamic;
 	float Width=0.2;
-	float SceneHalfWidth;
 	class UParticleSystem* TapEffect=nullptr;
 	float CheckWidthScale=1.f;
 	float MaxScore = 100;
@@ -31,7 +29,7 @@ protected:
 		void OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 public:
 	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
-
+	virtual void OnInstructionLoaded_EditorExtra_Implementation(FEditorExtraInfo EditorExtraInfo) override;
 	virtual void OnPrepare_Implementation() override;
 	virtual void OnTick_Implementation(float CurrentTime) override;
 	UFUNCTION(BlueprintNativeEvent)

@@ -17,10 +17,7 @@ class MUTHM_API UEditorMainUIBase : public UUserWidget
 
 	class UEditorPanelBase* _EditorPanel;
 public:
-	UFUNCTION(BlueprintCallable)
-		void UIEnterPIE();
-	UFUNCTION(BlueprintCallable)
-		void UIExitPIE();
+
 	UFUNCTION(BlueprintCallable)
 		void PlayMusic();
 	UFUNCTION(BlueprintCallable)
@@ -39,7 +36,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetPlaySpeed(float PlaySpeed);
 	UFUNCTION(BlueprintPure)
-		class UEditorPanelBase* GetEditorPanel()
+		class UEditorPanelBase* GetEditorPanel() const 
 	{
 		return _EditorPanel;
 	}

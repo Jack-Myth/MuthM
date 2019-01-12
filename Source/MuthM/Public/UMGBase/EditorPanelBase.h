@@ -78,6 +78,9 @@ public:
 	{
 		return InstructionWidgets;
 	}
+
+	UFUNCTION(BlueprintCallable)
+		TArray<UInstructionWidgetBase*> GetOrderedInstructionWidgets();
 	UFUNCTION(BlueprintCallable)
 		void SetTimeAxis(float NewTime);
 	UFUNCTION(BlueprintImplementableEvent)
@@ -119,6 +122,8 @@ public:
 		void OnMusicProcessCallback(float Current, float Duration);
 	UFUNCTION(BlueprintCallable)
 		void SetInstructionTemplateByName(FName TemplateInstructionName);
+	UFUNCTION(BlueprintImplementableEvent,BlueprintPure)
+		float GetPanelHalfHeight() const;
 protected:
 	virtual void NativeConstruct() override;
 

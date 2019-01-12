@@ -44,21 +44,27 @@ class MUTHM_API UInstruction:public UObject,public IHasDetails
 protected:
 	UFUNCTION()
 		void OnTimeChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
+	UPROPERTY(BlueprintReadOnly)
+		class UInstructionWidgetBase* _CachedInstructionWidget=nullptr;
 public:
 
 	float EditorVisualVerticalOffset;
 
-	FName GetRegisterName() const;
+	UFUNCTION(BlueprintPure)
+		FName GetRegisterName() const;
 
 	void AttachScript(TScriptInterface<class IMMScript> TargetScript)
 	{
 		AttachedScript = TargetScript;
 	}
 	UFUNCTION(BlueprintGetter)
-		TScriptInterface<class IMMScript> GetScript()
+		TScriptInterface<class IMMScript> GetScript() const
 	{
 		return AttachedScript;
 	}
+
+	UFUNCTION(BlueprintNativeEvent)
+		bool IsInstructionReady() const;
 	UFUNCTION(BlueprintGetter)
 		FORCEINLINE float GetTime() const
 	{

@@ -16,15 +16,18 @@ class MUTHM_API UInstructionWidgetBase : public UUserWidget
 
 	UPROPERTY()
 	class UInstruction* _InstructionInstance;
+protected:
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnVerticalOffset(float Offset, float PanelHalfHeight);
 public:
 	void Init(class UInstruction* InstructionInstance);
 	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UInstruction* GetInstructionInstance()
+		FORCEINLINE class UInstruction* GetInstructionInstance() const
 	{
 		return _InstructionInstance;
 	}
 	UFUNCTION(BlueprintPure)
-		float GetInstructionTime();
+		float GetInstructionTime() const;
 	UFUNCTION(BlueprintCallable)
 		void ClickEventHandler();
 	UFUNCTION(BlueprintNativeEvent,meta=(ToolTip="Native Implementation is to show the Detail."))
@@ -35,4 +38,6 @@ public:
 		void OnTwikleWidget();
 	UFUNCTION(BlueprintCallable)
 		void DestroyInstruction();
+	UFUNCTION(BlueprintCallable)
+		void SetVerticalOffset(float Offset);
 };

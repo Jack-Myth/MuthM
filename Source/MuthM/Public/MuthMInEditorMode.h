@@ -31,14 +31,14 @@ public:
 		FOnSwitchPIE OnEnterPIE;
 	UPROPERTY(BlueprintAssignable)
 		FOnSwitchPIE OnExitPIE;
-	UFUNCTION(BlueprintCallable, meta = (ToolTip = "For EditorMainUI,recommend to use UIEnterPIE() instead."))
-		void EnterPIE(float BeginTime);
-	UFUNCTION(BlueprintCallable, meta = (ToolTip = "For EditorMainUI,recommend to use UIExitPIE() instead."))
+	UFUNCTION(BlueprintCallable)
+		void EnterPIE();
+	UFUNCTION(BlueprintCallable)
 		void ExitPIE();
 	void PlayMusicOnly(float BeginTime);
 	void PauseMusicOnly();
-	UFUNCTION(BlueprintCallable)
-	class UEditorMainUIBase* GetEditorMainUI()
+	UFUNCTION(BlueprintPure)
+	class UEditorMainUIBase* GetEditorMainUI() const
 	{
 		return EditorMainUI;
 	}
