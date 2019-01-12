@@ -47,6 +47,14 @@ void AMuthMInEditorMode::ExitPIE()
 	OnExitPIE.Broadcast();
 }
 
+void AMuthMInEditorMode::Save()
+{
+	TArray<uint8> MMSData = _EditorMMSInstance->SerializeToData();
+	_pMDAT->RemoveFile(_MMSFileName);
+	_pMDAT->AddFile(_MMSFileName, MMSData);
+	_pMDAT->Save();
+}
+
 void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
 {
 	_MainSoundComponent->SetPaused(true);

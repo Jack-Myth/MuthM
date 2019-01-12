@@ -48,6 +48,7 @@ protected:
 	UPROPERTY()
 		class UScoreCore* _ScoreCore;
 	float _GameTime = 0;
+	FString _MMSFileName;
 	//The two cached variable is prepared for RestartGame.
 	FMusicInfo _CachedMusicInfo;
 	TArray<uint8> _CachedMMSData;
@@ -83,14 +84,12 @@ public:
 	{
 		return _CachedMusicInfo;
 	}
-	void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData,float BeginTime);
-	FORCEINLINE void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
-	{
-		StartGame(MusicInfo, MMSData, 0);
-	}
+	void StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData);
 	virtual void PauseGame() override;
 	virtual void ResumeGame() override;
 	void RestartGame();
+
+	//Unload All Map, and Call delegate.
 	void StopGame();
 	virtual void NativeOnGameEnded(FGameEndReason GameEndReason);
 	UFUNCTION(BlueprintPure)

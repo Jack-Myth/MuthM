@@ -38,7 +38,7 @@ void AMuthMInGameMode::OnMusicPositionCallback(TScriptInterface<IMainSoundWave> 
 	OnMusicPlaybackTimeUpdate.Broadcast(MainSoundWave->GetSoundDuration()*PlaybackPercent, _GameMainMusic->GetSoundDuration());
 }
 
-void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData, float BeginTime)
+void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 {
 	_CachedMMSData = MMSData;
 	_MainMMSInstance->LoadFromData(MMSData);
@@ -100,7 +100,7 @@ void AMuthMInGameMode::RestartGame()
 	StartGame(_CachedMusicInfo, _CachedMMSData);
 }
 
-void AMuthMInGameMode::StopGame()
+void AMuthMInGameMode::StopGame() 
 {
 	PrimaryActorTick.SetTickFunctionEnable(false);
 	_MainMMSInstance->Destroy();
@@ -160,6 +160,7 @@ void AMuthMInGameMode::BeginPlay()
 	MusicCallback.BindUFunction(this, "OnMusicPositionCallback");
 	_MainSoundComponent->AddOnPlaybackPercent(MusicCallback);
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
+	_MMSFileName = ExchangedGameArgs.MMSFileName;
 	if (!this->IsA<AMuthMInEditorMode>())
 		StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
 }

@@ -35,6 +35,8 @@ public:
 		void EnterPIE();
 	UFUNCTION(BlueprintCallable)
 		void ExitPIE();
+	UFUNCTION(BlueprintCallable)
+		void Save();
 	void PlayMusicOnly(float BeginTime);
 	void PauseMusicOnly();
 	UFUNCTION(BlueprintPure)
