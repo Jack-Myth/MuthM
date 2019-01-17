@@ -2,7 +2,7 @@
 
 #include "PauseUIBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "MuthMInGameMode.h"
+#include "InGameMode.h"
 
 bool UPauseUIBase::OnGameResumed_Implementation()
 {
@@ -17,13 +17,16 @@ void UPauseUIBase::Resume()
 
 void UPauseUIBase::Restart()
 {
-	AMuthMInGameMode* InGameMode;
-	InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
+	AInGameMode* InGameMode;
+	InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 	if (InGameMode)
 		InGameMode->RestartGame();
 }
 
 void UPauseUIBase::BackToMenu()
 {
-	//UNDONE:BackToMenu() Maybe it's need some delay?
+	AInGameMode* InGameMode;
+	InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+	if (InGameMode)
+		InGameMode->ReturnToMainMenu();
 }

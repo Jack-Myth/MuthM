@@ -8,7 +8,7 @@
 #include "JsonSerializer.h"
 #include "InstructionManager.h"
 #include "Kismet/GameplayStatics.h"
-#include "MuthMInEditorMode.h"
+#include "InEditorMode.h"
 #include "JsonSerializerMacros.h"
 #include "JsonWriter.h"
 #include "Score/ScoreInfo.h"
@@ -292,7 +292,7 @@ TArray<UInstruction *> UMMScriptImpl::GetAllPreparedInstructionByType(TSubclassO
 
 float UMMScriptImpl::GetGameTime() const
 {
-	auto* InGameEditor = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
+	auto* InGameEditor = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 	return InGameEditor->GetGameTime();
 }
 

@@ -1,11 +1,11 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
 #include "EditorPanelBase.h"
-#include "MuthMInEditorMode.h"
+#include "InEditorMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "InstructionWidgetBase.h"
 #include "InstructionManager.h"
-#include "MuthMInGameMode.h"
+#include "InGameMode.h"
 #include "DetailsListBase.h"
 #include "HttpModule.h"
 #include "Interfaces/IHttpRequest.h"
@@ -111,7 +111,7 @@ void UEditorPanelBase::AddInstructionAtTime(float Time,float VerticalOffset)
 {
 	if (!::IsValid(InstructionTemplate))
 		return;
-	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	FBlueprintJsonObject BpJsonObj;
 	BpJsonObj = InstructionTemplate->GenArgsJsonObject();
@@ -149,7 +149,7 @@ void UEditorPanelBase::RemoveInstruction(class UInstructionWidgetBase* WidgetToR
 	if (InstructionWidgets.Remove(WidgetToRemove))
 	{
 		WidgetToRemove->RemoveFromParent();
-		auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+		auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 		InEditorMode->GetEditorMMS()->RemoveInstruction(WidgetToRemove->GetInstructionInstance(), EInstructionDestroyReason::IDR_Editing);
 	}
 }
@@ -165,7 +165,7 @@ void UEditorPanelBase::DeleteCurrentInstruction()
 
 float UEditorPanelBase::GetMusicLength()
 {
-	return Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this))->GetGameMainMusic()->GetSoundDuration();
+	return Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this))->GetGameMainMusic()->GetSoundDuration();
 }
 
 void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWidgetBase)
@@ -244,7 +244,7 @@ void UEditorPanelBase::NativeConstruct()
 {
 	Super::NativeConstruct();
 	//4 minutes music will be 24000x128,UINT A8,use 3MB mem.
-	auto* EditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	auto* EditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	_SpectrumTexture = EditorMode->DrawMainMusicSpectrum(0,GetMusicLength(),GetMusicLength() * 100, 128);
 	OnSpectrumUpdate(_SpectrumTexture);
 	EditorMode->OnMusicPlaybackTimeUpdate.AddDynamic(this, &UEditorPanelBase::OnMusicProcessCallback);

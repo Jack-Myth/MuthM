@@ -4,6 +4,6 @@
 #include "MuthMTypeHelper.h"
 #include "FileHelper.h"
 #include "Kismet/GameplayStatics.h"
-#include "MuthMInGameMode.h"
+#include "InGameMode.h"
 
 DEFINE_LOG_CATEGORY(MMScript)

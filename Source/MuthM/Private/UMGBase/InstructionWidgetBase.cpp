@@ -3,7 +3,7 @@
 #include "InstructionWidgetBase.h"
 #include "Instruction.h"
 #include "DetailsBuilder.h"
-#include "MuthMInEditorMode.h"
+#include "InEditorMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "EditorMainUIBase.h"
 #include "EditorPanelBase.h"
@@ -20,21 +20,21 @@ float UInstructionWidgetBase::GetInstructionTime() const
 
 void UInstructionWidgetBase::ClickEventHandler()
 {
-	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	InEditorMode->GetEditorMainUI()->GetEditorPanel()->ClickWidget(this);
 }
 
 void UInstructionWidgetBase::DestroyInstruction()
 {
-	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	InEditorMode->GetEditorMainUI()->GetEditorPanel()->RemoveInstruction(this);
 }
 
 void UInstructionWidgetBase::SetVerticalOffset(float Offset)
 {
-	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	float HalfHeight = InEditorMode->GetEditorMainUI()->GetEditorPanel()->GetPanelHalfHeight();
 	OnVerticalOffset(Offset, HalfHeight);
@@ -42,7 +42,7 @@ void UInstructionWidgetBase::SetVerticalOffset(float Offset)
 
 void UInstructionWidgetBase::OnWidgetSelected_Implementation()
 {
-	auto* InEditorMode = Cast<AMuthMInEditorMode>(UGameplayStatics::GetGameMode(this));
+	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	InEditorMode->GetEditorMainUI()->GetEditorPanel()->PupopDetails(this);
 }

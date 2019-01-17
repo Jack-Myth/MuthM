@@ -2,7 +2,7 @@
 
 #include "MuthMBPLib.h"
 #include "Kismet/GameplayStatics.h"
-#include "MuthMInGameMode.h"
+#include "InGameMode.h"
 #include "MuthMType.h"
 #include "Engine/Texture2D.h"
 #include "IImageWrapperModule.h"
@@ -68,7 +68,7 @@ TScriptInterface<class IUserManager> UMuthMBPLib::GetUserManager(const UObject* 
 
 class UTexture2D* UMuthMBPLib::LoadTextureInGame(UObject* WorldContextObj, FString FileName)
 {
-	auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(WorldContextObj));
+	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(WorldContextObj));
 	if (IsValid(InGameMode))
 	{
 		TSharedPtr<FMDATFile> _MDAT = InGameMode->GetMDAT();

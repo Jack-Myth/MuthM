@@ -8,6 +8,9 @@
 #include "InstructionManager.h"
 #include "RhythmTap.h"
 #include "LoadScene.h"
+#include "Engine/Engine.h"
+
+DEFINE_LOG_CATEGORY(MuthMGameInstance);
 
 UMuthMGameInstance::UMuthMGameInstance()
 {
@@ -94,6 +97,8 @@ void UMuthMGameInstance::SaveGlobalSaveGame()
 void UMuthMGameInstance::Init()
 {
 	//Initialize the whole game.
+	//Cache GameWorldContext
+	GameWorldContext = WorldContext;
 
 	//Register Instructions
 	auto InstructionManager = IInstructionManager::Get(this);
@@ -105,4 +110,28 @@ void UMuthMGameInstance::Init()
 	int InstructionRefIndex = 0;
 	for (auto it=InstructionClasses.CreateIterator();it;++it)
 		InstructionManager->RegisterInstruction(it->Key, it->Value, CachedInstructionRef[InstructionRefIndex++]);
+}
+
+void UMuthMGameInstance::EnterPIEMode(class UWorld* PIEWorld)
+{
+	if (WorldContext==PIEWorldContext)
+	{
+		UE_LOG(MuthMGameInstance, Error, TEXT("GameInstance already in PIE Mode!"));
+		return;
+	}
+	PIEWorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
+	if (!PIEWorldContext)
+	{
+		//Create new WorldContext
+		FWorldContext& newWorldContext = GEngine->CreateNewWorldContext(EWorldType::Game);
+		newWorldContext.SetCurrentWorld(PIEWorld);
+		PIEWorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
+	}
+	WorldContext = PIEWorldContext;
+}
+
+void UMuthMGameInstance::ExitPIEMode()
+{
+	WorldContext = GameWorldContext;
+	PIEWorldContext = nullptr;
 }

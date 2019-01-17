@@ -6,12 +6,12 @@
 #include "MuthMGameModeBase.h"
 #include "MMScript.h"
 #include "MusicManager.h"
-#include "MuthMInGameMode.generated.h"
+#include "InGameMode.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMInGameMode, Log, All);
 
 UENUM(BlueprintType)
-enum class FGameEndReason :uint8
+enum class EGameEndReason :uint8
 {
 	GER_GameFinished	UMETA(DisplayName="GameFinished"),
 	GER_Restart			UMETA(DisplayName="Restart"),
@@ -20,13 +20,13 @@ enum class FGameEndReason :uint8
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnMusicPlaybackTimeUpdate, float,CurrentTime, float,Duration);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEnded, FGameEndReason, EndReason);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameEnded, EGameEndReason, EndReason);
 
 /**
  * 
  */
 UCLASS()
-class MUTHM_API AMuthMInGameMode : public AMuthMGameModeBase
+class MUTHM_API AInGameMode : public AMuthMGameModeBase
 {
 	GENERATED_BODY()
 
@@ -45,8 +45,6 @@ protected:
 		class UPauseUIBase* pPauseUI=nullptr;
 	UPROPERTY()
 		class UGameUIBase* _MainGameUI;
-	UPROPERTY()
-		class UScoreCore* _ScoreCore;
 	float _GameTime = 0;
 	FString _MMSFileName;
 	//The two cached variable is prepared for RestartGame.
@@ -69,13 +67,7 @@ public:
 		FOnGameEnded OnGameEnded;
 	UPROPERTY(BlueprintReadWrite)
 		TMap<FName, float> GlobalDataNumber; 
-	AMuthMInGameMode();
-	//GetScoreCore
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE class UScoreCore* GetScoreCore()
-	{
-		return _ScoreCore;
-	}
+	AInGameMode();
 	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
 	{
 		return _pMDAT;
@@ -91,7 +83,7 @@ public:
 
 	//Unload All Map, and Call delegate.
 	void StopGame();
-	virtual void NativeOnGameEnded(FGameEndReason GameEndReason);
+	virtual void NativeOnGameEnded(EGameEndReason GameEndReason);
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE TScriptInterface<class IMainSoundWave> GetGameMainMusic()
 	{

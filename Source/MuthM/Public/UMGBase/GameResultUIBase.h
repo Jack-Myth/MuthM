@@ -14,11 +14,11 @@ class MUTHM_API UGameResultUIBase : public UUserWidget
 {
 	GENERATED_BODY()
 
-	class UScoreCore* _ScoreSource;
+	class AInGameState* _ScoreSource;
 public:
 	void Init();
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnFillScoreInfo(class UScoreCore* ScoreSource);
+		void OnFillScoreInfo(class AInGameState* ScoreSource);
 	UFUNCTION(BlueprintCallable)
 		void UIReturnToMainMenu();
 	UFUNCTION(BlueprintCallable)

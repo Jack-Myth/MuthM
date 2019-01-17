@@ -4,7 +4,7 @@
 #include "MMScript.h"
 #include "UIProvider.h"
 #include "InstructionWidgetBase.h"
-#include "MuthMInGameMode.h"
+#include "InGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "JsonObject.h"
 #include "DetailStructures.h"
@@ -69,13 +69,13 @@ void UInstruction::DestroySelf()
 
 float UInstruction::GetGlobalNumberData(FName Key) const
 {
-	auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
+	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 	return InGameMode->GlobalDataNumber.FindRef(Key);
 }
 
 void UInstruction::SetGlobalNumberData(FName Key, float Value)
 {
-	auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
+	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 	InGameMode->GlobalDataNumber.FindOrAdd(Key) = Value;
 }
 

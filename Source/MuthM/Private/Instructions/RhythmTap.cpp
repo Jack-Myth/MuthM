@@ -9,9 +9,9 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Components/BoxComponent.h"
 #include "MMScript.h"
-#include "MuthMInGameMode.h"
+#include "InGameMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "ScoreCore.h"
+#include "InGameState.h"
 #include "InstructionWidgetBase.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
@@ -84,8 +84,8 @@ void URhythmTap::OnTick_Implementation(float CurrentTime)
 	else if (CurrentTime - GetTime() > CheckWidthScale*DefaultCheckWidthBad)
 	{
 		//Player Missed.
-		auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
-		auto* ScoreCore = InGameMode->GetScoreCore();
+		auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+		auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 		ScoreCore->BreakCombo();
 		ScoreCore->SubmitGrade(EScoreGrade::SG_Miss);
 		RhythmObj->Destroy();
@@ -107,8 +107,8 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 		if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthPerfect)
 		{
 			//Perfect
-			auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
-			auto* ScoreCore = InGameMode->GetScoreCore();
+			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Perfect);
@@ -117,8 +117,8 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthGreat)
 		{
 			//Great
-			auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
-			auto* ScoreCore = InGameMode->GetScoreCore();
+			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore*0.80f);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Great);
@@ -127,8 +127,8 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthSafe)
 		{
 			//Safe
-			auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
-			auto* ScoreCore = InGameMode->GetScoreCore();
+			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore*0.50f);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Miss);
@@ -137,8 +137,8 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) <= CheckWidthScale*DefaultCheckWidthBad)
 		{
 			//Bad
-			auto* InGameMode = Cast<AMuthMInGameMode>(UGameplayStatics::GetGameMode(this));
-			auto* ScoreCore = InGameMode->GetScoreCore();
+			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore*0.30f);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Bad);

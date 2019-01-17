@@ -1,6 +1,6 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
-#include "MuthMInGameMode.h"
+#include "InGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "MuthMGameInstance.h"
 #include "InstructionManager.h"
@@ -15,30 +15,30 @@
 #include "CanvasItem.h"
 #include "Engine/Canvas.h"
 #include "UserWidget.h"
-#include "Score/ScoreCore.h"
+#include "Score/InGameState.h"
 #include "MainSoundWave.h"
 #include "MuthMBPLib.h"
 #include "GameUIBase.h"
 #include "GameResultUIBase.h"
 #include "MuthMNativeLib.h"
-#include "MuthMInEditorMode.h"
+#include "InEditorMode.h"
 #include "fmod.hpp"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
-AMuthMInGameMode::AMuthMInGameMode()
+AInGameMode::AInGameMode()
 {
-	_ScoreCore = CreateDefaultSubobject<UScoreCore>("_ScoreCore");
+	GameStateClass = AInGameState::StaticClass();
 	PrimaryActorTick.bCanEverTick = true;
 	//NOTE: Maybe It's need to Attach to GameMode?
 }
 
-void AMuthMInGameMode::OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainSoundWave, float PlaybackPercent)
+void AInGameMode::OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainSoundWave, float PlaybackPercent)
 {
 	OnMusicPlaybackTimeUpdate.Broadcast(MainSoundWave->GetSoundDuration()*PlaybackPercent, _GameMainMusic->GetSoundDuration());
 }
 
-void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
+void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 {
 	_CachedMMSData = MMSData;
 	_MainMMSInstance->LoadFromData(MMSData);
@@ -69,7 +69,7 @@ void AMuthMInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSD
 	SetActorTickEnabled(true);
 }
 
-void AMuthMInGameMode::PauseGame()
+void AInGameMode::PauseGame()
 {
 	UGameplayStatics::SetGamePaused(this, true);
 	//Prevent to construct duplicated widget.
@@ -87,20 +87,20 @@ void AMuthMInGameMode::PauseGame()
 		pPauseUI->OnGamePaused();
 }
 
-void AMuthMInGameMode::ResumeGame()
+void AInGameMode::ResumeGame()
 {
 	UGameplayStatics::SetGamePaused(this, false);
 	if (pPauseUI->OnGameResumed())
 		pPauseUI = nullptr;
 }
 
-void AMuthMInGameMode::RestartGame()
+void AInGameMode::RestartGame()
 {
 	StopGame();
 	StartGame(_CachedMusicInfo, _CachedMMSData);
 }
 
-void AMuthMInGameMode::StopGame() 
+void AInGameMode::StopGame() 
 {
 	PrimaryActorTick.SetTickFunctionEnable(false);
 	_MainMMSInstance->Destroy();
@@ -110,11 +110,11 @@ void AMuthMInGameMode::StopGame()
 		GetWorld()->GetTimerManager().ClearTimer(DelayTimerHandle);
 }
 
-void AMuthMInGameMode::NativeOnGameEnded(FGameEndReason GameEndReason)
+void AInGameMode::NativeOnGameEnded(EGameEndReason GameEndReason)
 {
 	switch (GameEndReason)
 	{
-		case FGameEndReason::GER_GameFinished:
+		case EGameEndReason::GER_GameFinished:
 			{
 				StopGame();
 				ShowGameResult();
@@ -124,22 +124,23 @@ void AMuthMInGameMode::NativeOnGameEnded(FGameEndReason GameEndReason)
 	OnGameEnded.Broadcast(GameEndReason);
 }
 
-void AMuthMInGameMode::ShowGameResult()
+void AInGameMode::ShowGameResult()
 {
-	GetScoreCore()->SaveScoreRecord();
+	auto* InGameState = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
+	if (InGameState)
+		InGameState->SaveScoreRecord();
 	auto GameResultUIClass = UUIProvider::Get(this)->GetGameResultUI();
 	auto* GameResultUI = Cast<UGameResultUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameResultUIClass, NAME_None));
 	GameResultUI->Init();
 	GameResultUI->AddToViewport(120);
 }
 
-void AMuthMInGameMode::ReturnToMainMenu()
+void AInGameMode::ReturnToMainMenu()
 {
-	//UNDONE: Return To Main Menu()
-	//The Level switch is still a problem
+	NativeOnGameEnded(EGameEndReason::GER_Return);
 }
 
-void AMuthMInGameMode::BeginPlay()
+void AInGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 	//TODO:Get Property From GameInstance etc.
@@ -161,6 +162,6 @@ void AMuthMInGameMode::BeginPlay()
 	_MainSoundComponent->AddOnPlaybackPercent(MusicCallback);
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MMSFileName = ExchangedGameArgs.MMSFileName;
-	if (!this->IsA<AMuthMInEditorMode>())
+	if (!this->IsA<AInEditorMode>())
 		StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
 }

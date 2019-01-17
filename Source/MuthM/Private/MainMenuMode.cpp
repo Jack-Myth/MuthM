@@ -1,6 +1,6 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
-#include "MuthMMainMenuMode.h"
+#include "MainMenuMode.h"
 #include "UIProvider.h"
 #include "WelcomeUIBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,14 +9,14 @@
 #include "MusicManager.h"
 #include "MuthMType.h"
 
-void AMuthMMainMenuMode::LoadWelcome()
+void AMainMenuMode::LoadWelcome()
 {
 	auto WelcomeUIClass = UUIProvider::Get(this)->GetWelcomeUI();
 	auto* WelcomeUI = Cast<UWelcomeUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), WelcomeUIClass, NAME_None));
 	WelcomeUI->AddToViewport();
 }
 
-void AMuthMMainMenuMode::OnGameScoreSelected(FScoreSelectionInfo ScoreSelectionInfo)
+void AMainMenuMode::OnGameScoreSelected(FScoreSelectionInfo ScoreSelectionInfo)
 {
 	//Fill GameArg for GameInstance
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
@@ -33,7 +33,7 @@ void AMuthMMainMenuMode::OnGameScoreSelected(FScoreSelectionInfo ScoreSelectionI
 	GameInstance->FillGameArgs(newGameArgs);
 }
 
-void AMuthMMainMenuMode::OnEditorScoreSelected(FScoreSelectionInfo ScoreSelectionInfo)
+void AMainMenuMode::OnEditorScoreSelected(FScoreSelectionInfo ScoreSelectionInfo)
 {
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	FGameArgs newGameArgs;
@@ -49,12 +49,12 @@ void AMuthMMainMenuMode::OnEditorScoreSelected(FScoreSelectionInfo ScoreSelectio
 	GameInstance->FillGameArgs(newGameArgs);
 }
 
-void AMuthMMainMenuMode::OnScoreSelectionCanceled()
+void AMainMenuMode::OnScoreSelectionCanceled()
 {
 	//TODO: Clear Game Args,no use for now.
 }
 
-void AMuthMMainMenuMode::BeginPlay()
+void AMainMenuMode::BeginPlay()
 {
 	UGameplayStatics::GetPlayerController(this, 0)->bShowMouseCursor=true;
 	auto* GameInstance =  Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
@@ -77,23 +77,23 @@ void AMuthMMainMenuMode::BeginPlay()
 	}
 }
 
-class UScoreSelectionUIBase* AMuthMMainMenuMode::SelectGameScore()
+class UScoreSelectionUIBase* AMainMenuMode::SelectGameScore()
 {
 	auto ScoreSelectionUIClass = UUIProvider::Get(this)->GetScoreSelectionUI();
 	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, NAME_None));
-	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMuthMMainMenuMode::OnGameScoreSelected);
-	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMuthMMainMenuMode::OnScoreSelectionCanceled);
+	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMainMenuMode::OnGameScoreSelected);
+	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMainMenuMode::OnScoreSelectionCanceled);
 	ScoreSelectionUI->AddToViewport(101);
 	return ScoreSelectionUI;
 	//TODO:Bind Delegate.
 }
 
-class UScoreSelectionUIBase* AMuthMMainMenuMode::SelectEditorScore()
+class UScoreSelectionUIBase* AMainMenuMode::SelectEditorScore()
 {
 	auto ScoreSelectionUIClass = UUIProvider::Get(this)->GetScoreSelectionUI();
 	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, NAME_None));
-	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMuthMMainMenuMode::OnEditorScoreSelected);
-	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMuthMMainMenuMode::OnScoreSelectionCanceled);
+	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMainMenuMode::OnEditorScoreSelected);
+	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMainMenuMode::OnScoreSelectionCanceled);
 	ScoreSelectionUI->AddToViewport(101);
 	return ScoreSelectionUI;
 	//TODO: Bind Delegate

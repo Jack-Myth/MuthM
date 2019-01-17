@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "MMScript.h"
-#include "MuthMInGameMode.h"
-#include "MuthMInEditorMode.generated.h"
+#include "InGameMode.h"
+#include "InEditorMode.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMInEditorMode, Log, All)
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwitchPIE);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchPIE,bool,IsPIE);
 
 /**
  * 
  */
 UCLASS()
-class MUTHM_API AMuthMInEditorMode : public AMuthMInGameMode
+class MUTHM_API AInEditorMode : public AInGameMode
 {
 	GENERATED_BODY()
 
@@ -23,9 +23,10 @@ class MUTHM_API AMuthMInEditorMode : public AMuthMInGameMode
 		class UEditorMainUIBase* EditorMainUI;
 	UPROPERTY()
 		TScriptInterface<IMMScript> _EditorMMSInstance;
+	class UWorld* _PIEWorld=nullptr;
 protected:
 	virtual void BeginPlay() override;
-
+	virtual bool GenPIEEnvironment(class UWorld*& PIEWorld);
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnSwitchPIE OnEnterPIE;
@@ -48,7 +49,7 @@ public:
 	{
 		return _EditorMMSInstance;
 	}
-	virtual void NativeOnGameEnded(FGameEndReason GameEndReason) override;
+	virtual void NativeOnGameEnded(EGameEndReason GameEndReason) override;
 	TArray<class UTexture2D*> DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency);
 	void SetMusicPlaySpeed(float PlaySpeed);
 };

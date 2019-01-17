@@ -1,6 +1,6 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
-#include "MuthMInEditorMode.h"
+#include "InEditorMode.h"
 #include "UIProvider.h"
 #include "MuthMGameInstance.h"
 #include "Kismet/GameplayStatics.h"
@@ -14,10 +14,13 @@
 #include "Engine/Texture2D.h"
 #include "MainSWPlayer.h"
 #include "EditorPanelBase.h"
+#include "InPIEMode.h"
+#include "MuthMBPLib.h"
+#include "GameFramework/WorldSettings.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
-void AMuthMInEditorMode::BeginPlay()
+void AInEditorMode::BeginPlay()
 {
 	Super::BeginPlay();
 	TArray<uint8> PCMData;
@@ -32,22 +35,55 @@ void AMuthMInEditorMode::BeginPlay()
 	EditorMainUI->AddToViewport(100);
 }
 
-void AMuthMInEditorMode::EnterPIE()
+bool AInEditorMode::GenPIEEnvironment(class UWorld*& PIEWorld)
 {
-	//TODO: Enter PIE
-	SetMusicPlaySpeed(1); //Reset Music play speed
-	StartGame(GetMusicInfo(), _EditorMMSInstance->SerializeToData());
-	OnEnterPIE.Broadcast();
+	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	PIEWorld = PIEWorld->CreateWorld(EWorldType::Game, false, "WorldPIE");
+	auto* WorldSettings = PIEWorld->GetWorldSettings();
+	WorldSettings->DefaultGameMode = AInPIEMode::StaticClass();
+	GameInstance->EnterPIEMode(PIEWorld);
+	PIEWorld->SetGameInstance(GameInstance);
+	FURL tmpPIEURL;
+	tmpPIEURL.Map = "Game";
+	return PIEWorld->SetGameMode(tmpPIEURL);
 }
 
-void AMuthMInEditorMode::ExitPIE()
+void AInEditorMode::EnterPIE()
+{
+	//TODO: Enter PIE
+	if (_PIEWorld)
+	{
+		UE_LOG(MuthMInEditorMode, Error, TEXT("PIE World already Exist!"));
+		return;
+	}
+	//Fill GameInstance GameArgs
+	FGameArgs PIEGameArgs;
+	PIEGameArgs.bIsEditorMode = true;
+	PIEGameArgs.MainMusicInfo = _CachedMusicInfo;
+	PIEGameArgs.MDATFilePath = _pMDAT->GetLocalFileName();
+	PIEGameArgs.MMSFileName = _MMSFileName;
+	PIEGameArgs._MDAT = _pMDAT;
+	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	GameInstance->FillGameArgs(PIEGameArgs);
+	if (!GenPIEEnvironment(_PIEWorld))
+	{
+		UE_LOG(MuthMInEditorMode, Error, TEXT("Gen PIE World failed!"));
+		return;
+	}
+	
+	auto* PIEMode = Cast<AInPIEMode>(_PIEWorld->GetAuthGameMode());
+	PIEMode->OnExitPIEDelegate.BindUObject(this, &AInEditorMode::ExitPIE);
+	OnEnterPIE.Broadcast(true);
+}
+
+void AInEditorMode::ExitPIE()
 {
 	//TODO: Exit PIE
 	StopGame();
-	OnExitPIE.Broadcast();
+	OnExitPIE.Broadcast(false);
 }
 
-void AMuthMInEditorMode::Save()
+void AInEditorMode::Save()
 {
 	TArray<uint8> MMSData = _EditorMMSInstance->SerializeToData();
 	_pMDAT->RemoveFile(_MMSFileName);
@@ -55,37 +91,37 @@ void AMuthMInEditorMode::Save()
 	_pMDAT->Save();
 }
 
-void AMuthMInEditorMode::PlayMusicOnly(float BeginTime)
+void AInEditorMode::PlayMusicOnly(float BeginTime)
 {
 	_MainSoundComponent->SetPaused(true);
 	_MainSoundComponent->Play(BeginTime);
 	SetActorTickEnabled(true);
 }
 
-void AMuthMInEditorMode::PauseMusicOnly()
+void AInEditorMode::PauseMusicOnly()
 {
 	_MainSoundComponent->SetPaused(true);
 	SetActorTickEnabled(false);
 }
 
-void AMuthMInEditorMode::NativeOnGameEnded(FGameEndReason GameEndReason)
+void AInEditorMode::NativeOnGameEnded(EGameEndReason GameEndReason)
 {
 	switch (GameEndReason)
 	{
-		case FGameEndReason::GER_GameFinished:
+		case EGameEndReason::GER_GameFinished:
 			ExitPIE();
 			break;
-		case FGameEndReason::GER_ExitPIE:
+		case EGameEndReason::GER_ExitPIE:
 			ExitPIE();
 			break;
-		case FGameEndReason::GER_Return:
+		case EGameEndReason::GER_Return:
 			ExitPIE();
 			break;
 	}
 	OnGameEnded.Broadcast(GameEndReason);
 }
 
-TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
+TArray<class UTexture2D*> AInEditorMode::DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)
 {
 	TArray<uint8> PCMData;
 	_GameMainMusic->GenPCMData(PCMData);
@@ -125,7 +161,7 @@ TArray<class UTexture2D*> AMuthMInEditorMode::DrawMainMusicSpectrum(float BeginT
 	return SpectrumTextures;
 }
 
-void AMuthMInEditorMode::SetMusicPlaySpeed(float PlaySpeed)
+void AInEditorMode::SetMusicPlaySpeed(float PlaySpeed)
 {
 	PlaySpeed = FMath::Clamp<float>(PlaySpeed, 0.1, 10);
 	this->CustomTimeDilation = PlaySpeed;

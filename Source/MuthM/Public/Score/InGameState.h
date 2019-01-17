@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "ScoreInfo.h"
-#include "ScoreCore.generated.h"
+#include "GameFramework/GameStateBase.h"
+#include "InGameState.generated.h"
 
 UENUM(BlueprintType)
 enum class EScoreGrade :uint8
@@ -25,7 +25,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreGradeUpdate, EScoreGrade, Cu
  * 
  */
 UCLASS()
-class MUTHM_API UScoreCore : public UObject
+class MUTHM_API AInGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
@@ -43,7 +43,7 @@ public:
 		FOnComboUpdate OnComboUpdate;
 	UPROPERTY(BlueprintAssignable)
 		FOnScoreGradeUpdate OnScoreGradeUpdate;
-	UScoreCore();
+	AInGameState();
 	UFUNCTION(BlueprintCallable)
 		void SubmitScore(float RealScore);
 	UFUNCTION(BlueprintCallable)

@@ -9,6 +9,8 @@
 #include "InstructionManager.h"
 #include "MuthMGameInstance.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(MuthMGameInstance, Log, All)
+
 USTRUCT()
 struct FGameArgs
 {
@@ -34,6 +36,8 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 		FGameArgs _GameArgs;
 	TWeakPtr<class UGlobalSaveGame> GlobalSaveGame;
 	TArray<FInstructionRef> CachedInstructionRef;
+	struct FWorldContext* GameWorldContext = nullptr;
+	struct FWorldContext* PIEWorldContext = nullptr;
 public:
 	//Hold Reference of Managers and UIProvider.
 	UPROPERTY()
@@ -75,4 +79,6 @@ public:
 
 	virtual void Init() override;
 
+	void EnterPIEMode(class UWorld* PIEWorld);
+	void ExitPIEMode();
 };

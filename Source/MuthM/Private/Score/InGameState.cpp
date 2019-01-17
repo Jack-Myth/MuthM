@@ -1,8 +1,8 @@
 // Copyright (C) 2018 JackMyth. All Rights Reserved.
 
-#include "ScoreCore.h"
+#include "InGameState.h"
 
-UScoreCore::UScoreCore()
+AInGameState::AInGameState()
 {
 	_ScoreGradeRecord.FindOrAdd(EScoreGrade::SG_Perfect) = 0;
 	_ScoreGradeRecord.FindOrAdd(EScoreGrade::SG_Great) = 0;
@@ -11,32 +11,32 @@ UScoreCore::UScoreCore()
 	_ScoreGradeRecord.FindOrAdd(EScoreGrade::SG_Miss) = 0;
 }
 
-void UScoreCore::SubmitScore(float RealScore)
+void AInGameState::SubmitScore(float RealScore)
 {
 	_RealScore += RealScore;
 	OnScoreUpdate.Broadcast(GetScore(), GetRealScore());
 }
 
-void UScoreCore::SubmitCombo()
+void AInGameState::SubmitCombo()
 {
 	_CurrentComboCount++;
 	_MaxComboRecorded = _MaxComboRecorded < _CurrentComboCount ? _CurrentComboCount : _MaxComboRecorded;
 	OnComboUpdate.Broadcast(GetCurrentCombo());
 }
 
-void UScoreCore::BreakCombo()
+void AInGameState::BreakCombo()
 {
 	_CurrentComboCount = 0;
 	OnComboUpdate.Broadcast(GetCurrentCombo());
 }
 
-void UScoreCore::SubmitGrade(EScoreGrade ScoreGrade)
+void AInGameState::SubmitGrade(EScoreGrade ScoreGrade)
 {
 	_ScoreGradeRecord.FindOrAdd(ScoreGrade)++;
 	OnScoreGradeUpdate.Broadcast(ScoreGrade);
 }
 
-void UScoreCore::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoCollection)
+void AInGameState::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoCollection)
 {
 	_RealScore = 0;
 	_CurrentComboCount = 0;
@@ -58,12 +58,12 @@ void UScoreCore::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoCol
 	OnScoreUpdate.Broadcast(0.f, 0.f);
 }
 
-void UScoreCore::SaveScoreRecord()
+void AInGameState::SaveScoreRecord()
 {
 	//TODO: Save Score To disk.
 }
 
-void UScoreCore::UploadScoreRecord()
+void AInGameState::UploadScoreRecord()
 {
 	//TODO:Upload Score Record.
 	//It need to Use network.
