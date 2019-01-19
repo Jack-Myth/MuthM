@@ -11,6 +11,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMGameInstance, Log, All)
 
+DECLARE_MULTICAST_DELEGATE(FOnPIEDelegate);
+
 USTRUCT()
 struct FGameArgs
 {
@@ -48,6 +50,10 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 	TArray<FInstructionRef> CachedInstructionRef;
 	TSharedPtr<FMuthMPIEInfo> PIESession=nullptr;
 public:
+
+	FOnPIEDelegate OnEnterPIE;
+	FOnPIEDelegate OnExitPIE;
+
 	//Hold Reference of Managers and UIProvider.
 	UPROPERTY()
 		TScriptInterface<class IInstructionManager> InstructionManager;

@@ -135,32 +135,15 @@ void UMuthMGameInstance::EnterPIEMode(class UWorld* PIEWorld)
 		newWorldContext.SetCurrentWorld(PIEWorld);
 		newWorldContext.GameViewport = NewObject<UGameViewportClient>(GEngine, GEngine->GameViewportClientClass);
 		newWorldContext.GameViewport->Init(newWorldContext, this);
-		TSharedRef<SOverlay> ViewportOverlay = SNew(SOverlay);
-		TSharedRef<SGameLayerManager> GamelayerManager = SNew(SGameLayerManager)
-			[
-				ViewportOverlay
-			];
-		SAssignNew(PIESession->PIEViewportWidget,SViewport)
-			.EnableGammaCorrection(false)
-			.RenderDirectlyToWindow(true)
-			[
-				GamelayerManager
-			];
-		PIESession->PIEViewport = MakeShareable(new FSceneViewport(newWorldContext.GameViewport, PIESession->PIEViewportWidget));
-		GamelayerManager->SetSceneViewport(PIESession->PIEViewport.Get());
-		newWorldContext.GameViewport->SetViewportOverlayWidget(GameWindow, ViewportOverlay);
-		newWorldContext.GameViewport->SetGameLayerManager(GamelayerManager);
-		newWorldContext.GameViewport->SetViewport(PIESession->PIEViewport.Get());
-		PIESession->PIEViewportWidget->SetViewportInterface(PIESession->PIEViewport.ToSharedRef());
+		PIESession->GameViewportWidget = PIESession->GameWorldContext->GameViewport->GetGameViewportWidget();
+		PIESession->PIEViewport = MakeShareable(new FSceneViewport(newWorldContext.GameViewport, PIESession->GameViewportWidget));
 		PIESession->PIEWorldContext = &newWorldContext;
 	}
-	WorldContext = PIESession->PIEWorldContext;
-	PIESession->GameViewportWidget = PIESession->GameWorldContext->GameViewport->GetGameViewportWidget();
-	//PIESession->GameViewportWidget->SetVisibility(EVisibility::Collapsed);
-	PIESession->GameWidgetRoot = ConstCastSharedRef<SWidget>(GameWindow->GetContent());
-	GameWindow->SetContent(PIESession->PIEViewportWidget.ToSharedRef());
 	FString error;
-	auto* GameViewport = PIESession->GameWorldContext->GameViewport->GetGameViewport();
+	PIESession->PIEViewport->SetViewportClient(PIESession->PIEWorldContext->GameViewport);
+	PIESession->GameViewportWidget->SetViewportInterface(PIESession->PIEViewport.ToSharedRef());
+	PIESession->GameWorldContext->GameViewport->SetViewport(PIESession->PIEViewport.Get());
+	OnEnterPIE.Broadcast();
 	//PIESession->PIEWorldContext->GameViewport->SetupInitialLocalPlayer(error);
 	//Resize frame, all paramter use the GameViewport.
 	//PIESession->PIEViewport->ResizeFrame(GameViewport->GetSize().X, GameViewport->GetSize().Y,GameViewport->GetWindowMode());

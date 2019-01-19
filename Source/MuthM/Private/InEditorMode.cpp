@@ -41,17 +41,17 @@ bool AInEditorMode::GenPIEEnvironment(class UWorld*& PIEWorld)
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	PIEWorld = UWorld::CreateWorld(EWorldType::Game, false, "WorldPIE");
 	auto* WorldSettings = PIEWorld->GetWorldSettings();
-	WorldSettings->DefaultGameMode = AInPIEMode::StaticClass();
+	WorldSettings->DefaultGameMode = AGameModeBase::StaticClass();
 	GameInstance->EnterPIEMode(PIEWorld);
 	PIEWorld->SetGameInstance(GameInstance);
-	FURL tmpPIEURL;
-	tmpPIEURL.Map = "Game";
-	if (!PIEWorld->SetGameMode(tmpPIEURL))
-		return false;
+	FURL tmpURL;
+	tmpURL.Map = "PIE";
+	FString err;
+	GEngine->LoadMap(*(GEngine->GetWorldContextFromWorld(PIEWorld)), tmpURL, nullptr, err);
+	//GEngine->SetClientTravel(PIEWorld, TEXT("PIE"), ETravelType::TRAVEL_Absolute);
+	//GEngine->TickWorldTravel(, 0);
+	//UGameplayStatics::OpenLevel(PIEWorld, "PIE");
 	auto* WorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
-	FString ErrorMsg;
-	if (!WorldContext->GameViewport->SetupInitialLocalPlayer(ErrorMsg))
-		return false;
 	return true;
 }
 
@@ -77,16 +77,15 @@ void AInEditorMode::EnterPIE()
 		UE_LOG(MuthMInEditorMode, Error, TEXT("Gen PIE World failed!"));
 		return;
 	}
-	auto* PIEMode = Cast<AInPIEMode>(_PIEWorld->GetAuthGameMode());
-	PIEMode->OnExitPIEDelegate.BindUObject(this, &AInEditorMode::ExitPIE);
-	OnEnterPIE.Broadcast(true);
+	GameInstance->OnExitPIE.AddUObject(this, &AInEditorMode::ExitPIE);
+	OnEnterPIE.Broadcast();
 }
 
 void AInEditorMode::ExitPIE()
 {
 	//TODO: Exit PIE
 	StopGame();
-	OnExitPIE.Broadcast(false);
+	OnExitPIE.Broadcast();
 }
 
 void AInEditorMode::Save()

@@ -6,8 +6,6 @@
 #include "InGameMode.h"
 #include "InPIEMode.generated.h"
 
-DECLARE_DELEGATE(FOnExitPIE);
-
 /**
  * 
  */
@@ -17,7 +15,6 @@ class MUTHM_API AInPIEMode : public AInGameMode
 	GENERATED_BODY()
 	
 public:
-	FOnExitPIE OnExitPIEDelegate;
 	virtual void NativeOnGameEnded(EGameEndReason GameEndReason) override;
 
 };
