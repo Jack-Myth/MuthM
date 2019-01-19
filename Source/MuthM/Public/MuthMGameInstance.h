@@ -25,6 +25,16 @@ struct FGameArgs
 	bool bIsEditorMode = false;
 };
 
+struct FMuthMPIEInfo
+{
+	struct FWorldContext* GameWorldContext = nullptr;
+	TSharedPtr<class SViewport> GameViewportWidget = nullptr;
+	struct FWorldContext* PIEWorldContext=nullptr;
+	TSharedPtr<class SViewport> PIEViewportWidget=nullptr;
+	TSharedPtr<class FSceneViewport> PIEViewport = nullptr;
+	TSharedPtr<class SWidget> GameWidgetRoot;
+};
+
 /**
  * 
  */
@@ -36,8 +46,7 @@ class MUTHM_API UMuthMGameInstance : public UGameInstance
 		FGameArgs _GameArgs;
 	TWeakPtr<class UGlobalSaveGame> GlobalSaveGame;
 	TArray<FInstructionRef> CachedInstructionRef;
-	struct FWorldContext* GameWorldContext = nullptr;
-	struct FWorldContext* PIEWorldContext = nullptr;
+	TSharedPtr<FMuthMPIEInfo> PIESession=nullptr;
 public:
 	//Hold Reference of Managers and UIProvider.
 	UPROPERTY()

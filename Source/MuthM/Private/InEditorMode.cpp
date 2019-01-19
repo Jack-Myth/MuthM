@@ -17,6 +17,7 @@
 #include "InPIEMode.h"
 #include "MuthMBPLib.h"
 #include "GameFramework/WorldSettings.h"
+#include "Engine/Engine.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
@@ -38,14 +39,20 @@ void AInEditorMode::BeginPlay()
 bool AInEditorMode::GenPIEEnvironment(class UWorld*& PIEWorld)
 {
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
-	PIEWorld = PIEWorld->CreateWorld(EWorldType::Game, false, "WorldPIE");
+	PIEWorld = UWorld::CreateWorld(EWorldType::Game, false, "WorldPIE");
 	auto* WorldSettings = PIEWorld->GetWorldSettings();
 	WorldSettings->DefaultGameMode = AInPIEMode::StaticClass();
 	GameInstance->EnterPIEMode(PIEWorld);
 	PIEWorld->SetGameInstance(GameInstance);
 	FURL tmpPIEURL;
 	tmpPIEURL.Map = "Game";
-	return PIEWorld->SetGameMode(tmpPIEURL);
+	if (!PIEWorld->SetGameMode(tmpPIEURL))
+		return false;
+	auto* WorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
+	FString ErrorMsg;
+	if (!WorldContext->GameViewport->SetupInitialLocalPlayer(ErrorMsg))
+		return false;
+	return true;
 }
 
 void AInEditorMode::EnterPIE()
@@ -70,7 +77,6 @@ void AInEditorMode::EnterPIE()
 		UE_LOG(MuthMInEditorMode, Error, TEXT("Gen PIE World failed!"));
 		return;
 	}
-	
 	auto* PIEMode = Cast<AInPIEMode>(_PIEWorld->GetAuthGameMode());
 	PIEMode->OnExitPIEDelegate.BindUObject(this, &AInEditorMode::ExitPIE);
 	OnEnterPIE.Broadcast(true);

@@ -9,6 +9,12 @@
 #include "RhythmTap.h"
 #include "LoadScene.h"
 #include "Engine/Engine.h"
+#include "Engine/GameViewportClient.h"
+#include "SlateApplication.h"
+#include "SceneViewport.h"
+#include "SViewport.h"
+#include "SGameLayerManager.h"
+#include "SWindow.h"
 
 DEFINE_LOG_CATEGORY(MuthMGameInstance);
 
@@ -97,8 +103,6 @@ void UMuthMGameInstance::SaveGlobalSaveGame()
 void UMuthMGameInstance::Init()
 {
 	//Initialize the whole game.
-	//Cache GameWorldContext
-	GameWorldContext = WorldContext;
 
 	//Register Instructions
 	auto InstructionManager = IInstructionManager::Get(this);
@@ -114,24 +118,65 @@ void UMuthMGameInstance::Init()
 
 void UMuthMGameInstance::EnterPIEMode(class UWorld* PIEWorld)
 {
-	if (WorldContext==PIEWorldContext)
+	if (PIESession.IsValid())
 	{
 		UE_LOG(MuthMGameInstance, Error, TEXT("GameInstance already in PIE Mode!"));
 		return;
 	}
-	PIEWorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
-	if (!PIEWorldContext)
+	PIESession = MakeShareable(new FMuthMPIEInfo());
+	PIESession->GameWorldContext = WorldContext;
+	PIESession->PIEWorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
+	TSharedPtr<SWindow> GameWindow = PIESession->GameWorldContext->GameViewport->GetWindow();
+	if (!PIESession->PIEWorldContext)
 	{
 		//Create new WorldContext
 		FWorldContext& newWorldContext = GEngine->CreateNewWorldContext(EWorldType::Game);
+		newWorldContext.OwningGameInstance = this;
 		newWorldContext.SetCurrentWorld(PIEWorld);
-		PIEWorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
+		newWorldContext.GameViewport = NewObject<UGameViewportClient>(GEngine, GEngine->GameViewportClientClass);
+		newWorldContext.GameViewport->Init(newWorldContext, this);
+		TSharedRef<SOverlay> ViewportOverlay = SNew(SOverlay);
+		TSharedRef<SGameLayerManager> GamelayerManager = SNew(SGameLayerManager)
+			[
+				ViewportOverlay
+			];
+		SAssignNew(PIESession->PIEViewportWidget,SViewport)
+			.EnableGammaCorrection(false)
+			.RenderDirectlyToWindow(true)
+			[
+				GamelayerManager
+			];
+		PIESession->PIEViewport = MakeShareable(new FSceneViewport(newWorldContext.GameViewport, PIESession->PIEViewportWidget));
+		GamelayerManager->SetSceneViewport(PIESession->PIEViewport.Get());
+		newWorldContext.GameViewport->SetViewportOverlayWidget(GameWindow, ViewportOverlay);
+		newWorldContext.GameViewport->SetGameLayerManager(GamelayerManager);
+		newWorldContext.GameViewport->SetViewport(PIESession->PIEViewport.Get());
+		PIESession->PIEViewportWidget->SetViewportInterface(PIESession->PIEViewport.ToSharedRef());
+		PIESession->PIEWorldContext = &newWorldContext;
 	}
-	WorldContext = PIEWorldContext;
+	WorldContext = PIESession->PIEWorldContext;
+	PIESession->GameViewportWidget = PIESession->GameWorldContext->GameViewport->GetGameViewportWidget();
+	//PIESession->GameViewportWidget->SetVisibility(EVisibility::Collapsed);
+	PIESession->GameWidgetRoot = ConstCastSharedRef<SWidget>(GameWindow->GetContent());
+	GameWindow->SetContent(PIESession->PIEViewportWidget.ToSharedRef());
+	FString error;
+	auto* GameViewport = PIESession->GameWorldContext->GameViewport->GetGameViewport();
+	//PIESession->PIEWorldContext->GameViewport->SetupInitialLocalPlayer(error);
+	//Resize frame, all paramter use the GameViewport.
+	//PIESession->PIEViewport->ResizeFrame(GameViewport->GetSize().X, GameViewport->GetSize().Y,GameViewport->GetWindowMode());
+	//UGameViewportClient::OnViewportCreated().Broadcast();
+	//FSlateApplication::Get().RegisterGameViewport(PIESession->PIEViewportWidget.ToSharedRef());
+	//PIESession->PIEViewport->UpdateViewportRHI(false, GameViewport->GetSize().X, GameViewport->GetSize().Y, GameViewport->GetWindowMode(), EPixelFormat::PF_A8R8G8B8);
+	//PIESession->GameWorldContext->GameViewport->GetGameViewport()->OnPlayWorldViewportSwapped(PIESession->PIEViewport.ToSharedRef().Get());
 }
 
 void UMuthMGameInstance::ExitPIEMode()
 {
-	WorldContext = GameWorldContext;
-	PIEWorldContext = nullptr;
+	//Restore GameViewport.
+	TSharedPtr<SWindow> GameWindow = PIESession->PIEWorldContext->GameViewport->GetWindow();
+	GameWindow->SetContent(PIESession->GameWidgetRoot.ToSharedRef());
+	PIESession->GameViewportWidget->SetVisibility(EVisibility::Visible);
+	WorldContext = PIESession->PIEWorldContext;
+	//Release PIESession
+	PIESession.Reset();
 }
