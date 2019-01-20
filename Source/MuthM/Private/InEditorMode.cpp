@@ -39,19 +39,16 @@ void AInEditorMode::BeginPlay()
 bool AInEditorMode::GenPIEEnvironment(class UWorld*& PIEWorld)
 {
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
-	PIEWorld = UWorld::CreateWorld(EWorldType::Game, false, "WorldPIE");
-	auto* WorldSettings = PIEWorld->GetWorldSettings();
-	WorldSettings->DefaultGameMode = AGameModeBase::StaticClass();
-	GameInstance->EnterPIEMode(PIEWorld);
-	PIEWorld->SetGameInstance(GameInstance);
+	FWorldContext* WorldContext;
+	GameInstance->EnterPIEMode(WorldContext);
 	FURL tmpURL;
 	tmpURL.Map = "PIE";
 	FString err;
-	GEngine->LoadMap(*(GEngine->GetWorldContextFromWorld(PIEWorld)), tmpURL, nullptr, err);
+	GEngine->LoadMap(*WorldContext, tmpURL, nullptr, err);
 	//GEngine->SetClientTravel(PIEWorld, TEXT("PIE"), ETravelType::TRAVEL_Absolute);
 	//GEngine->TickWorldTravel(, 0);
 	//UGameplayStatics::OpenLevel(PIEWorld, "PIE");
-	auto* WorldContext = GEngine->GetWorldContextFromWorld(PIEWorld);
+	PIEWorld = WorldContext->World();
 	return true;
 }
 

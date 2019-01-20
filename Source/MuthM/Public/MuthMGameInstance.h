@@ -31,10 +31,11 @@ struct FMuthMPIEInfo
 {
 	struct FWorldContext* GameWorldContext = nullptr;
 	TSharedPtr<class SViewport> GameViewportWidget = nullptr;
+	TSharedPtr<class FSceneViewport> GameViewport;
 	struct FWorldContext* PIEWorldContext=nullptr;
-	TSharedPtr<class SViewport> PIEViewportWidget=nullptr;
 	TSharedPtr<class FSceneViewport> PIEViewport = nullptr;
-	TSharedPtr<class SWidget> GameWidgetRoot;
+	UPROPERTY()
+		class UGameViewportClient* GameViewportClientRef = nullptr;
 };
 
 /**
@@ -94,6 +95,6 @@ public:
 
 	virtual void Init() override;
 
-	void EnterPIEMode(class UWorld* PIEWorld);
+	void EnterPIEMode(struct FWorldContext*& PIEWorld);
 	void ExitPIEMode();
 };
