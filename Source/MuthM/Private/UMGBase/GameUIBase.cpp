@@ -28,7 +28,7 @@ void UGameUIBase::ExitPIE()
 {
 	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	if (InEditorMode)
-		InEditorMode->ExitPIE();
+		InEditorMode->NativeOnExitPIE();
 }
 
 void UGameUIBase::ShowPauseUI()

@@ -34,8 +34,6 @@ struct FMuthMPIEInfo
 	TSharedPtr<class FSceneViewport> GameViewport;
 	struct FWorldContext* PIEWorldContext=nullptr;
 	TSharedPtr<class FSceneViewport> PIEViewport = nullptr;
-	UPROPERTY()
-		class UGameViewportClient* GameViewportClientRef = nullptr;
 };
 
 /**

@@ -74,14 +74,13 @@ void AInEditorMode::EnterPIE()
 		UE_LOG(MuthMInEditorMode, Error, TEXT("Gen PIE World failed!"));
 		return;
 	}
-	GameInstance->OnExitPIE.AddUObject(this, &AInEditorMode::ExitPIE);
+	GameInstance->OnExitPIE.AddUObject(this, &AInEditorMode::NativeOnExitPIE);
 	OnEnterPIE.Broadcast();
 }
 
-void AInEditorMode::ExitPIE()
+void AInEditorMode::NativeOnExitPIE()
 {
 	//TODO: Exit PIE
-	StopGame();
 	OnExitPIE.Broadcast();
 }
 
@@ -104,23 +103,6 @@ void AInEditorMode::PauseMusicOnly()
 {
 	_MainSoundComponent->SetPaused(true);
 	SetActorTickEnabled(false);
-}
-
-void AInEditorMode::NativeOnGameEnded(EGameEndReason GameEndReason)
-{
-	switch (GameEndReason)
-	{
-		case EGameEndReason::GER_GameFinished:
-			ExitPIE();
-			break;
-		case EGameEndReason::GER_ExitPIE:
-			ExitPIE();
-			break;
-		case EGameEndReason::GER_Return:
-			ExitPIE();
-			break;
-	}
-	OnGameEnded.Broadcast(GameEndReason);
 }
 
 TArray<class UTexture2D*> AInEditorMode::DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency)

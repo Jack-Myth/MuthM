@@ -131,35 +131,33 @@ void UMuthMGameInstance::EnterPIEMode(struct FWorldContext*& PIEWorldContext)
 	PIEWorldContext = &newWorldContext;
 	PIESession->PIEWorldContext = &newWorldContext;
 	PIESession->PIEWorldContext->OwningGameInstance = this;
+	//Create PIE GameViewportClient
 	PIESession->PIEWorldContext->GameViewport = NewObject<UGameViewportClient>(GEngine, GEngine->GameViewportClientClass);
 	PIESession->PIEWorldContext->GameViewport->Init(*(PIESession->PIEWorldContext), this);
 	PIESession->GameViewportWidget = PIESession->GameWorldContext->GameViewport->GetGameViewportWidget();
+	//Create PIE SceneViewport
 	PIESession->PIEViewport = MakeShareable(new FSceneViewport(PIESession->PIEWorldContext->GameViewport, PIESession->GameViewportWidget));
-	FString error;
 	PIESession->GameViewport = StaticCastSharedPtr<FSceneViewport>(PIESession->GameViewportWidget->GetViewportInterface().Pin());
 	PIESession->PIEViewport->SetViewportClient(PIESession->PIEWorldContext->GameViewport);
 	PIESession->PIEWorldContext->GameViewport->SetViewport(PIESession->PIEViewport.Get());
+	//Replace Game SceneViewport to PIE SceneViewport.
 	PIESession->GameViewportWidget->SetViewportInterface(PIESession->PIEViewport.ToSharedRef());
-	//GEngine->GameViewport = PIESession->PIEWorldContext->GameViewport;
-	//PIESession->GameViewportClientRef = PIESession->GameWorldContext->GameViewport;
 	WorldContext = &newWorldContext;
 	OnEnterPIE.Broadcast();
-	//PIESession->PIEWorldContext->GameViewport->SetupInitialLocalPlayer(error);
-	//Resize frame, all paramter use the GameViewport.
-	//PIESession->PIEViewport->ResizeFrame(GameViewport->GetSize().X, GameViewport->GetSize().Y,GameViewport->GetWindowMode());
-	//UGameViewportClient::OnViewportCreated().Broadcast();
-	//FSlateApplication::Get().RegisterGameViewport(PIESession->PIEViewportWidget.ToSharedRef());
-	//PIESession->PIEViewport->UpdateViewportRHI(false, GameViewport->GetSize().X, GameViewport->GetSize().Y, GameViewport->GetWindowMode(), EPixelFormat::PF_A8R8G8B8);
-	//PIESession->GameWorldContext->GameViewport->GetGameViewport()->OnPlayWorldViewportSwapped(PIESession->PIEViewport.ToSharedRef().Get());
 }
 
 void UMuthMGameInstance::ExitPIEMode()
 {
-	//Restore GameViewport.
+	//Destroy PIE World and Context
+	CleanupGameViewport();
+	GetWorld()->DestroyWorld(false);
 	GEngine->DestroyWorldContext(GetWorld());
+	//Restore SceneViewport.
 	PIESession->GameViewportWidget->SetViewportInterface(PIESession->GameViewport.ToSharedRef());
-	PIESession->GameWorldContext->GameViewport = PIESession->GameViewportClientRef;
+	//Restore WorldContext
 	WorldContext = PIESession->GameWorldContext;
 	//Release PIESession
 	PIESession.Reset();
+	//Call Delegate
+	OnExitPIE.Broadcast();
 }
