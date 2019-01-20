@@ -49,7 +49,6 @@ public:
 	{
 		return _EditorMMSInstance;
 	}
-	virtual void NativeOnGameEnded(EGameEndReason GameEndReason) override;
 	TArray<class UTexture2D*> DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency);
 	void SetMusicPlaySpeed(float PlaySpeed);
 };

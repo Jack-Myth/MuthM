@@ -41,10 +41,9 @@ bool AInEditorMode::GenPIEEnvironment(class UWorld*& PIEWorld)
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	FWorldContext* WorldContext;
 	GameInstance->EnterPIEMode(WorldContext);
-	FURL tmpURL;
-	tmpURL.Map = "PIE";
+	FURL tmpURL(TEXT("/Game/MuthM/Maps/PIE"));
 	FString err;
-	GEngine->LoadMap(*WorldContext, tmpURL, nullptr, err);
+	GEngine->Browse(*WorldContext, tmpURL, err);
 	//GEngine->SetClientTravel(PIEWorld, TEXT("PIE"), ETravelType::TRAVEL_Absolute);
 	//GEngine->TickWorldTravel(, 0);
 	//UGameplayStatics::OpenLevel(PIEWorld, "PIE");

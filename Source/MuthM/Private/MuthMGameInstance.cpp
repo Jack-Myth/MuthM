@@ -135,13 +135,10 @@ void UMuthMGameInstance::EnterPIEMode(struct FWorldContext*& PIEWorldContext)
 	PIESession->PIEWorldContext->GameViewport = NewObject<UGameViewportClient>(GEngine, GEngine->GameViewportClientClass);
 	PIESession->PIEWorldContext->GameViewport->Init(*(PIESession->PIEWorldContext), this);
 	PIESession->GameViewportWidget = PIESession->GameWorldContext->GameViewport->GetGameViewportWidget();
-	//Create PIE SceneViewport
-	PIESession->PIEViewport = MakeShareable(new FSceneViewport(PIESession->PIEWorldContext->GameViewport, PIESession->GameViewportWidget));
+	//Replace GameViewportClient with PIE GameViewportClient
 	PIESession->GameViewport = StaticCastSharedPtr<FSceneViewport>(PIESession->GameViewportWidget->GetViewportInterface().Pin());
-	PIESession->PIEViewport->SetViewportClient(PIESession->PIEWorldContext->GameViewport);
-	PIESession->PIEWorldContext->GameViewport->SetViewport(PIESession->PIEViewport.Get());
-	//Replace Game SceneViewport to PIE SceneViewport.
-	PIESession->GameViewportWidget->SetViewportInterface(PIESession->PIEViewport.ToSharedRef());
+	PIESession->PIEWorldContext->GameViewport->SetViewport(PIESession->GameViewport.Get());
+	PIESession->GameViewport->SetViewportClient(PIESession->PIEWorldContext->GameViewport);
 	WorldContext = &newWorldContext;
 	OnEnterPIE.Broadcast();
 }
@@ -152,8 +149,8 @@ void UMuthMGameInstance::ExitPIEMode()
 	CleanupGameViewport();
 	GetWorld()->DestroyWorld(false);
 	GEngine->DestroyWorldContext(GetWorld());
-	//Restore SceneViewport.
-	PIESession->GameViewportWidget->SetViewportInterface(PIESession->GameViewport.ToSharedRef());
+	//Restore GameViewportClient
+	PIESession->GameViewport->SetViewportClient(PIESession->GameWorldContext->GameViewport);
 	//Restore WorldContext
 	WorldContext = PIESession->GameWorldContext;
 	//Release PIESession

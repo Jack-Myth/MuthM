@@ -47,7 +47,11 @@ void WindowsHALImpl::OpenFileDialog(const FString& Title, const FString& Default
 		}
 		Delegate.ExecuteIfBound(true, OpenFileName);
 	}
-	Delegate.ExecuteIfBound(false, TArray<FString>());
+	else
+	{
+		//User Cancelled.
+		Delegate.ExecuteIfBound(false, TArray<FString>());
+	}
 }
 
 #include "HideWindowsPlatformTypes.h"
