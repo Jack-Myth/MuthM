@@ -53,7 +53,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual FName GetInstructionName(FInstructionRef InstructionRef) const = 0;
 	virtual FName GetInstructionName(TSubclassOf<UInstruction> InstructionClass) const = 0;
-	virtual UInstruction* GenInstruction(FName InstructionName,float Time, const FJsonObject& JsonArg) = 0;
+	virtual UInstruction* GenInstruction(FName InstructionName,float Time) = 0;
 	virtual void Tick(float CurrentTime) = 0;
 	virtual void DestroyMMScriptInstance(TScriptInterface<IMMScript> TargetMMSInstance) = 0;
 	virtual TScriptInterface<IMMScript> GenMMScript(bool bIsEditorMode = false) = 0;

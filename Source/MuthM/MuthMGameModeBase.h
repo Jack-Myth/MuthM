@@ -21,5 +21,4 @@ public:
 		virtual void ResumeGame() {};
 protected:
 	virtual void BeginPlay() override;
-
 };

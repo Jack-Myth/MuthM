@@ -23,6 +23,7 @@
 #include "MuthMNativeLib.h"
 #include "InEditorMode.h"
 #include "fmod.hpp"
+#include "PlayerInputHandler.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
@@ -35,7 +36,10 @@ AInGameMode::AInGameMode()
 
 void AInGameMode::OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainSoundWave, float PlaybackPercent)
 {
-	OnMusicPlaybackTimeUpdate.Broadcast(MainSoundWave->GetSoundDuration()*PlaybackPercent, _GameMainMusic->GetSoundDuration());
+	float MusicLength = MainSoundWave->GetSoundDuration();
+	IInstructionManager::Get(this)->Tick(PlaybackPercent*MusicLength);
+	_GameTime = MusicLength * PlaybackPercent;
+	OnMusicPlaybackTimeUpdate.Broadcast(_GameTime, MusicLength);
 }
 
 void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
@@ -51,12 +55,14 @@ void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 	{
 		DelayCounter = SuitDelay;
 		_MainSoundComponent->SetMainSoundWave(_GameMainMusic);
-		FTimerHandle tmpTimeHandle; //No Need this TimeHandle anymore.
 		GetWorld()->GetTimerManager().SetTimer(DelayTimerHandle, [=]()
 			{
 				DelayCounter -= 0.02f;
 				if (DelayCounter <= 0)
+				{
 					_MainSoundComponent->Play();
+					GetWorld()->GetTimerManager().ClearTimer(DelayTimerHandle);
+				}
 				else
 					OnMusicPositionCallback(_GameMainMusic, -(DelayCounter / _GameMainMusic->GetSoundDuration()));
 			}, 0.02f, true,0.02f);
@@ -135,6 +141,20 @@ void AInGameMode::ShowGameResult()
 	GameResultUI->AddToViewport(120);
 }
 
+void AInGameMode::BindDelegates()
+{
+	auto* InputHandler = Cast<APlayerInputHandler>(UGameplayStatics::GetPlayerPawn(this, 0));
+	InputHandler->OnBackPressed.AddUObject(this, &AInGameMode::OnBackPressed);
+}
+
+void AInGameMode::OnBackPressed()
+{
+	if (UGameplayStatics::IsGamePaused(this)&&pPauseUI)
+		ResumeGame();
+	else
+		PauseGame();
+}
+
 void AInGameMode::ReturnToMainMenu()
 {
 	NativeOnGameEnded(EGameEndReason::GER_Return);
@@ -162,6 +182,7 @@ void AInGameMode::BeginPlay()
 	_MainSoundComponent->AddOnPlaybackPercent(MusicCallback);
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MMSFileName = ExchangedGameArgs.MMSFileName;
+	//XXX: Why InGameMode should worry about InEditorMode.
 	if (!this->IsA<AInEditorMode>())
 		StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
 }

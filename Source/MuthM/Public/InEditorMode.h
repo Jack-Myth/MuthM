@@ -27,6 +27,9 @@ class MUTHM_API AInEditorMode : public AInGameMode
 protected:
 	virtual void BeginPlay() override;
 	virtual bool GenPIEEnvironment(class UWorld*& PIEWorld);
+
+	virtual void BindDelegates() override;
+	void OnBackPressed();
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnSwitchPIE OnEnterPIE;

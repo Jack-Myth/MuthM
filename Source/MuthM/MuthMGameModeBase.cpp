@@ -2,10 +2,11 @@
 
 #include "MuthMGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerInputHandler.h"
 
 AMuthMGameModeBase::AMuthMGameModeBase()
 {
-	DefaultPawnClass = APawn::StaticClass();
+	DefaultPawnClass = APlayerInputHandler::StaticClass();
 }
 
 void AMuthMGameModeBase::BeginPlay()

@@ -18,6 +18,7 @@
 #include "MuthMBPLib.h"
 #include "GameFramework/WorldSettings.h"
 #include "Engine/Engine.h"
+#include "PlayerInputHandler.h"
 
 DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
@@ -51,6 +52,17 @@ bool AInEditorMode::GenPIEEnvironment(class UWorld*& PIEWorld)
 	return true;
 }
 
+void AInEditorMode::BindDelegates()
+{
+	auto* InputHandler = Cast<APlayerInputHandler>(UGameplayStatics::GetPlayerPawn(this, 0));
+	InputHandler->OnBackPressed.AddUObject(this, &AInEditorMode::OnBackPressed);
+}
+
+void AInEditorMode::OnBackPressed()
+{
+	//Save and close;
+}
+
 void AInEditorMode::EnterPIE()
 {
 	//TODO: Enter PIE
@@ -73,6 +85,7 @@ void AInEditorMode::EnterPIE()
 		UE_LOG(MuthMInEditorMode, Error, TEXT("Gen PIE World failed!"));
 		return;
 	}
+	EditorMainUI->RemoveFromParent();
 	GameInstance->OnExitPIE.AddUObject(this, &AInEditorMode::NativeOnExitPIE);
 	OnEnterPIE.Broadcast();
 }
@@ -80,6 +93,7 @@ void AInEditorMode::EnterPIE()
 void AInEditorMode::NativeOnExitPIE()
 {
 	//TODO: Exit PIE
+	EditorMainUI->AddToViewport(100);
 	OnExitPIE.Broadcast();
 }
 

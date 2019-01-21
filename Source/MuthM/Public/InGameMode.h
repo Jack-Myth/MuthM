@@ -59,7 +59,10 @@ protected:
 
 	UFUNCTION()
 		void OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainSoundWave, float PlaybackPercent);
-
+	//This Function will also save the score to disk.
+	void ShowGameResult();
+	virtual void BindDelegates();
+	void OnBackPressed();
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
@@ -89,8 +92,6 @@ public:
 	{
 		return _GameMainMusic;
 	}
-	//This Function will also save the score to disk.
-	void ShowGameResult();
 	void ReturnToMainMenu();
 
 	UFUNCTION(BlueprintPure)

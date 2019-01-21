@@ -145,6 +145,11 @@ void UMuthMGameInstance::EnterPIEMode(struct FWorldContext*& PIEWorldContext)
 
 void UMuthMGameInstance::ExitPIEMode()
 {
+	if (!PIESession.IsValid())
+	{
+		UE_LOG(MuthMGameInstance, Error, TEXT("Try ExitPIEMode but the PIESession is not valid!"));
+		return;
+	}
 	//Destroy PIE World and Context
 	CleanupGameViewport();
 	GetWorld()->DestroyWorld(false);

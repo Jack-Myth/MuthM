@@ -16,5 +16,8 @@ class MUTHM_API AInPIEMode : public AInGameMode
 	
 public:
 	virtual void NativeOnGameEnded(EGameEndReason GameEndReason) override;
-
+	
+protected:
+	virtual void BindDelegates() override;
+	void OnBackPressed();
 };

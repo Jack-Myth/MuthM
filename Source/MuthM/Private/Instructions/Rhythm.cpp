@@ -16,5 +16,5 @@ void URhythm::OnPrepare_Implementation()
 
 bool URhythm::IsInstructionReady_Implementation() const
 {
-	return GetTime() < GetScript()->GetGameTime() - 10;
+	return GetTime() > GetScript()->GetGameTime() - 1;
 }

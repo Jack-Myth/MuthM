@@ -15,7 +15,7 @@
 
 bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 {
-	if (!FMemory::Memcmp(_MMSStr, "_MMS", 4))
+	if (FMemory::Memcmp(_MMSStr, "_MMS", 4))
 	{
 		UE_LOG(MMScript, Error, TEXT("Invalid MMScript Data!"));
 		return false;
@@ -27,21 +27,22 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 	{
 		float Time;
 		FName InstructionName;
-		FJsonObject Args;
+		TSharedPtr<FJsonObject> Args;
 	};
+	_MMSStr += sizeof(uint32);
 	TArray<tmpInstructionList> tmpICollection;
 	while (InstructionCount--)
 	{
 		tmpInstructionList tmpIItem;
-		tmpIItem.Time = MuthMTypeHelper::LoadFloatFromData(_MMSStr);
-		_MMSStr += sizeof(uint32);
-		auto Conversion = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
-		tmpIItem.InstructionName = Conversion.Get();
-		_MMSStr += Conversion.Length() + 1;  //Include Terminate Character
 		auto ConversionJson = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
+		//Load Instruction Json From _MMSStr
 		TSharedRef<TJsonReader<TCHAR>> ResultJsonReader = TJsonReaderFactory<TCHAR>::Create(ConversionJson.Get());
-		TSharedPtr<FJsonObject> tmpArgPtr = MakeShareable(&tmpIItem.Args);
-		FJsonSerializer::Deserialize(ResultJsonReader, tmpArgPtr);
+		TSharedPtr<FJsonObject> InstructionJson = MakeShareable(new FJsonObject());
+		FJsonSerializer::Deserialize(ResultJsonReader, InstructionJson);
+		//Load Time,InstructionName and Args
+		tmpIItem.Time = InstructionJson->GetNumberField("Time");
+		tmpIItem.InstructionName = *(InstructionJson->GetStringField("Instruction"));
+		tmpIItem.Args = InstructionJson->GetObjectField("Args");
 		_MMSStr += ConversionJson.Length() + 1;		//Include Terminate Character
 		tmpICollection.Push(tmpIItem);
 	}
@@ -52,8 +53,13 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 	for (int i = 0; i < tmpICollection.Num(); i++)
 	{
 		UInstruction* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(
-			tmpICollection[i].InstructionName, tmpICollection[i].Time, tmpICollection[i].Args);
+			tmpICollection[i].InstructionName, tmpICollection[i].Time);
+		InstructionInstance->AttachScript(this);
 		_InstructionInstances.Push(InstructionInstance);
+		FBlueprintJsonObject tmpBPJsonArg;
+		tmpBPJsonArg.Object = tmpICollection[i].Args;
+		//This will allow Instruction Remove itself after it loaded immediately.
+		InstructionInstance->OnInstructionLoaded(tmpBPJsonArg);
 	}
 	mLastTime = -GetSuiltableDelay();
 	return true;
@@ -160,8 +166,12 @@ void UMMScriptImpl::RemoveInstruction(UInstruction* Instance, EInstructionDestro
 
 void UMMScriptImpl::Tick(float CurrentTime)
 {
+	TArray<UInstruction*> InstructionGroupDuplicated;
+	//Use Duplicated Array to allow DestroySelf been called in Tick()
+	//Otherwise if DestroySelf() is called by Tick() of the last Instance,The game will crash.
+	InstructionGroupDuplicated.Append(_InstructionInstances);
 	//Find the Instructions that need to be prepared.
-	for (auto it = _InstructionInstances.CreateIterator(); it; ++it)
+	for (auto it = InstructionGroupDuplicated.CreateIterator(); it; ++it)
 	{
 		if ((*it)->IsInstructionReady())
 		{
@@ -174,7 +184,9 @@ void UMMScriptImpl::Tick(float CurrentTime)
 			break;
 		//Because the Array is ordered,if the first no need to be prepared, the second one will also be.
 	}
-	for (int i = 0; i < _PreparedInstructionInstance.Num(); i++)
+	InstructionGroupDuplicated.Empty(_PreparedInstructionInstance.Num());
+	InstructionGroupDuplicated.Append(_PreparedInstructionInstance);
+	for (int i = 0; i < InstructionGroupDuplicated.Num(); i++)
 	{
 		_PreparedInstructionInstance[i]->OnTick(CurrentTime);
 		if (_PreparedInstructionInstance[i]->GetTime() > mLastTime&&_PreparedInstructionInstance[i]->GetTime() <= CurrentTime)
@@ -207,15 +219,15 @@ TArray<uint8> UMMScriptImpl::SerializeToData()
 	{
 		FBlueprintJsonObject ArgsJsonObj = _InstructionInstances[i]->GenArgsJsonObject();
 		FString InstructionJsonStr;
-		FJsonObject InstructionJson;
-		InstructionJson.SetNumberField("Time", _InstructionInstances[i]->GetTime());
-		InstructionJson.SetStringField("Instruction",InstructionManager->GetInstructionName(_InstructionInstances[i]->GetClass()).ToString());
-		InstructionJson.SetObjectField("Args", ArgsJsonObj.Object);
+		TSharedPtr<FJsonObject> InstructionJson = MakeShareable(new FJsonObject());
+		InstructionJson->SetNumberField("Time", _InstructionInstances[i]->GetTime());
+		InstructionJson->SetStringField("Instruction",InstructionManager->GetInstructionName(_InstructionInstances[i]->GetClass()).ToString());
+		InstructionJson->SetObjectField("Args", ArgsJsonObj.Object);
 		TSharedRef<TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<TCHAR>::Create(&InstructionJsonStr);
-		FJsonSerializer::Serialize(ArgsJsonObj.Object.ToSharedRef(), JsonWriter);
+		FJsonSerializer::Serialize(InstructionJson.ToSharedRef(), JsonWriter);
 		FTCHARToUTF8 InstructionJsonStrConversion(*InstructionJsonStr);
-		MMSData.Append(MuthMTypeHelper::SaveIntToData(InstructionJsonStrConversion.Length()));
 		MMSData.Append((const uint8*)InstructionJsonStrConversion.Get(), InstructionJsonStrConversion.Length());
+		MMSData.Add(0); //Json String Terminal Character.
 	}
 	//Fill Count of Instructions.
 	FMemory::Memcpy(MMSData.GetData() + 4, MuthMTypeHelper::SaveIntToData(_InstructionInstances.Num()).GetData(),sizeof(uint32));
