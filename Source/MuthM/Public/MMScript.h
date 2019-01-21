@@ -54,5 +54,6 @@ public:
 		virtual float GetGameTime() const = 0;
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Notify MMS to Reorder Instructions"))
 		virtual void UpdateInstructions() = 0;
+	virtual TArray<UInstruction*> GetAllInstructions() const = 0;
 };
 

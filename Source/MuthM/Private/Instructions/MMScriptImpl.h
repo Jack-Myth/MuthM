@@ -23,6 +23,9 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 	void _Internal_CleanInstructions();
 	UMMScriptImpl() = default;
 	float mLastTime = 0;
+protected:
+	static TSharedPtr<FJsonObject> CollectEditorArgs(class UInstruction* Instruction);
+	static void ApplyEditorArgs(TSharedPtr<FJsonObject>& EditorArgsJson, class UInstruction* Instruction);
 public:
 	virtual bool LoadFromFile(FString FileName) override;
 	virtual bool LoadFromData(const TArray<uint8>& FileData) override;
@@ -39,11 +42,8 @@ public:
 	virtual void SetPlayType(EPlayType PlayType) override;
 	virtual void AddInstruction(class UInstruction* InstructionInstance) override;
 	virtual TArray<UInstruction *> GetAllPreparedInstructionByType(TSubclassOf<UInstruction> TargetClass) const override;
-
-
 	virtual float GetGameTime() const override;
-
-
 	virtual void UpdateInstructions() override;
+	virtual TArray<UInstruction *> GetAllInstructions() const override;
 
 };

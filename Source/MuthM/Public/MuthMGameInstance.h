@@ -94,4 +94,7 @@ public:
 
 	void EnterPIEMode(struct FWorldContext*& PIEWorld);
 	void ExitPIEMode();
+
+	virtual void Shutdown() override;
+
 };

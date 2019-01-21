@@ -21,7 +21,7 @@ void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance
 	if (PropertyName=="LROffset")
 	{
 		LROffset = NumberValue;
-		if (_CachedInstructionWidget)
+		if (_CachedInstructionWidget) //Template doesn't have Instruction Widget
 			_CachedInstructionWidget->SetVerticalOffset(LROffset);
 	}
 	else if (PropertyName=="Width")
@@ -34,7 +34,7 @@ void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance
 	}
 }
 
-void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
+void URhythmTap::InitProperty(FBlueprintJsonObject& Args)
 {
 	TSharedPtr<FJsonObject> JsonArgs = Args.Object;
 	LROffset = JsonArgs->GetNumberField("LROffset");
@@ -55,32 +55,43 @@ void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 		MaxScore = 100;
 }
 
-void URhythmTap::OnInstructionLoaded_EditorExtra_Implementation(FEditorExtraInfo EditorExtraInfo)
+void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 {
-	LROffset = EditorExtraInfo.VerticalOffset;
+	Super::OnInstructionLoaded_Implementation(Args);
+	InitProperty(Args);
+}
+
+void URhythmTap::OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args,FEditorExtraInfo EditorExtraInfo)
+{
+	Super::OnInstructionLoaded_Editor_Implementation(Args, EditorExtraInfo);
+	InitProperty(Args);
+	if (EditorExtraInfo.ExtraInfoValid)
+	{
+		LROffset = EditorExtraInfo.VerticalOffset;
+	}
 }
 
 void URhythmTap::OnPrepare_Implementation()
 {
 	Super::OnPrepare_Implementation();
-	CheckWidthScale = GetGlobalNumberData("_MUTHM_3DDROP_CHECK_WIDTH_SCALE");
-	CheckWidthScale = CheckWidthScale == 0 ? 1.f : CheckWidthScale; //Reset if Scale not exist.
 	UStaticMesh* PlaneMesh = LoadObject<UStaticMesh>(nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
 	RhythmObj = GetWorld()->SpawnActor<AStaticMeshActor>(FVector(1000.f, LROffset*SceneHalfWidth, 10.f),FRotator(0,90.f,0));
 	RhythmObj->SetMobility(EComponentMobility::Movable);
+	RhythmObj->GetStaticMeshComponent()->SetStaticMesh(PlaneMesh);
 	GetRhythmMaterial(RhythmTapMatDynamic);
 	RhythmObj->GetStaticMeshComponent()->SetMaterial(0, RhythmTapMatDynamic);
-	RhythmObj->SetActorScale3D(FVector(Width*SceneHalfWidth / 50, 1, 1));
+	RhythmObj->SetActorScale3D(FVector(Width*SceneHalfWidth / 50.f, 0.2f, 1));
 	RhythmObj->SetActorEnableCollision(false);
-	if (!Speed)
-		Speed = 1000;
 }
 
 void URhythmTap::OnTick_Implementation(float CurrentTime)
 {
 	//Super::OnTick(CurrentTime);
-	if (CurrentTime<GetTime())
-		RhythmObj->SetActorLocation(FVector((GetTime()-CurrentTime)*Speed));
+	if (CurrentTime < GetTime())
+	{
+		FVector ActorLocation = RhythmObj->GetActorLocation();
+		RhythmObj->SetActorLocation(FVector((GetTime() - CurrentTime)*Speed, ActorLocation.Y, ActorLocation.Z));
+	}	
 	else if (CurrentTime - GetTime() > CheckWidthScale*DefaultCheckWidthBad)
 	{
 		//Player Missed.
@@ -93,13 +104,15 @@ void URhythmTap::OnTick_Implementation(float CurrentTime)
 	}
 	else
 	{
+		FVector ActorLocation = RhythmObj->GetActorLocation();
 		SetAlpha(RhythmTapMatDynamic, FMath::Max(1 - (CurrentTime - GetTime()), 1.f));
-		RhythmObj->SetActorLocation(FVector((GetTime() - CurrentTime)*100));
+		RhythmObj->SetActorLocation(FVector((GetTime() - CurrentTime) * 100, ActorLocation.Y, ActorLocation.Z));
 	}
 }
 
 bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 {
+	bool beenTouched=false;
 	//Check Position First
 	if (Y > LROffset / SceneHalfWidth - Width * 50 && Y < LROffset / SceneHalfWidth + Width * 50)
 	{
@@ -112,7 +125,7 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 			ScoreCore->SubmitScore(MaxScore);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Perfect);
-			return true;
+			beenTouched = true;
 		}
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthGreat)
 		{
@@ -122,7 +135,7 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 			ScoreCore->SubmitScore(MaxScore*0.80f);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Great);
-			return true;
+			beenTouched = true;
 		}
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthSafe)
 		{
@@ -132,7 +145,7 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 			ScoreCore->SubmitScore(MaxScore*0.50f);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Miss);
-			return true;
+			beenTouched = true;
 		}
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) <= CheckWidthScale*DefaultCheckWidthBad)
 		{
@@ -142,8 +155,14 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 			ScoreCore->SubmitScore(MaxScore*0.30f);
 			ScoreCore->SubmitCombo();
 			ScoreCore->SubmitGrade(EScoreGrade::SG_Bad);
-			return true;
+			beenTouched = true;
 		}
+	}
+	if (beenTouched)
+	{
+		RhythmObj->Destroy();
+		DestroySelf();
+		return true;
 	}
 	return false;
 }
@@ -202,6 +221,13 @@ void URhythmTap::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<I
 	MaxScoreDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
 	RhythmCategory.ItemList.Add(MaxScoreDetail);
 	DetailsBuilder->AddCategory(RhythmCategory);
+}
+
+class UInstructionWidgetBase* URhythmTap::GenInstructionWidget_Implementation()
+{
+	UInstructionWidgetBase* CurInstructionWidget = Super::GenInstructionWidget_Implementation();
+	CurInstructionWidget->SetVerticalOffset(LROffset);
+	return CurInstructionWidget;
 }
 
 void URhythmTap::SetAlpha_Implementation(class UMaterialInstanceDynamic* RhythmDMI, float Alpha)

@@ -51,7 +51,7 @@ bool UInstruction::IsInstructionReady_Implementation() const
 	return false;
 }
 
-void UInstruction::OnInstructionLoaded_EditorExtra_Implementation(FEditorExtraInfo EditorExtraInfo)
+void UInstruction::OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args,FEditorExtraInfo EditorExtraInfo)
 {}
 
 void UInstruction::DestroySelf()
@@ -101,7 +101,7 @@ void UInstruction::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface
 class UInstructionWidgetBase* UInstruction::GenInstructionWidget_Implementation()
 {
 	auto InstructionWidgetClass = UUIProvider::Get(this)->GetInstructionWidget();
-	_CachedInstructionWidget = Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));;
+	_CachedInstructionWidget = Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));
 	return _CachedInstructionWidget;
 }
 

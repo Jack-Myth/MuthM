@@ -4,6 +4,8 @@
 #include "JsonObject.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "Engine/World.h"
+#include "PackageName.h"
+#include "MuthMBPLib.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -22,27 +24,22 @@ void ULoadScene::OnStringDetailsCallback(class UInstruction* InstructionInstance
 void ULoadScene::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 {
 	OnLoadSceneName = Args.Object->GetStringField("OnLoadSceneName");
+	OnArrivedSceneName = Args.Object->GetStringField("OnArrivedSceneName");
 	if (OnLoadSceneName !="")
 	{
-		bool bSuccessful;
-		ULevelStreamingDynamic* LSD = ULevelStreamingDynamic::LoadLevelInstance(this, OnLoadSceneName, FVector::ZeroVector, FRotator::ZeroRotator, bSuccessful);
-		if (bSuccessful&&LSD) //Maybe only need one?
+		auto* LSD = UMuthMBPLib::GenStreamingLevelInstance(this, OnLoadSceneName, FVector::ZeroVector, FRotator::ZeroRotator);
+		if (LSD)
 		{
-			LSD->SetShouldBeLoaded(true);
-			LSD->SetShouldBeVisible(true);
 			GetWorld()->AddStreamingLevel(LSD);
-			//GetWorld()->UpdateLevelStreaming();
 		}
 	}
-	OnArrivedSceneName = Args.Object->GetStringField("OnArrivedSceneName");
 	if (OnArrivedSceneName!="")
 	{
-		bool bSuccessful;
 		//Cached it to prevent freeze the game.
-		CachedOnArrivedLevel = ULevelStreamingDynamic::LoadLevelInstance(this, OnArrivedSceneName, FVector::ZeroVector, FRotator::ZeroRotator, bSuccessful);
-		if (bSuccessful)
+		CachedOnArrivedLevel = UMuthMBPLib::GenStreamingLevelInstance(this, OnArrivedSceneName, FVector::ZeroVector, FRotator::ZeroRotator);
+		if (CachedOnArrivedLevel)
 		{
-			CachedOnArrivedLevel->SetShouldBeLoaded(true);
+			CachedOnArrivedLevel->bInitiallyVisible = false;
 			CachedOnArrivedLevel->SetShouldBeVisible(false);
 			GetWorld()->AddStreamingLevel(CachedOnArrivedLevel);
 		}
@@ -52,6 +49,12 @@ void ULoadScene::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 		//If no scene need to be load later,Destroy self.
 		DestroySelf();
 	}
+}
+
+void ULoadScene::OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args, FEditorExtraInfo EEI)
+{
+	OnLoadSceneName = Args.Object->GetStringField("OnLoadSceneName");
+	OnArrivedSceneName = Args.Object->GetStringField("OnArrivedSceneName");
 }
 
 void ULoadScene::OnTimeArrived_Implementation()
@@ -75,6 +78,7 @@ void ULoadScene::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBuild
 	OnLoadSceneNameInfo->InstructionInstance = this;
 	OnLoadSceneNameInfo->Name = "OnLoadSceneName";
 	OnLoadSceneNameInfo->DisplayName = LOCTEXT("OnLoadSceneName", "OnLoadSceneName");
+	OnLoadSceneNameInfo->StrValue = OnLoadSceneName;
 	DetailCategoryInto.ItemList.Add(OnLoadSceneNameInfo);
 
 	TSharedPtr<FDetailItemString> OnArrivedSceneNameInfo = MakeShareable(new FDetailItemString());
@@ -82,8 +86,17 @@ void ULoadScene::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBuild
 	OnArrivedSceneNameInfo->InstructionInstance = this;
 	OnArrivedSceneNameInfo->Name = "OnArrivedSceneName";
 	OnArrivedSceneNameInfo->DisplayName = LOCTEXT("OnArrivedSceneName", "OnArrivedSceneName");
+	OnArrivedSceneNameInfo->StrValue = OnArrivedSceneName;
 	DetailCategoryInto.ItemList.Add(OnArrivedSceneNameInfo);
 	DetailsBuilder->AddCategory(DetailCategoryInto);
+}
+
+FBlueprintJsonObject ULoadScene::GenArgsJsonObject_Implementation()
+{
+	FBlueprintJsonObject BPJsonObj = Super::GenArgsJsonObject_Implementation();
+	BPJsonObj.Object->SetStringField("OnLoadSceneName", OnLoadSceneName);
+	BPJsonObj.Object->SetStringField("OnArrivedSceneName", OnArrivedSceneName);
+	return BPJsonObj;
 }
 
 #undef LOCTEXT_NAMESPACE

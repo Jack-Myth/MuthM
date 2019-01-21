@@ -20,11 +20,16 @@ protected:
 		FString OnLoadSceneName;
 	UPROPERTY(BlueprintReadWrite)
 		FString OnArrivedSceneName;
-	void OnStringDetailsCallback(class UInstruction* InstructionInstance, FName PropertyName, FString StrValue);
+	UFUNCTION()
+		void OnStringDetailsCallback(class UInstruction* InstructionInstance, FName PropertyName, FString StrValue);
 public:
 	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
+
+	virtual void OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args, FEditorExtraInfo EEI) override;
 
 	virtual void OnTimeArrived_Implementation() override;
 
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
+
+	virtual FBlueprintJsonObject GenArgsJsonObject_Implementation();
 };

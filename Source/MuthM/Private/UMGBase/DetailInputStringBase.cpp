@@ -5,7 +5,7 @@
 
 void UDetailInputStringBase::FireOnValueChanged()
 {
-	_DetailItemInfo->DetailCallbackStr.ExecuteIfBound(_DetailItemInfo->InstructionInstance, _DetailItemInfo->Name, _DetailItemInfo->StrValue);
+	_DetailItemInfo->DetailCallbackStr.ExecuteIfBound(_DetailItemInfo->InstructionInstance, _DetailItemInfo->Name, GetInputString());
 }
 
 void UDetailInputStringBase::ValueInit(TSharedPtr<struct FDetailItemString> DetailItemInfo)

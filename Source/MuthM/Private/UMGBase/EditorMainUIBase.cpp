@@ -18,7 +18,7 @@ void UEditorMainUIBase::PauseMusic()
 	InEditorMode->PauseMusicOnly();
 }
 
-void UEditorMainUIBase::Init(FMusicInfo MusicInfo, TScriptInterface<class IMMScript> MMScript)
+void UEditorMainUIBase::Init(FMusicInfo MusicInfo)
 {
 	//Add Editor Panel
 	OnFillMusicInfo(MusicInfo);

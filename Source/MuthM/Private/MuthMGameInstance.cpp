@@ -163,3 +163,11 @@ void UMuthMGameInstance::ExitPIEMode()
 	//Call Delegate
 	OnExitPIE.Broadcast();
 }
+
+void UMuthMGameInstance::Shutdown()
+{
+	if (PIESession.IsValid())
+	{
+		ExitPIEMode();
+	}
+}

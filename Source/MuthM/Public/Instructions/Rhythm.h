@@ -25,6 +25,9 @@ protected:
 		float DefaultCheckWidthBad = 0.5f;
 
 	UPROPERTY(BlueprintReadWrite)
+		float CheckWidthScale = 1.f;
+
+	UPROPERTY(BlueprintReadWrite)
 		float SceneHalfWidth;
 	UPROPERTY(BlueprintReadWrite)
 		float Speed;

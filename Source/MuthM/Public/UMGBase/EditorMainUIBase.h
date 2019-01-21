@@ -30,7 +30,7 @@ public:
 		void OnInstructionSelected(UInstruction* SelectedInstruction);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnFillMusicInfo(FMusicInfo MusicInfo);
-	void Init(FMusicInfo MusicInfo,TScriptInterface<class IMMScript> MMScript);
+	void Init(FMusicInfo MusicInfo);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnPlaceEditorPanel(class UEditorPanelBase* EditorPanel);
 	UFUNCTION(BlueprintCallable)

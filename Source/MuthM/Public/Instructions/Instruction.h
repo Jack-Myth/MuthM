@@ -24,6 +24,7 @@ struct FEditorExtraInfo
 {
 	GENERATED_BODY()
 		//
+	bool ExtraInfoValid = false;
 	float VerticalOffset=0;
 };
 
@@ -44,7 +45,7 @@ class MUTHM_API UInstruction:public UObject,public IHasDetails
 protected:
 	UFUNCTION()
 		void OnTimeChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 		class UInstructionWidgetBase* _CachedInstructionWidget=nullptr;
 public:
 
@@ -78,7 +79,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 		void OnInstructionLoaded(FBlueprintJsonObject Args);
 	UFUNCTION(BlueprintNativeEvent)
-		void OnInstructionLoaded_EditorExtra(FEditorExtraInfo EditorExtraInfo);
+		void OnInstructionLoaded_Editor(FBlueprintJsonObject Args,FEditorExtraInfo EditorExtraInfo);
 	UFUNCTION(BlueprintNativeEvent)
 		void OnPrepare();
 	UFUNCTION(BlueprintNativeEvent)

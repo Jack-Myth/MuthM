@@ -23,30 +23,42 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 	_MMSStr += 4;  //Length of "_MMS"
 	_Internal_CleanInstructions();
 	uint32 InstructionCount = MuthMTypeHelper::LoadIntFromData(_MMSStr);
-	struct tmpInstructionList
+	struct InstructionInfoList
 	{
 		float Time;
 		FName InstructionName;
 		TSharedPtr<FJsonObject> Args;
+		TSharedPtr<FJsonObject> EditorArgs;
 	};
 	_MMSStr += sizeof(uint32);
-	TArray<tmpInstructionList> tmpICollection;
+	TArray<InstructionInfoList> tmpICollection;
 	while (InstructionCount--)
 	{
-		tmpInstructionList tmpIItem;
+		InstructionInfoList tmpIItem;
 		auto ConversionJson = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
 		//Load Instruction Json From _MMSStr
 		TSharedRef<TJsonReader<TCHAR>> ResultJsonReader = TJsonReaderFactory<TCHAR>::Create(ConversionJson.Get());
 		TSharedPtr<FJsonObject> InstructionJson = MakeShareable(new FJsonObject());
 		FJsonSerializer::Deserialize(ResultJsonReader, InstructionJson);
+		_MMSStr += ConversionJson.Length() + 1;		//Include Terminate Character
 		//Load Time,InstructionName and Args
 		tmpIItem.Time = InstructionJson->GetNumberField("Time");
 		tmpIItem.InstructionName = *(InstructionJson->GetStringField("Instruction"));
 		tmpIItem.Args = InstructionJson->GetObjectField("Args");
-		_MMSStr += ConversionJson.Length() + 1;		//Include Terminate Character
+
+		auto ConversionEditorArgsJson = FUTF8ToTCHAR((const ANSICHAR*)_MMSStr);
+		_MMSStr += ConversionEditorArgsJson.Length() + 1;
+		if (_PlayType==EPlayType::PT_Editor&&ConversionEditorArgsJson.Length()) //EditorArgs may be empty.
+		{
+			TSharedRef<TJsonReader<TCHAR>> EditorArgsJsonReader = TJsonReaderFactory<TCHAR>::Create(ConversionEditorArgsJson.Get());
+			TSharedPtr<FJsonObject> EditorArgsJson = MakeShareable(new FJsonObject());
+			FJsonSerializer::Deserialize(EditorArgsJsonReader, EditorArgsJson);
+			tmpIItem.EditorArgs = EditorArgsJson;
+		}
+		//Ignore Editor Args if is not in editor.
 		tmpICollection.Push(tmpIItem);
 	}
-	tmpICollection.Sort([](const tmpInstructionList& a, const tmpInstructionList& b)
+	tmpICollection.Sort([](const InstructionInfoList& a, const InstructionInfoList& b)
 		{
 			return a.Time < b.Time;
 		});
@@ -59,7 +71,12 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 		FBlueprintJsonObject tmpBPJsonArg;
 		tmpBPJsonArg.Object = tmpICollection[i].Args;
 		//This will allow Instruction Remove itself after it loaded immediately.
-		InstructionInstance->OnInstructionLoaded(tmpBPJsonArg);
+		if (_PlayType == EPlayType::PT_Editor)
+			InstructionInstance->OnInstructionLoaded_Editor(tmpBPJsonArg,FEditorExtraInfo());
+		else
+			InstructionInstance->OnInstructionLoaded(tmpBPJsonArg);
+		if (tmpICollection[i].EditorArgs.IsValid())
+			ApplyEditorArgs(tmpICollection[i].EditorArgs, InstructionInstance);
 	}
 	mLastTime = -GetSuiltableDelay();
 	return true;
@@ -85,6 +102,21 @@ void UMMScriptImpl::_Internal_CleanInstructions()
 		tmppInstruction->MarkPendingKill();
 		return;
 	}
+}
+
+TSharedPtr<FJsonObject> UMMScriptImpl::CollectEditorArgs(class UInstruction* Instruction)
+{
+	TSharedPtr<FJsonObject> EditorArgs = MakeShareable(new FJsonObject());
+	//Default value shouldn't be added to EditorArgs
+	if (Instruction->EditorVisualVerticalOffset!=0)
+		EditorArgs->SetNumberField("EditorVisualVerticalOffset", Instruction->EditorVisualVerticalOffset);
+	return EditorArgs;
+}
+
+void UMMScriptImpl::ApplyEditorArgs(TSharedPtr<FJsonObject>& EditorArgsJson, class UInstruction* Instruction)
+{
+	float _EditorVisualVerticalOffset = EditorArgsJson->GetNumberField("EditorVisualVerticalOffset");
+	Instruction->EditorVisualVerticalOffset = _EditorVisualVerticalOffset;
 }
 
 bool UMMScriptImpl::LoadFromFile(FString FileName)
@@ -177,6 +209,7 @@ void UMMScriptImpl::Tick(float CurrentTime)
 		{
 			UInstruction* TargetInstruction = *it;
 			it.RemoveCurrent();
+			_InstructionInstances.RemoveAt(it.GetIndex());
 			_PreparedInstructionInstance.Add(TargetInstruction);
 			TargetInstruction->OnPrepare();
 		}
@@ -188,10 +221,10 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	InstructionGroupDuplicated.Append(_PreparedInstructionInstance);
 	for (int i = 0; i < InstructionGroupDuplicated.Num(); i++)
 	{
-		_PreparedInstructionInstance[i]->OnTick(CurrentTime);
-		if (_PreparedInstructionInstance[i]->GetTime() > mLastTime&&_PreparedInstructionInstance[i]->GetTime() <= CurrentTime)
+		InstructionGroupDuplicated[i]->OnTick(CurrentTime);
+		if (InstructionGroupDuplicated[i]->GetTime() > mLastTime&&InstructionGroupDuplicated[i]->GetTime() <= CurrentTime)
 		{
-			_PreparedInstructionInstance[i]->OnTimeArrived();
+			InstructionGroupDuplicated[i]->OnTimeArrived();
 		}
 	}
 }
@@ -223,11 +256,26 @@ TArray<uint8> UMMScriptImpl::SerializeToData()
 		InstructionJson->SetNumberField("Time", _InstructionInstances[i]->GetTime());
 		InstructionJson->SetStringField("Instruction",InstructionManager->GetInstructionName(_InstructionInstances[i]->GetClass()).ToString());
 		InstructionJson->SetObjectField("Args", ArgsJsonObj.Object);
+		//Args
 		TSharedRef<TJsonWriter<TCHAR>> JsonWriter = TJsonWriterFactory<TCHAR>::Create(&InstructionJsonStr);
 		FJsonSerializer::Serialize(InstructionJson.ToSharedRef(), JsonWriter);
 		FTCHARToUTF8 InstructionJsonStrConversion(*InstructionJsonStr);
 		MMSData.Append((const uint8*)InstructionJsonStrConversion.Get(), InstructionJsonStrConversion.Length());
 		MMSData.Add(0); //Json String Terminal Character.
+
+		//Editor Args
+		FString EditorArgsJsonStr;
+		TSharedPtr<FJsonObject> EditorArgsJson = CollectEditorArgs(_InstructionInstances[i]);
+		//Don't Add EditorArgs when EditorArgsJson are empty
+		//To reduce MMS's size.
+		if (EditorArgsJson->Values.Num())
+		{
+			TSharedRef<TJsonWriter<TCHAR>> EditorJsonWriter = TJsonWriterFactory<TCHAR>::Create(&EditorArgsJsonStr);
+			FJsonSerializer::Serialize(EditorArgsJson.ToSharedRef(), EditorJsonWriter);
+			FTCHARToUTF8 EditorArgsJsonStrConversion(*EditorArgsJsonStr);
+			MMSData.Append((const uint8*)EditorArgsJsonStrConversion.Get(), EditorArgsJsonStrConversion.Length());
+		}
+		MMSData.Add(0); //Terminal Character
 	}
 	//Fill Count of Instructions.
 	FMemory::Memcpy(MMSData.GetData() + 4, MuthMTypeHelper::SaveIntToData(_InstructionInstances.Num()).GetData(),sizeof(uint32));
@@ -314,6 +362,15 @@ void UMMScriptImpl::UpdateInstructions()
 	auto Pred = [](const UInstruction* a, const UInstruction* b) {return a->GetTime() < b->GetTime(); };
 	Algo::Sort(_InstructionInstances, Pred);
 	Algo::Sort(_PreparedInstructionInstance, Pred);
+}
+
+TArray<UInstruction *> UMMScriptImpl::GetAllInstructions() const
+{
+	TArray<UInstruction*> tmpInstructions;
+	tmpInstructions.Append(_InstructionInstances);
+	tmpInstructions.Append(_PreparedInstructionInstance);
+	Algo::Sort(tmpInstructions, [](UInstruction* a, UInstruction* b) {return a->GetTime() < b->GetTime(); });
+	return tmpInstructions;
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

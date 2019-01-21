@@ -20,6 +20,7 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnVerticalOffset(float Offset, float PanelHalfHeight);
 public:
+
 	void Init(class UInstruction* InstructionInstance);
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE class UInstruction* GetInstructionInstance() const

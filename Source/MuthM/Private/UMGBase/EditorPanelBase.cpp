@@ -122,16 +122,17 @@ void UEditorPanelBase::AddInstructionAtTime(float Time,float VerticalOffset)
 		a = FMath::RoundToFloat(a);
 		Time = a * (60.f / (_BPM * _BeatDenominator)) + Offset;
 	}
-	auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(InstructionTemplate->GetRegisterName(), Time, *BpJsonObj.Object);
+	auto* InstructionInstance = IInstructionManager::Get(this)->GenInstruction(InstructionTemplate->GetRegisterName(), Time);
 	if (!InstructionInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Add Instruction Failed!\nTemplate:%s,Register Name:%s"),*InstructionTemplate->GetName(),*InstructionTemplate->GetRegisterName().ToString());
 		return;
 	}
 	FEditorExtraInfo EEI;
+	EEI.ExtraInfoValid = true;
 	EEI.VerticalOffset = VerticalOffset;
-	InstructionInstance->OnInstructionLoaded_EditorExtra(EEI);
 	InEditorMode->GetEditorMMS()->AddInstruction(InstructionInstance);
+	InstructionInstance->OnInstructionLoaded_Editor(BpJsonObj,EEI);
 	auto* InstructionWidget = InstructionInstance->GenInstructionWidget();
 	InstructionWidget->Init(InstructionInstance);
 	InstructionWidgets.Add(InstructionWidget);
@@ -149,6 +150,12 @@ void UEditorPanelBase::RemoveInstruction(class UInstructionWidgetBase* WidgetToR
 	if (InstructionWidgets.Remove(WidgetToRemove))
 	{
 		WidgetToRemove->RemoveFromParent();
+		_SelectedWidget = nullptr;
+		if (ActivedDetailsWidget)
+		{
+			ActivedDetailsWidget->CloseDetails();
+			ActivedDetailsWidget = nullptr;
+		}
 		auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 		InEditorMode->GetEditorMMS()->RemoveInstruction(WidgetToRemove->GetInstructionInstance(), EInstructionDestroyReason::IDR_Editing);
 	}
@@ -231,7 +238,7 @@ void UEditorPanelBase::OnMusicProcessCallback(float Current, float Duration)
 
 void UEditorPanelBase::SetInstructionTemplateByName(FName TemplateInstructionName)
 {
-	auto* tmpInstructionTemplate = IInstructionManager::Get(this)->GenInstruction(TemplateInstructionName,0, FJsonObject());
+	auto* tmpInstructionTemplate = IInstructionManager::Get(this)->GenInstruction(TemplateInstructionName,0);
 	if (tmpInstructionTemplate)
 	{
 		//Replace current template and pupop details.
@@ -248,6 +255,18 @@ void UEditorPanelBase::NativeConstruct()
 	_SpectrumTexture = EditorMode->DrawMainMusicSpectrum(0,GetMusicLength(),GetMusicLength() * 100, 128);
 	OnSpectrumUpdate(_SpectrumTexture);
 	EditorMode->OnMusicPlaybackTimeUpdate.AddDynamic(this, &UEditorPanelBase::OnMusicProcessCallback);
+
+	//Load Instructions.
+	auto EditorMMS = EditorMode->GetEditorMMS();
+	TArray<UInstruction*> InstructionList = EditorMMS->GetAllInstructions();
+	//Gen Instruction Widgets;
+	for (int i=0;i<InstructionList.Num();i++)
+	{
+		auto* InstructionWidget = InstructionList[i]->GenInstructionWidget();
+		InstructionWidget->Init(InstructionList[i]);
+		InstructionWidgets.Add(InstructionWidget);
+		OnInstructionWidgetAdded(InstructionWidget);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

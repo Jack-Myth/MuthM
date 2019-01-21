@@ -23,13 +23,14 @@ protected:
 	UMaterialInstanceDynamic* RhythmTapMatDynamic;
 	float Width=0.2;
 	class UParticleSystem* TapEffect=nullptr;
-	float CheckWidthScale=1.f;
 	float MaxScore = 100;
 	UFUNCTION()
 		void OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
+	UFUNCTION(BlueprintCallable)
+		void InitProperty(UPARAM(Ref) FBlueprintJsonObject& Args);
 public:
 	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
-	virtual void OnInstructionLoaded_EditorExtra_Implementation(FEditorExtraInfo EditorExtraInfo) override;
+	virtual void OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args,FEditorExtraInfo EditorExtraInfo) override;
 	virtual void OnPrepare_Implementation() override;
 	virtual void OnTick_Implementation(float CurrentTime) override;
 	UFUNCTION(BlueprintNativeEvent)
@@ -41,4 +42,5 @@ public:
 	virtual float RequestPlainMaxScore_Implementation() override;
 	virtual FBlueprintJsonObject GenArgsJsonObject_Implementation() override;
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
+	virtual class UInstructionWidgetBase* GenInstructionWidget_Implementation() override;
 };

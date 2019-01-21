@@ -35,6 +35,7 @@ DEFINE_LOG_CATEGORY(MuthMBPLib)
 #define MAINSWPLAYER_CLASS UMainSWPlayerImpl
 #endif // _MUTHM_USE_FMOD
 #include "MainSWPlayer.h"
+#include "Engine/LevelStreamingDynamic.h"
 
 TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager(const UObject* WorldContextObj)
 {
@@ -276,4 +277,27 @@ void UMuthMBPLib::AddCustomItemToCategory(FDetailCategoryStruct& DetailCategory,
 TScriptInterface<IMainSWPlayer> UMuthMBPLib::GenMainSWPlayer(const UObject* WorldContextObj)
 {
 	return NewObject<MAINSWPLAYER_CLASS>(WorldContextObj->GetWorld());
+}
+
+ULevelStreamingDynamic* UMuthMBPLib::GenStreamingLevelInstance(class UObject* WorldContextObj, const FString& MapName, const FVector& Location, const FRotator& Rotation)
+{
+	FString LongPackageName;
+	if (!FPackageName::SearchForPackageOnDisk(MapName, &LongPackageName))
+		return nullptr;
+	// Create Unique Name for sub-level package
+	const FString ShortPackageName = FPackageName::GetShortName(LongPackageName);
+	const FString PackagePath = FPackageName::GetLongPackagePath(LongPackageName);
+	FString LevelPackageName = PackagePath + TEXT("/") + WorldContextObj->GetWorld()->StreamingLevelsPrefix + ShortPackageName;
+	//LevelPackageName += TEXT("_LevelInstance_");
+	ULevelStreamingDynamic* LevelInstance = NewObject<ULevelStreamingDynamic>(WorldContextObj->GetWorld(), NAME_None);
+	LevelInstance->SetWorldAssetByPackageName(*LevelPackageName);
+	LevelInstance->SetShouldBeLoaded(true);
+	LevelInstance->SetShouldBeVisible(true);
+	LevelInstance->bInitiallyLoaded = true;
+	LevelInstance->bInitiallyVisible = true;
+	LevelInstance->bShouldBlockOnLoad = true;
+	LevelInstance->PackageNameToLoad = *LongPackageName;
+	LevelInstance->LevelColor = FColor::MakeRandomColor();
+	LevelInstance->LevelTransform = FTransform(Rotation, Location);
+	return LevelInstance;
 }
