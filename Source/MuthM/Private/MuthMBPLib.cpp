@@ -205,6 +205,10 @@ TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromUTF8(const TArray<uint8>
 
 TSharedPtr<FJsonObject> UMuthMBPLib::DeserializeJsonFromStr(FString JsonStr)
 {
+	//JsonStr may have dirty tail(UTF8_TO_CHAR error),so clear tails until '}'
+	int i = JsonStr.Len();
+	while (i > 0 && JsonStr[i-- - 1] != TEXT('}'));
+	JsonStr=JsonStr.Mid(0, i + 1);
 	TSharedPtr<FJsonObject> JsonObj = MakeShareable<FJsonObject>(new FJsonObject());
 	TSharedRef<TJsonReader<TCHAR>> jsonr= TJsonReaderFactory<TCHAR>::Create(*JsonStr);
 	FJsonSerializer::Deserialize(jsonr, JsonObj);

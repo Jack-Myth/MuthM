@@ -35,6 +35,10 @@ void URhythm::OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Arg
 {
 	Super::OnInstructionLoaded_Implementation(Args);
 	LROffset = Args.Object->GetNumberField("LROffset");
+	if (EditorExtraInfo.ExtraInfoValid)
+	{
+		LROffset = EditorExtraInfo.VerticalOffset;
+	}
 }
 
 void URhythm::OnPrepare_Implementation()

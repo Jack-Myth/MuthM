@@ -58,10 +58,6 @@ void URhythmTap::OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject 
 {
 	Super::OnInstructionLoaded_Editor_Implementation(Args, EditorExtraInfo);
 	InitProperty(Args);
-	if (EditorExtraInfo.ExtraInfoValid)
-	{
-		LROffset = EditorExtraInfo.VerticalOffset;
-	}
 }
 
 void URhythmTap::OnPrepare_Implementation()
