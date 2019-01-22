@@ -31,11 +31,22 @@ protected:
 		float SceneHalfWidth;
 	UPROPERTY(BlueprintReadWrite)
 		float Speed;
+
+	UPROPERTY(BlueprintReadWrite)
+		float LROffset;
+
+	UFUNCTION()
+		void OnRhythmNumberDetailsChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 public:
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
 		bool OnBeginTouched(float X,float Y);
+
+	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
+	virtual void OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args, FEditorExtraInfo EditorExtraInfo) override;
 	
 	virtual void OnPrepare_Implementation() override;
 	virtual bool IsInstructionReady_Implementation() const override;
+
+	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
 };

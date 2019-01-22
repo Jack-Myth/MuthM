@@ -18,13 +18,7 @@
 
 void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
 {
-	if (PropertyName=="LROffset")
-	{
-		LROffset = NumberValue;
-		if (_CachedInstructionWidget) //Template doesn't have Instruction Widget
-			_CachedInstructionWidget->SetVerticalOffset(LROffset);
-	}
-	else if (PropertyName=="Width")
+	if (PropertyName=="Width")
 	{
 		Width = NumberValue;
 	}
@@ -37,7 +31,6 @@ void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance
 void URhythmTap::InitProperty(FBlueprintJsonObject& Args)
 {
 	TSharedPtr<FJsonObject> JsonArgs = Args.Object;
-	LROffset = JsonArgs->GetNumberField("LROffset");
 	TSharedPtr<FJsonObject> ColorObj = JsonArgs->GetObjectField("Color");
 	RhythmColor.R = ColorObj->GetNumberField("R");
 	RhythmColor.G = ColorObj->GetNumberField("G");
@@ -193,15 +186,6 @@ void URhythmTap::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<I
 	FDetailCategoryStruct RhythmCategory;
 	RhythmCategory.Title = "RhythmTap";
 	RhythmCategory.DisplayTitle = LOCTEXT("RhythmTap", "RhythmTap");
-	TSharedPtr<FDetailItemNumber> LROffsetDetail = MakeShareable(new FDetailItemNumber());
-	LROffsetDetail->Name = "LROffset";
-	LROffsetDetail->DisplayName = LOCTEXT("PositionOffset", "Position Offset");
-	LROffsetDetail->InstructionInstance = this;
-	LROffsetDetail->NumberValue = LROffset;
-	LROffsetDetail->SlideMax = 1.f;
-	LROffsetDetail->SlideMin = -1.f;
-	LROffsetDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
-	RhythmCategory.ItemList.Add(LROffsetDetail);	
 
 	TSharedPtr<FDetailItemNumber> WidthDetail = MakeShareable(new FDetailItemNumber());
 	WidthDetail->Name = "Width";
@@ -227,6 +211,7 @@ class UInstructionWidgetBase* URhythmTap::GenInstructionWidget_Implementation()
 {
 	UInstructionWidgetBase* CurInstructionWidget = Super::GenInstructionWidget_Implementation();
 	CurInstructionWidget->SetVerticalOffset(LROffset);
+	CurInstructionWidget->RefreshOffset();
 	return CurInstructionWidget;
 }
 

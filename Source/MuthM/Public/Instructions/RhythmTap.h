@@ -17,7 +17,6 @@ class MUTHM_API URhythmTap : public URhythm
 
 protected:
 
-	float LROffset;
 	class AStaticMeshActor* RhythmObj;
 	FLinearColor RhythmColor;
 	UMaterialInstanceDynamic* RhythmTapMatDynamic;

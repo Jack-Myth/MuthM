@@ -101,7 +101,7 @@ void UInstruction::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface
 class UInstructionWidgetBase* UInstruction::GenInstructionWidget_Implementation()
 {
 	auto InstructionWidgetClass = UUIProvider::Get(this)->GetInstructionWidget();
-	_CachedInstructionWidget = Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));
+	_CachedInstructionWidget = Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass,NAME_None));
 	return _CachedInstructionWidget;
 }
 

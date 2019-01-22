@@ -18,7 +18,9 @@ class MUTHM_API UInstructionWidgetBase : public UUserWidget
 	class UInstruction* _InstructionInstance;
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnVerticalOffset(float Offset, float PanelHalfHeight);
+		void OnVerticalOffset(float Offset);
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnRefreshOffset(float PanelHalfHeight);
 public:
 
 	void Init(class UInstruction* InstructionInstance);
@@ -41,4 +43,6 @@ public:
 		void DestroyInstruction();
 	UFUNCTION(BlueprintCallable)
 		void SetVerticalOffset(float Offset);
+	UFUNCTION(BlueprintCallable)
+		void RefreshOffset();
 };

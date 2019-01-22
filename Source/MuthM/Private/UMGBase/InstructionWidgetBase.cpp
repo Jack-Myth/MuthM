@@ -34,10 +34,15 @@ void UInstructionWidgetBase::DestroyInstruction()
 
 void UInstructionWidgetBase::SetVerticalOffset(float Offset)
 {
+	OnVerticalOffset(Offset);
+}
+
+void UInstructionWidgetBase::RefreshOffset()
+{
 	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	check(InEditorMode);
 	float HalfHeight = InEditorMode->GetEditorMainUI()->GetEditorPanel()->GetPanelHalfHeight();
-	OnVerticalOffset(Offset, HalfHeight);
+	OnRefreshOffset(HalfHeight);
 }
 
 void UInstructionWidgetBase::OnWidgetSelected_Implementation()

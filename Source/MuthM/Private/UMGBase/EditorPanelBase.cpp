@@ -137,6 +137,7 @@ void UEditorPanelBase::AddInstructionAtTime(float Time,float VerticalOffset)
 	InstructionWidget->Init(InstructionInstance);
 	InstructionWidgets.Add(InstructionWidget);
 	OnInstructionWidgetAdded(InstructionWidget);
+	InstructionWidget->InvalidateLayoutAndVolatility();
 }
 
 void UEditorPanelBase::OnDetailListClosed(class UDetailsListBase* DetailsListWidget)
@@ -266,6 +267,7 @@ void UEditorPanelBase::NativeConstruct()
 		InstructionWidget->Init(InstructionList[i]);
 		InstructionWidgets.Add(InstructionWidget);
 		OnInstructionWidgetAdded(InstructionWidget);
+		InstructionWidget->InvalidateLayoutAndVolatility();
 	}
 }
 
