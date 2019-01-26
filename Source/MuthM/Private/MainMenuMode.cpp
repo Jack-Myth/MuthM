@@ -8,45 +8,32 @@
 #include "ScoreSelectionUIBase.h"
 #include "MusicManager.h"
 #include "MuthMType.h"
+#include "MainMenuUIBase.h"
+#include "MuthMTypeHelper.h"
+#include "Paths.h"
 
-void AMainMenuMode::LoadWelcome()
-{
-	auto WelcomeUIClass = UUIProvider::Get(this)->GetWelcomeUI();
-	auto* WelcomeUI = Cast<UWelcomeUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), WelcomeUIClass, NAME_None));
-	WelcomeUI->AddToViewport();
-}
+DEFINE_LOG_CATEGORY(MainMenuMode)
 
-void AMainMenuMode::OnGameScoreSelected(FScoreSelectionInfo ScoreSelectionInfo)
+void AMainMenuMode::OnGameScoreSelected(const FString& MDATFileName, int ScoreIndex)
 {
 	//Fill GameArg for GameInstance
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	FGameArgs newGameArgs;
 	newGameArgs.bIsEditorMode = false;
-	newGameArgs.MDATFilePath = ScoreSelectionInfo.MDATPath;
-	FMusicInfo MusicInfo;
-	IMusicManager::Get(this)->FindMusicLocalByID(ScoreSelectionInfo.MusicID, MusicInfo);
-	newGameArgs.MainMusicInfo = MusicInfo;
-	newGameArgs.MMSFileName = ScoreSelectionInfo.MMSPath;
-	newGameArgs.ScoreIndex = ScoreSelectionInfo.ScoreIndex;
+	newGameArgs.MDATFileName = MDATFileName;
 	newGameArgs._MDAT = MakeShareable(new FMDATFile());
-	newGameArgs._MDAT->LoadFromFile(ScoreSelectionInfo.MDATPath);
-	GameInstance->FillGameArgs(newGameArgs);
-}
-
-void AMainMenuMode::OnEditorScoreSelected(FScoreSelectionInfo ScoreSelectionInfo)
-{
-	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
-	FGameArgs newGameArgs;
-	newGameArgs.bIsEditorMode = true;
-	newGameArgs.MDATFilePath = ScoreSelectionInfo.MDATPath;
-	FMusicInfo MusicInfo;
-	IMusicManager::Get(this)->FindMusicLocalByID(ScoreSelectionInfo.MusicID, MusicInfo);
-	newGameArgs.MainMusicInfo = MusicInfo;
-	newGameArgs.MMSFileName = ScoreSelectionInfo.MMSPath;
-	newGameArgs.ScoreIndex = ScoreSelectionInfo.ScoreIndex;
-	newGameArgs._MDAT = MakeShareable(new FMDATFile());
-	newGameArgs._MDAT->LoadFromFile(ScoreSelectionInfo.MDATPath);
-	GameInstance->FillGameArgs(newGameArgs);
+	newGameArgs._MDAT->LoadFromFile(FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), TEXT("/MDATs/"), MDATFileName));
+	FMDATMainInfo tmpMDATMainInfo;
+	if (MuthMTypeHelper::TryGetMDATMainInfo(newGameArgs._MDAT.Get(), tmpMDATMainInfo))
+	{
+		FMusicInfo MusicInfo;
+		IMusicManager::Get(this)->FindMusicLocalByID(tmpMDATMainInfo.ScoreInfoCollection[ScoreIndex].MusicID, MusicInfo);
+		newGameArgs.MainMusicInfo = MusicInfo;
+		newGameArgs.MMSFileName = tmpMDATMainInfo.ScoreInfoCollection[ScoreIndex].ScoreDataFileName;
+		newGameArgs.ScoreIndex = ScoreIndex;
+		GameInstance->FillGameArgs(newGameArgs);
+		UGameplayStatics::OpenLevel(this, "Game");
+	}
 }
 
 void AMainMenuMode::OnScoreSelectionCanceled()
@@ -64,16 +51,24 @@ void AMainMenuMode::BeginPlay()
 	GameInstance->GetLastScoreInfo(_MDATFile,ScoreIndex,bIsEditorMode);
 	if (_MDATFile!="")
 	{
-		// Need to restore Selection UI;
-		if (bIsEditorMode)
-			SelectEditorScore()->OnRestoreScoreSelection(_MDATFile, ScoreIndex);
+		//Load MainMenu directly
+		auto MainMenuUIClass = UUIProvider::Get(this)->GetMainMenuUI();
+		auto* MainMenuUI = Cast<UMainMenuUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), MainMenuUIClass, NAME_None));
+		if (MainMenuUI)
+			MainMenuUI->AddToViewport(100);
 		else
+			UE_LOG(MainMenuMode, Error, TEXT("Failed to construct MainMenuUI!"));
+
+		// Need to restore Selection UI;
+		if (!bIsEditorMode)
 			SelectGameScore()->OnRestoreScoreSelection(_MDATFile, ScoreIndex);
 	}
 	else
 	{
-		// At the first time start the Game.
-		LoadWelcome();
+		//At the first, load WelcomeUI
+		auto WelcomeUIClass = UUIProvider::Get(this)->GetWelcomeUI();
+		auto* WelcomeUI = Cast<UWelcomeUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), WelcomeUIClass, NAME_None));
+		WelcomeUI->AddToViewport();
 	}
 }
 
@@ -81,20 +76,8 @@ class UScoreSelectionUIBase* AMainMenuMode::SelectGameScore()
 {
 	auto ScoreSelectionUIClass = UUIProvider::Get(this)->GetScoreSelectionUI();
 	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, NAME_None));
-	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMainMenuMode::OnGameScoreSelected);
-	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMainMenuMode::OnScoreSelectionCanceled);
+	ScoreSelectionUI->OnScoreSelected.BindUObject(this, &AMainMenuMode::OnGameScoreSelected);
 	ScoreSelectionUI->AddToViewport(101);
 	return ScoreSelectionUI;
 	//TODO:Bind Delegate.
-}
-
-class UScoreSelectionUIBase* AMainMenuMode::SelectEditorScore()
-{
-	auto ScoreSelectionUIClass = UUIProvider::Get(this)->GetScoreSelectionUI();
-	auto* ScoreSelectionUI = Cast<UScoreSelectionUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), ScoreSelectionUIClass, NAME_None));
-	ScoreSelectionUI->OnScoreSelected.AddDynamic(this, &AMainMenuMode::OnEditorScoreSelected);
-	ScoreSelectionUI->OnSelectionCancelled.AddDynamic(this, &AMainMenuMode::OnScoreSelectionCanceled);
-	ScoreSelectionUI->AddToViewport(101);
-	return ScoreSelectionUI;
-	//TODO: Bind Delegate
 }

@@ -98,4 +98,8 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObj"))
 		static TScriptInterface<IMainSWPlayer> GenMainSWPlayer(const UObject* WorldContextObj);
 	static class ULevelStreamingDynamic* GenStreamingLevelInstance(class UObject* WorldContextObj, const FString& MapName, const FVector& Location, const FRotator& Rotation);
+
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LoadFileFromMDAT"))
+		static TArray<uint8> K2_LoadFileFromMDAT(const FString& MDATFileName, const FString& FileToLoad);
+	
 };

@@ -15,7 +15,7 @@ void UGameResultUIBase::Init()
 void UGameResultUIBase::UIReturnToMainMenu()
 {
 	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
-	InGameMode->ReturnToMainMenu();
+	InGameMode->ReturnToMainMenuHost();
 }
 
 void UGameResultUIBase::UIRestartGame()

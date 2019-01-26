@@ -45,7 +45,7 @@ public:
 
 	FMDATFile()=default;
 
-	bool LoadFromFile(FString FileName);
+	bool LoadFromFile(const FString& FileName);
 
 	FORCEINLINE bool Load(const TArray<uint8>& Data)
 	{

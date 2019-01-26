@@ -6,6 +6,7 @@
 #include "MuthMTypeHelper.h"
 #include "zlib.h"
 #include "PlatformFilemanager.h"
+#include "Paths.h"
 
 DEFINE_LOG_CATEGORY(MDATFileLog)
 
@@ -155,7 +156,7 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 FString FMDATFile::FormatFileName(const FString& FileName)
 {
 	FString TargetFilePath = FileName;
-	TargetFilePath.Replace(TEXT("\\"), TEXT("/"));
+	/*TargetFilePath.Replace(TEXT("\\"), TEXT("/"));
 	//Clear Duplicated '/'
 	for (auto it = TargetFilePath.CreateIterator(); it; ++it)
 	{
@@ -172,6 +173,8 @@ FString FMDATFile::FormatFileName(const FString& FileName)
 	}
 	if (TargetFilePath==""||TargetFilePath[0] != TEXT('/'))
 		TargetFilePath = TEXT("/")+TargetFilePath;
+	return TargetFilePath;*/
+	FPaths::NormalizeFilename(TargetFilePath);
 	return TargetFilePath;
 }
 
@@ -202,7 +205,7 @@ FolderTree FMDATFile::_GenFolderTreeInternal(const TArray<FString>& FileNames, c
 	return FT;
 }
 
-bool FMDATFile::LoadFromFile(FString FileName)
+bool FMDATFile::LoadFromFile(const FString& FileName)
 {
 	TArray<uint8> Result;
 	IFileHandle* FileHandle = FPlatformFileManager::Get().GetPlatformFile().OpenRead(*FileName);

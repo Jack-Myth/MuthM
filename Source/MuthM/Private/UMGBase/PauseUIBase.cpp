@@ -28,5 +28,5 @@ void UPauseUIBase::BackToMenu()
 	AInGameMode* InGameMode;
 	InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 	if (InGameMode)
-		InGameMode->ReturnToMainMenu();
+		InGameMode->ReturnToMainMenuHost();
 }

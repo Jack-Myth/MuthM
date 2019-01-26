@@ -160,6 +160,15 @@ void AInGameMode::OnBackPressed()
 void AInGameMode::ReturnToMainMenu()
 {
 	NativeOnGameEnded(EGameEndReason::GER_Return);
+	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	FGameArgs GameArgs;
+	GameArgs.bIsEditorMode = true;
+	GameArgs.MainMusicInfo = _CachedMusicInfo;
+	GameArgs.MDATFileName = _CachedMDATFileName;
+	GameArgs.MMSFileName = _MMSFileName;
+	GameArgs.ScoreIndex = -1;
+	GameInstance->FillGameArgs(GameArgs);
+	UGameplayStatics::OpenLevel(this, "MainMenu");
 }
 
 void AInGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -189,6 +198,13 @@ void AInGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 	MusicCallback.BindUFunction(this, "OnMusicPositionCallback");
 	_MainSoundComponent->AddOnPlaybackPercent(MusicCallback);
 	_MMSFileName = ExchangedGameArgs.MMSFileName;
+	_CachedMDATFileName = ExchangedGameArgs.MDATFileName;
+}
+
+void AInGameMode::ReturnToMainMenuHost()
+{
+	Super::ReturnToMainMenuHost();
+	ReturnToMainMenu();
 }
 
 void AInGameMode::BeginPlay()

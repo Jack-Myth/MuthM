@@ -95,7 +95,7 @@ void URhythmTap::OnTick_Implementation(float CurrentTime)
 	{
 		FVector ActorLocation = RhythmObj->GetActorLocation();
 		SetAlpha(RhythmTapMatDynamic, FMath::Max(1 - (CurrentTime - GetTime()), 1.f));
-		RhythmObj->SetActorLocation(FVector((GetTime() - CurrentTime) * 100, ActorLocation.Y, ActorLocation.Z));
+		RhythmObj->SetActorLocation(FVector((GetTime() - CurrentTime) * 30, ActorLocation.Y, ActorLocation.Z));
 	}
 }
 
@@ -103,7 +103,7 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 {
 	bool beenTouched=false;
 	//Check Position First
-	if (Y > LROffset / SceneHalfWidth - Width * 50 && Y < LROffset / SceneHalfWidth + Width * 50)
+	if (Y > LROffset - Width / 2.f && Y < LROffset + Width / 2.f)
 	{
 		//Player Touched it.
 		if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthPerfect)

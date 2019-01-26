@@ -59,9 +59,10 @@ void AInEditorMode::EnterPIE()
 	FGameArgs PIEGameArgs;
 	PIEGameArgs.bIsEditorMode = true;
 	PIEGameArgs.MainMusicInfo = _CachedMusicInfo;
-	PIEGameArgs.MDATFilePath = _pMDAT->GetLocalFileName();
+	PIEGameArgs.MDATFileName = _CachedMDATFileName;
 	PIEGameArgs.MMSFileName = _MMSFileName;
 	PIEGameArgs._MDAT = _pMDAT;
+	PIEGameArgs.ScoreIndex = -1;
 	GameInstance->FillGameArgs(PIEGameArgs);
 	FWorldContext* WorldContext;
 	GameInstance->EnterPIEMode(WorldContext);

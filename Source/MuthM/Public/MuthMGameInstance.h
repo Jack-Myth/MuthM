@@ -23,7 +23,7 @@ struct FGameArgs
 	//Relative to MDAT
 	FString MMSFileName;
 	FMusicInfo MainMusicInfo;
-	FString MDATFilePath;
+	FString MDATFileName;
 	int ScoreIndex = 0;
 	bool bIsEditorMode = false;
 };

@@ -50,6 +50,7 @@ protected:
 	//The two cached variable is prepared for RestartGame.
 	FMusicInfo _CachedMusicInfo;
 	TArray<uint8> _CachedMMSData;
+	FString _CachedMDATFileName;
 	EPlayType TargetPlayType =EPlayType::PT_Game;
 protected:
 	FORCEINLINE TScriptInterface<IMMScript> GetMainMMSInstance()
@@ -64,6 +65,7 @@ protected:
 	void ShowGameResult();
 	virtual void BindDelegates();
 	void OnBackPressed();
+	void ReturnToMainMenu();
 public:
 	UPROPERTY(BlueprintAssignable)
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
@@ -93,7 +95,6 @@ public:
 	{
 		return _GameMainMusic;
 	}
-	void ReturnToMainMenu();
 
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE TScriptInterface<IMMScript> GetGameMMScript() const
@@ -112,6 +113,9 @@ public:
 
 
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
+
+	virtual void ReturnToMainMenuHost() override;
 
 protected:
 	virtual void BeginPlay() override;

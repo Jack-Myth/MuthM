@@ -86,7 +86,17 @@ void UScoreEditorEntryUIBase::SaveOpenedMDATMainInfo(const FMDATMainInfo& MDATIn
 {
 	if (!_MDATInstance.IsValid())
 		return;
-	MuthMTypeHelper::SaveMDATMainInfo(_MDATInstance.Get(),MDATInfo);
+	int UserID= IUserManager::Get(this)->GetUserID();
+	if (MDATInfo.AuthorID!=UserID)
+	{
+		FMDATMainInfo tmpMDATInfo(MDATInfo);
+		tmpMDATInfo.AuthorID = UserID;
+		MuthMTypeHelper::SaveMDATMainInfo(_MDATInstance.Get(), tmpMDATInfo);
+	}
+	else
+	{
+		MuthMTypeHelper::SaveMDATMainInfo(_MDATInstance.Get(), MDATInfo);
+	}
 }
 
 bool UScoreEditorEntryUIBase::RenameOpenedMDATFile(const FString& NewFileName)
@@ -265,7 +275,7 @@ bool UScoreEditorEntryUIBase::LaunchScoreEditor(const FString& TargetMMSFile,int
 	auto* pGameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	FGameArgs tmpGameArgs;
 	tmpGameArgs.bIsEditorMode = true;
-	tmpGameArgs.MDATFilePath = _MDATInstance->GetLocalFileName();
+	tmpGameArgs.MDATFileName = _MDATInstance->GetLocalFileName();
 	tmpGameArgs.ScoreIndex = ScoreIndex;
 	tmpGameArgs.MMSFileName = TargetMMSFile;
 	if (!IMusicManager::Get(this)->FindMusicLocalByID(MusicID, tmpGameArgs.MainMusicInfo))

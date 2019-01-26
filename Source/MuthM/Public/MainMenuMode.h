@@ -7,6 +7,8 @@
 #include "ScoreSelectionUIBase.h"
 #include "MainMenuMode.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(MainMenuMode, Log, All);
+
 /**
  * 
  */
@@ -15,17 +17,12 @@ class MUTHM_API AMainMenuMode : public AMuthMGameModeBase
 {
 	GENERATED_BODY()
 public:
-	UFUNCTION(BlueprintCallable)
-		void LoadWelcome();
 	UFUNCTION()
-		void OnGameScoreSelected(FScoreSelectionInfo ScoreSelectionInfo);
-	UFUNCTION()
-		void OnEditorScoreSelected(FScoreSelectionInfo ScoreSelectionInfo);
+		void OnGameScoreSelected(const FString& MDATFileName,int ScoreIndex);
 	UFUNCTION()
 		void OnScoreSelectionCanceled();
 protected:
 	virtual void BeginPlay() override;
 public:
 	class UScoreSelectionUIBase* SelectGameScore();
-	class UScoreSelectionUIBase* SelectEditorScore();
 };

@@ -35,7 +35,10 @@ UMuthMGameInstance::UMuthMGameInstance()
 
 void UMuthMGameInstance::FillGameArgs(FGameArgs targetGameArgs)
 {
+	int tmpScoreIndex = _GameArgs.ScoreIndex;
 	_GameArgs = targetGameArgs;
+	if (_GameArgs.ScoreIndex < 0)
+		_GameArgs.ScoreIndex = tmpScoreIndex;
 }
 
 FGameArgs UMuthMGameInstance::ExchangeGameArgs()

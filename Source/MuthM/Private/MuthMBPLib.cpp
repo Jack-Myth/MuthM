@@ -91,6 +91,10 @@ UTexture2D* UMuthMBPLib::GetLocalTexture(const FString &_TexPath)
 
 UTexture2D* UMuthMBPLib::GetLocalTextureByImageData(const TArray<uint8>& ImageData)
 {
+	//Such a small buffer can't hold any image.
+	//Check it to prevent crash.
+	if (ImageData.Num() < 8)
+		return nullptr; 
 	//89 50 4E 47 0D 0A 1A 0A 
 	uint8 PNGHeader[8];
 	PNGHeader[0] = 0x89;
@@ -304,4 +308,12 @@ ULevelStreamingDynamic* UMuthMBPLib::GenStreamingLevelInstance(class UObject* Wo
 	LevelInstance->LevelColor = FColor::MakeRandomColor();
 	LevelInstance->LevelTransform = FTransform(Rotation, Location);
 	return LevelInstance;
+}
+
+TArray<uint8> UMuthMBPLib::K2_LoadFileFromMDAT(const FString& MDATFileName, const FString& FileToLoad)
+{
+	FMDATFile tmpMDAT;
+	if (!tmpMDAT.LoadFromFile(FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), TEXT("/MDATs/"), MDATFileName)))
+		return TArray<uint8>();
+	return tmpMDAT.GetFileData(FileToLoad);
 }
