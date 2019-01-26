@@ -50,4 +50,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual void AddOnPlaybackPercent(FOnPlaybackPercent Delegate) = 0;
 
+	UFUNCTION(BlueprintCallable)
+		virtual void SetPlaybackEventInterpolation(bool ShouldEnable) = 0;
+
+	UFUNCTION(BlueprintCallable)
+		virtual bool GetPlaybackEventInterpolation() const = 0;
+
 };

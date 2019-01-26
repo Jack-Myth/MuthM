@@ -66,3 +66,13 @@ void UMainSWPlayerImpl::AddOnPlaybackPercent(FOnPlaybackPercent Delegate)
 {
 	OnPlaybackPercentDelegates.Add(Delegate);
 }
+
+void UMainSWPlayerImpl::SetPlaybackEventInterpolation(bool ShouldEnable)
+{
+	;		//Ignore because UAudioComponent's event always Interpolation.
+}
+
+bool UMainSWPlayerImpl::GetPlaybackEventInterpolation() const
+{
+	return true;
+}

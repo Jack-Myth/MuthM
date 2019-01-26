@@ -7,6 +7,8 @@
 #include "MusicManager.h"
 #include "GameUIBase.generated.h"
 
+//DECLARE_LOG_CATEGORY_EXTERN(GameUIBase, Log, All)
+
 /**
  * 
  */

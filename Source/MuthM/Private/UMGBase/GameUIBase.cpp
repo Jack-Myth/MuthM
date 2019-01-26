@@ -5,6 +5,9 @@
 #include "Score/InGameState.h"
 #include "InEditorMode.h"
 #include "InGameMode.h"
+#include "MuthMGameInstance.h"
+
+//DEFINE_LOG_CATEGORY(GameUIBase)
 
 void UGameUIBase::Init(FMusicInfo MusicInfo)
 {
@@ -26,9 +29,8 @@ void UGameUIBase::Init(FMusicInfo MusicInfo)
 
 void UGameUIBase::ExitPIE()
 {
-	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
-	if (InEditorMode)
-		InEditorMode->NativeOnExitPIE();
+	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	GameInstance->ExitPIEMode();
 }
 
 void UGameUIBase::ShowPauseUI()

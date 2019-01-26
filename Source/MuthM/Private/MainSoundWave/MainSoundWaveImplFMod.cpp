@@ -9,7 +9,6 @@ void UMainSoundWaveImplFMod::ReleaseSound()
 	if (pFModSound)
 	{
 		pFModSound->release();
-		MuthMNativeLib::GetFModSystem()->update();
 	}
 }
 

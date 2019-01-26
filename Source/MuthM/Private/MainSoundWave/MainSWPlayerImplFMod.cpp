@@ -19,7 +19,6 @@ void UMainSWPlayerImplFMod::SetMainSoundWave(TScriptInterface<class IMainSoundWa
 	if (MuthMNativeLib::GetFModSystem()->playSound(pMainSoundWave->GetFModSound(), nullptr, true, &pTmpFModChannel) == FMOD_OK)
 	{
 		pFModChannel = pTmpFModChannel;
-		//MuthMNativeLib::GetFModSystem()->update();
 	}
 }
 
@@ -82,6 +81,7 @@ float UMainSWPlayerImplFMod::GetPlaybackPosition() const
 {
 	if (pFModChannel)
 	{
+		MuthMNativeLib::GetFModSystem()->update();
 		uint32 Position;
 		pFModChannel->getPosition(&Position, FMOD_TIMEUNIT_MS);
 		return Position / 1000.f;
@@ -100,6 +100,19 @@ void UMainSWPlayerImplFMod::Tick(float DeltaTime)
 		return;
 	uint32 Position, Duration;
 	pFModChannel->getPosition(&Position, FMOD_TIMEUNIT_MS);
+	if (bPlaybackEventInterpolation)
+	{
+		if (Position==LastTimeMs&&IsPlaying())
+		{
+			PositionOffsetMs += DeltaTime * 1000;
+			Position += PositionOffsetMs;
+		}
+		else
+		{
+			PositionOffsetMs = 0;
+			LastTimeMs = Position;
+		}
+	}
 	pMainSoundWave->GetFModSound()->getLength(&Duration, FMOD_TIMEUNIT_MS);
 	float CurPos = (float)Position / Duration;
 	for (auto it = OnPlaybackPercentDelegates.CreateIterator(); it; ++it)
@@ -114,6 +127,16 @@ void UMainSWPlayerImplFMod::Tick(float DeltaTime)
 TStatId UMainSWPlayerImplFMod::GetStatId() const
 {
 	return TStatId();
+}
+
+void UMainSWPlayerImplFMod::SetPlaybackEventInterpolation(bool ShouldEnable)
+{
+	bPlaybackEventInterpolation = ShouldEnable;
+}
+
+bool UMainSWPlayerImplFMod::GetPlaybackEventInterpolation() const
+{
+	return bPlaybackEventInterpolation;
 }
 
 #endif

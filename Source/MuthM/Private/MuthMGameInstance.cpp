@@ -15,6 +15,16 @@
 #include "SViewport.h"
 #include "SGameLayerManager.h"
 #include "SWindow.h"
+#include "MuthMNativeLib.h"
+#include "fmod.hpp"
+#include "Engine/LocalPlayer.h"
+#include "UserWidget.h"
+#include "UObjectIterator.h"
+#include "UnrealEngine.h"
+#include "AudioDevice.h"
+#include "EngineUtils.h"
+#include "Engine/LevelStreaming.h"
+#include "Async.h"
 
 DEFINE_LOG_CATEGORY(MuthMGameInstance);
 
@@ -133,7 +143,9 @@ void UMuthMGameInstance::EnterPIEMode(struct FWorldContext*& PIEWorldContext)
 	PIESession->PIEWorldContext->OwningGameInstance = this;
 	//Create PIE GameViewportClient
 	PIESession->PIEWorldContext->GameViewport = NewObject<UGameViewportClient>(GEngine, GEngine->GameViewportClientClass);
-	PIESession->PIEWorldContext->GameViewport->Init(*(PIESession->PIEWorldContext), this);
+	PIESession->PIEWorldContext->GameViewport->Init(*(PIESession->PIEWorldContext), this, true);
+	//For GetViewportOverlayWidget() , Need to modify Engine Code to get the SharedPtr.
+	PIESession->PIEWorldContext->GameViewport->SetViewportOverlayWidget(PIESession->GameWorldContext->GameViewport->GetWindow(),PIESession->GameWorldContext->GameViewport->GetViewportOverlayWidget().ToSharedRef());
 	PIESession->GameViewportWidget = PIESession->GameWorldContext->GameViewport->GetGameViewportWidget();
 	//Replace GameViewportClient with PIE GameViewportClient
 	PIESession->GameViewport = StaticCastSharedPtr<FSceneViewport>(PIESession->GameViewportWidget->GetViewportInterface().Pin());
@@ -147,19 +159,70 @@ void UMuthMGameInstance::ExitPIEMode()
 {
 	if (!PIESession.IsValid())
 	{
-		UE_LOG(MuthMGameInstance, Error, TEXT("Try ExitPIEMode but the PIESession is not valid!"));
+		UE_LOG(MuthMGameInstance, Error, TEXT("Try ExitPIEMode but the PIESession is not valid! Please ensure you are in PIE Mode."));
 		return;
 	}
-	//Destroy PIE World and Context
-	CleanupGameViewport();
-	GetWorld()->DestroyWorld(false);
-	GEngine->DestroyWorldContext(GetWorld());
+	auto* PIEWorld = PIESession->PIEWorldContext->World();
+	//Clean PIE World
+	//Clean Widgets
+	//CleanupGameViewport();
+
+	for (TObjectIterator<UWorld> WorldIt; WorldIt; ++WorldIt)
+	{
+		//Clean all Game World Actors except "Main GameWorld"
+		//It's work for StreamingLevel
+		//Every StreamingLevel will create a world and will cause crash when Travel because it have no context.
+		if (WorldIt->WorldType == EWorldType::Game&&*WorldIt != PIESession->GameWorldContext->World())
+		{
+			for (TObjectIterator<UUserWidget> it; it; ++it)
+			{
+				if (it->GetWorld() == *WorldIt)
+					it->RemoveFromViewport();
+			}
+			//Destroy Players
+			if (GEngine->GetWorldContextFromWorld(*WorldIt))
+			{
+				//Only PIE World will have World Context,So check it to prevent Streaming world execute into the loop.
+				for (FLocalPlayerIterator It(GEngine, *WorldIt); It; ++It)
+				{
+					if (It->PlayerController)
+					{
+						if (It->PlayerController->GetPawn())
+						{
+							WorldIt->DestroyActor(It->PlayerController->GetPawn(), true);
+						}
+						WorldIt->DestroyActor(It->PlayerController, true);
+						It->PlayerController = NULL;
+					}
+				}
+			}
+			//Stop loading SteamingLevel
+			PIEWorld->bIsLevelStreamingFrozen = false;
+			PIEWorld->SetShouldForceUnloadStreamingLevels(true);
+			PIEWorld->FlushLevelStreaming();
+			for (FActorIterator ActorIt(*WorldIt); ActorIt; ++ActorIt)
+			{
+				ActorIt->RouteEndPlay(EEndPlayReason::EndPlayInEditor);
+			}
+			WorldIt->DestroyWorld(true);
+		}
+	}
+	//It only have one Context need to destroy although there may have multiple worlds.
+	GEngine->DestroyWorldContext(PIEWorld);
 	//Restore GameViewportClient
+	//Since I can't set the WakePtr to nullptr, Construct an empty SOverlay to replace it.
+	PIESession->PIEWorldContext->GameViewport->SetViewportOverlayWidget(nullptr, SNew(SOverlay)); 
+	//Prevent AudioDevice to be shutdown when PIEViewport Destroyed.
+	//Need to hack Engine code.
+	if (!GIsEditor)
+		PIESession->PIEWorldContext->GameViewport->SetAudioDeviceHandle(-1);
 	PIESession->GameViewport->SetViewportClient(PIESession->GameWorldContext->GameViewport);
 	//Restore WorldContext
 	WorldContext = PIESession->GameWorldContext;
 	//Release PIESession
 	PIESession.Reset();
+	//Force GC
+	CollectGarbage(GARBAGE_COLLECTION_KEEPFLAGS);
 	//Call Delegate
 	OnExitPIE.Broadcast();
 }
@@ -170,4 +233,17 @@ void UMuthMGameInstance::Shutdown()
 	{
 		ExitPIEMode();
 	}
+}
+
+void UMuthMGameInstance::Tick(float DeltaTime)
+{
+	//Tick FMod Update
+#if defined(_MUTHM_USE_FMOD)&&_MUTHM_USE_FMOD
+	MuthMNativeLib::GetFModSystem()->update();
+#endif
+}
+
+TStatId UMuthMGameInstance::GetStatId() const
+{
+	return TStatId();
 }

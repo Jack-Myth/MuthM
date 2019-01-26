@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "4.21",
+	"EngineAssociation": "{EC609C16-4BC8-F9BB-A875-54901691A7DD}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -63,11 +63,7 @@
 	],
 	"TargetPlatforms": [
 		"Android",
-		"WindowsNoEditor",
-		"AllDesktop",
-		"IOS",
-		"LinuxNoEditor",
-		"MacNoEditor"
+		"WindowsNoEditor"
 	],
 	"PreBuildSteps":
 	{

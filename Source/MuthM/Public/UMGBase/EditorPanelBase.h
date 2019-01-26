@@ -52,7 +52,10 @@ protected:
 		void OnVerticalOffsetUpdate(class UInstructionWidgetBase* TargetWidget,float Value);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnFillBPMInfo(float BPM);
+
 public:
+
+	void Init();
 
 	void FillBPMInfo(float BPM);
 
@@ -124,7 +127,5 @@ public:
 		void SetInstructionTemplateByName(FName TemplateInstructionName);
 	UFUNCTION(BlueprintImplementableEvent,BlueprintPure)
 		float GetPanelHalfHeight() const;
-protected:
-	virtual void NativeConstruct() override;
 
 };

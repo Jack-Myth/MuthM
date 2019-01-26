@@ -52,4 +52,10 @@ public:
 
 	virtual void AddOnPlaybackPercent(FOnPlaybackPercent Delegate) override;
 
+
+	virtual void SetPlaybackEventInterpolation(bool ShouldEnable) override;
+
+
+	virtual bool GetPlaybackEventInterpolation() const override;
+
 };

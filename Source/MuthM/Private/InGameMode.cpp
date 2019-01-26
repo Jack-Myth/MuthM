@@ -45,6 +45,8 @@ void AInGameMode::OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainS
 void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 {
 	_CachedMMSData = MMSData;
+	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
+	_MainMMSInstance->SetPlayType(TargetPlayType);
 	_MainMMSInstance->LoadFromData(MMSData);
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
 	if (!::IsValid(_GameMainMusic.GetObject()))
@@ -68,10 +70,10 @@ void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 			}, 0.02f, true,0.02f);
 	}
 	//UNDONE: Debug
-	//TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get(this)->GetGameUI();
-	//_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, NAME_None));
-	//_MainGameUI->Init(MusicInfo);
-	//_MainGameUI->AddToViewport(50);
+	TSubclassOf<UGameUIBase> GameUIClass = UUIProvider::Get(this)->GetGameUI();
+	_MainGameUI = Cast<UGameUIBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), GameUIClass, NAME_None));
+	_MainGameUI->Init(MusicInfo);
+	_MainGameUI->AddToViewport(50);
 	SetActorTickEnabled(true);
 }
 
@@ -112,6 +114,7 @@ void AInGameMode::StopGame()
 	_MainMMSInstance->Destroy();
 	_MainMMSInstance = nullptr;
 	_MainGameUI->RemoveFromParent();
+	_MainSoundComponent->Stop();
 	if (DelayTimerHandle.IsValid())
 		GetWorld()->GetTimerManager().ClearTimer(DelayTimerHandle);
 }
@@ -121,10 +124,9 @@ void AInGameMode::NativeOnGameEnded(EGameEndReason GameEndReason)
 	switch (GameEndReason)
 	{
 		case EGameEndReason::GER_GameFinished:
-			{
-				StopGame();
-				ShowGameResult();
-			}
+			ShowGameResult();
+		case EGameEndReason::GER_ExitPIE:
+			StopGame();
 			break;
 	}
 	OnGameEnded.Broadcast(GameEndReason);
@@ -160,9 +162,15 @@ void AInGameMode::ReturnToMainMenu()
 	NativeOnGameEnded(EGameEndReason::GER_Return);
 }
 
-void AInGameMode::BeginPlay()
+void AInGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	Super::BeginPlay();
+	if (_MainMMSInstance)
+		StopGame();
+}
+
+void AInGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
 	//TODO:Get Property From GameInstance etc.
 	FGameArgs ExchangedGameArgs = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this))->ExchangeGameArgs();
 	_pMDAT = ExchangedGameArgs._MDAT;
@@ -180,9 +188,11 @@ void AInGameMode::BeginPlay()
 	FOnPlaybackPercent MusicCallback;
 	MusicCallback.BindUFunction(this, "OnMusicPositionCallback");
 	_MainSoundComponent->AddOnPlaybackPercent(MusicCallback);
-	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MMSFileName = ExchangedGameArgs.MMSFileName;
-	//XXX: Why InGameMode should worry about InEditorMode.
-	if (!this->IsA<AInEditorMode>())
-		StartGame(MusicInfo, _pMDAT->GetFileData(ExchangedGameArgs.MMSFileName));
+}
+
+void AInGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	StartGame(_CachedMusicInfo, _pMDAT->GetFileData(_MMSFileName));
 }

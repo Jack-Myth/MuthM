@@ -16,7 +16,7 @@ namespace FMOD
  *
  */
 UCLASS()
-class MUTHM_API UMainSWPlayerImplFMod : public UObject,public FTickableGameObject, public IMainSWPlayer
+class MUTHM_API UMainSWPlayerImplFMod : public UObject, public IMainSWPlayer,public FTickableGameObject
 {
 	GENERATED_BODY()
 
@@ -26,7 +26,11 @@ class MUTHM_API UMainSWPlayerImplFMod : public UObject,public FTickableGameObjec
 	TArray<FOnPlaybackPercent> OnPlaybackPercentDelegates;
 
 private:
+	uint32 PositionOffsetMs = 0;
 
+	uint32 LastTimeMs = 0;
+
+	bool bPlaybackEventInterpolation = true;
 public:
 
 	virtual void SetMainSoundWave(TScriptInterface<class IMainSoundWave> MainSoundWave) override;
@@ -63,5 +67,11 @@ public:
 
 
 	virtual TStatId GetStatId() const override;
+
+
+	virtual void SetPlaybackEventInterpolation(bool ShouldEnable) override;
+
+
+	virtual bool GetPlaybackEventInterpolation() const override;
 
 };

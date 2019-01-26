@@ -24,10 +24,9 @@ DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 
 void AInEditorMode::BeginPlay()
 {
-	Super::BeginPlay();
+	AMuthMGameModeBase::BeginPlay();
 	TArray<uint8> PCMData;
 	_GameMainMusic->GenPCMData(PCMData);
-	GetMainMMSInstance()->SetPlayType(EPlayType::PT_PIE);
 	_EditorMMSInstance = IInstructionManager::Get(this)->GenMMScript(true);
 	_EditorMMSInstance->LoadFromData(_pMDAT->GetFileData(_MMSFileName));
 	auto EditorMainUIClass = UUIProvider::Get(this)->GetEditorMainUI();
@@ -37,22 +36,6 @@ void AInEditorMode::BeginPlay()
 	EditorMainUI->GetEditorPanel()->FillBPMInfo(BPM);
 	EditorMainUI->AddToViewport(100);
 }
-
-bool AInEditorMode::GenPIEEnvironment(class UWorld*& PIEWorld)
-{
-	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
-	FWorldContext* WorldContext;
-	GameInstance->EnterPIEMode(WorldContext);
-	FURL tmpURL(TEXT("/Game/MuthM/Maps/PIE"));
-	FString err;
-	GEngine->Browse(*WorldContext, tmpURL, err);
-	//GEngine->SetClientTravel(PIEWorld, TEXT("PIE"), ETravelType::TRAVEL_Absolute);
-	//GEngine->TickWorldTravel(, 0);
-	//UGameplayStatics::OpenLevel(PIEWorld, "PIE");
-	PIEWorld = WorldContext->World();
-	return true;
-}
-
 void AInEditorMode::BindDelegates()
 {
 	auto* InputHandler = Cast<APlayerInputHandler>(UGameplayStatics::GetPlayerPawn(this, 0));
@@ -66,10 +49,10 @@ void AInEditorMode::OnBackPressed()
 
 void AInEditorMode::EnterPIE()
 {
-	//TODO: Enter PIE
-	if (_PIEWorld)
+	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
+	if (GameInstance->IsInPIEMode())
 	{
-		UE_LOG(MuthMInEditorMode, Error, TEXT("PIE World already Exist!"));
+		UE_LOG(MuthMInEditorMode, Error, TEXT("Already in PIE Mode"));
 		return;
 	}
 	//Fill GameInstance GameArgs
@@ -79,9 +62,13 @@ void AInEditorMode::EnterPIE()
 	PIEGameArgs.MDATFilePath = _pMDAT->GetLocalFileName();
 	PIEGameArgs.MMSFileName = _MMSFileName;
 	PIEGameArgs._MDAT = _pMDAT;
-	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->FillGameArgs(PIEGameArgs);
-	if (!GenPIEEnvironment(_PIEWorld))
+	FWorldContext* WorldContext;
+	GameInstance->EnterPIEMode(WorldContext);
+	FURL tmpURL(TEXT("/Game/MuthM/Maps/PIE"));
+	FString err;
+	GEngine->Browse(*WorldContext, tmpURL, err);
+	if (!(WorldContext&&WorldContext->World()))
 	{
 		UE_LOG(MuthMInEditorMode, Error, TEXT("Gen PIE World failed!"));
 		return;
@@ -165,5 +152,11 @@ void AInEditorMode::SetMusicPlaySpeed(float PlaySpeed)
 	this->CustomTimeDilation = PlaySpeed;
 	_MainSoundComponent->SetPaused(true);
 	_MainSoundComponent->SetPitch(PlaySpeed);
+}
+
+void AInEditorMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	_EditorMMSInstance->Destroy();
 }
 

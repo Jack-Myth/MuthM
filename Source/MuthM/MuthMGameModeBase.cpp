@@ -7,10 +7,12 @@
 AMuthMGameModeBase::AMuthMGameModeBase()
 {
 	DefaultPawnClass = APlayerInputHandler::StaticClass();
+	PrimaryActorTick.bHighPriority = true;
 }
 
 void AMuthMGameModeBase::BeginPlay()
 {
+	Super::BeginPlay();
 	APlayerController* pc = UGameplayStatics::GetPlayerController(this, 0);
 	pc->bShowMouseCursor = true;
 }

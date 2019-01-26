@@ -16,8 +16,6 @@ class MUTHM_API UInstructionManagerImpl : public UObject, public IInstructionMan
 		TArray<class UMMScriptImpl*> _MMScriptInstances;
 	UPROPERTY()
 		TArray<class UMMScriptImpl*> _EditorMMSInstances;
-	UPROPERTY()
-		UObject* _WorldContextProvider = nullptr;
 	float LastTickTime;
 public:
 	virtual bool RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef) override;

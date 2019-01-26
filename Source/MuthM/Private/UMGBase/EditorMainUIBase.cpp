@@ -23,6 +23,7 @@ void UEditorMainUIBase::Init(FMusicInfo MusicInfo)
 	//Add Editor Panel
 	OnFillMusicInfo(MusicInfo);
 	_EditorPanel = Cast<UEditorPanelBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), UUIProvider::Get(this)->GetEditorPanel(), NAME_None));
+	_EditorPanel->Init();
 	OnPlaceEditorPanel(_EditorPanel);
 }
 

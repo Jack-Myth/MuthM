@@ -23,10 +23,8 @@ class MUTHM_API AInEditorMode : public AInGameMode
 		class UEditorMainUIBase* EditorMainUI;
 	UPROPERTY()
 		TScriptInterface<IMMScript> _EditorMMSInstance;
-	class UWorld* _PIEWorld=nullptr;
 protected:
 	virtual void BeginPlay() override;
-	virtual bool GenPIEEnvironment(class UWorld*& PIEWorld);
 
 	virtual void BindDelegates() override;
 	void OnBackPressed();
@@ -54,4 +52,7 @@ public:
 	}
 	TArray<class UTexture2D*> DrawMainMusicSpectrum(float BeginTime, float EndTime, uint32 ResTime, int32 ResFrequency);
 	void SetMusicPlaySpeed(float PlaySpeed);
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 };

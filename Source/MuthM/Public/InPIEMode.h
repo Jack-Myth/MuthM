@@ -13,11 +13,16 @@ UCLASS()
 class MUTHM_API AInPIEMode : public AInGameMode
 {
 	GENERATED_BODY()
-	
+
+		bool Exiting=false;
 public:
 	virtual void NativeOnGameEnded(EGameEndReason GameEndReason) override;
 	
 protected:
 	virtual void BindDelegates() override;
 	void OnBackPressed();
+	void OnExitPIE();
+
+	virtual void BeginPlay() override;
+
 };

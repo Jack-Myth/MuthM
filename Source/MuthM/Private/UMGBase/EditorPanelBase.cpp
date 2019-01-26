@@ -13,6 +13,28 @@
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
+void UEditorPanelBase::Init()
+{
+	//4 minutes music will be 24000x128,UINT A8,use 3MB mem.
+	auto* EditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
+	_SpectrumTexture = EditorMode->DrawMainMusicSpectrum(0, GetMusicLength(), GetMusicLength() * 100, 128);
+	OnSpectrumUpdate(_SpectrumTexture);
+	EditorMode->OnMusicPlaybackTimeUpdate.AddDynamic(this, &UEditorPanelBase::OnMusicProcessCallback);
+
+	//Load Instructions.
+	auto EditorMMS = EditorMode->GetEditorMMS();
+	TArray<UInstruction*> InstructionList = EditorMMS->GetAllInstructions();
+	//Gen Instruction Widgets;
+	for (int i = 0; i < InstructionList.Num(); i++)
+	{
+		auto* InstructionWidget = InstructionList[i]->GenInstructionWidget();
+		InstructionWidget->Init(InstructionList[i]);
+		InstructionWidgets.Add(InstructionWidget);
+		OnInstructionWidgetAdded(InstructionWidget);
+		InstructionWidget->InvalidateLayoutAndVolatility();
+	}
+}
+
 void UEditorPanelBase::FillBPMInfo(float BPM)
 {
 	_BPM = BPM;
@@ -247,28 +269,4 @@ void UEditorPanelBase::SetInstructionTemplateByName(FName TemplateInstructionNam
 		PupopTemplateDetails();
 	}
 }
-
-void UEditorPanelBase::NativeConstruct()
-{
-	Super::NativeConstruct();
-	//4 minutes music will be 24000x128,UINT A8,use 3MB mem.
-	auto* EditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
-	_SpectrumTexture = EditorMode->DrawMainMusicSpectrum(0,GetMusicLength(),GetMusicLength() * 100, 128);
-	OnSpectrumUpdate(_SpectrumTexture);
-	EditorMode->OnMusicPlaybackTimeUpdate.AddDynamic(this, &UEditorPanelBase::OnMusicProcessCallback);
-
-	//Load Instructions.
-	auto EditorMMS = EditorMode->GetEditorMMS();
-	TArray<UInstruction*> InstructionList = EditorMMS->GetAllInstructions();
-	//Gen Instruction Widgets;
-	for (int i=0;i<InstructionList.Num();i++)
-	{
-		auto* InstructionWidget = InstructionList[i]->GenInstructionWidget();
-		InstructionWidget->Init(InstructionList[i]);
-		InstructionWidgets.Add(InstructionWidget);
-		OnInstructionWidgetAdded(InstructionWidget);
-		InstructionWidget->InvalidateLayoutAndVolatility();
-	}
-}
-
 #undef LOCTEXT_NAMESPACE

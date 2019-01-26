@@ -7,6 +7,7 @@
 #include "Engine/GameInstance.h"
 #include "ResManagers/GlobalSaveGame.h"
 #include "InstructionManager.h"
+#include "Tickable.h"
 #include "MuthMGameInstance.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMGameInstance, Log, All)
@@ -39,7 +40,7 @@ struct FMuthMPIEInfo
  * 
  */
 UCLASS()
-class MUTHM_API UMuthMGameInstance : public UGameInstance
+class MUTHM_API UMuthMGameInstance : public UGameInstance,public FTickableGameObject
 {
 	GENERATED_BODY()
 	UPROPERTY()
@@ -94,7 +95,17 @@ public:
 
 	void EnterPIEMode(struct FWorldContext*& PIEWorld);
 	void ExitPIEMode();
+	FORCEINLINE bool IsInPIEMode() const
+	{
+		return PIESession.IsValid();
+	}
 
 	virtual void Shutdown() override;
+
+
+	virtual void Tick(float DeltaTime) override;
+
+
+	virtual TStatId GetStatId() const override;
 
 };

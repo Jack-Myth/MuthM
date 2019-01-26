@@ -50,6 +50,7 @@ protected:
 	//The two cached variable is prepared for RestartGame.
 	FMusicInfo _CachedMusicInfo;
 	TArray<uint8> _CachedMMSData;
+	EPlayType TargetPlayType =EPlayType::PT_Game;
 protected:
 	FORCEINLINE TScriptInterface<IMMScript> GetMainMMSInstance()
 	{
@@ -105,6 +106,13 @@ public:
 	{
 		return _GameTime;
 	}
+
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
+
 protected:
 	virtual void BeginPlay() override;
 };

@@ -74,7 +74,8 @@ UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, flo
 	const auto* InstructionClass = _InstructionMap.Find(InstructionName);
 	if (InstructionClass)
 	{
-		UInstruction* InstructionPtr = NewObject<UInstruction>(this,InstructionClass->ClassStack.Top());
+		//MMS need to be placed in current world.
+		UInstruction* InstructionPtr = NewObject<UInstruction>(GetWorld(),InstructionClass->ClassStack.Top());
 		InstructionPtr->SetTime(Time);
 		return InstructionPtr;
 	}
@@ -86,9 +87,12 @@ void UInstructionManagerImpl::Tick(float CurrentTime)
 	//TODO:UInstructionManagerImpl.Tick
 	if (LastTickTime > CurrentTime)
 		LastTickTime = 0;
-	for (int i = 0; i < _MMScriptInstances.Num(); i++)
+	for (auto it=_MMScriptInstances.CreateIterator();it;++it)
 	{
-		_MMScriptInstances[i]->Tick(CurrentTime);
+		if (::IsValid((*it)->GetWorld()))
+			(*it)->Tick(CurrentTime);
+		else
+			it.RemoveCurrent();
 	}
 }
 
