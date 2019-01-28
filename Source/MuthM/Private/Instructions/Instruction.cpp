@@ -41,6 +41,11 @@ void UInstruction::OnTimeChanged(class UInstruction* InstructionInstance, FName 
 	GetScript()->UpdateInstructions();
 }
 
+bool UInstruction::HasPriority_Implementation()
+{
+	return false;
+}
+
 FName UInstruction::GetRegisterName() const
 {
 	return IInstructionManager::Get(this)->GetInstructionName(GetClass());
@@ -101,8 +106,7 @@ void UInstruction::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface
 class UInstructionWidgetBase* UInstruction::GenInstructionWidget_Implementation()
 {
 	auto InstructionWidgetClass = UUIProvider::Get(this)->GetInstructionWidget();
-	_CachedInstructionWidget = Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass,NAME_None));
-	return _CachedInstructionWidget;
+	return Cast<UInstructionWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), InstructionWidgetClass, NAME_None));
 }
 
 #undef LOCTEXT_NAMESPACE

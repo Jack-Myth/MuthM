@@ -45,4 +45,6 @@ public:
 		void SetVerticalOffset(float Offset);
 	UFUNCTION(BlueprintCallable)
 		void RefreshOffset();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		FVector2D GetRequiredSize() const;
 };

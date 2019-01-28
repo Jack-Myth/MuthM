@@ -18,11 +18,7 @@
 
 void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
 {
-	if (PropertyName=="Width")
-	{
-		Width = NumberValue;
-	}
-	else if (PropertyName=="MaxScore")
+	if (PropertyName=="MaxScore")
 	{
 		MaxScore = NumberValue;
 	}
@@ -38,9 +34,9 @@ void URhythmTap::InitProperty(FBlueprintJsonObject& Args)
 	RhythmColor.A = ColorObj->GetNumberField("A");
 	double tmpWidth;
 	if (JsonArgs->TryGetNumberField("Width", tmpWidth))
-		Width = tmpWidth;
+		WidthPercent = tmpWidth;
 	else
-		Width = 0.2f;
+		WidthPercent = 0.2f;
 	double tmpMaxScore = 0;
 	if (JsonArgs->TryGetNumberField("MaxScore", tmpMaxScore))
 		MaxScore = tmpMaxScore;
@@ -69,7 +65,7 @@ void URhythmTap::OnPrepare_Implementation()
 	RhythmObj->GetStaticMeshComponent()->SetStaticMesh(PlaneMesh);
 	GetRhythmMaterial(RhythmTapMatDynamic);
 	RhythmObj->GetStaticMeshComponent()->SetMaterial(0, RhythmTapMatDynamic);
-	RhythmObj->SetActorScale3D(FVector(Width*SceneHalfWidth / 50.f, 0.2f, 1));
+	RhythmObj->SetActorScale3D(FVector(WidthPercent*SceneHalfWidth / 50.f, 0.2f, 1));
 	RhythmObj->SetActorEnableCollision(false);
 }
 
@@ -94,16 +90,16 @@ void URhythmTap::OnTick_Implementation(float CurrentTime)
 	else
 	{
 		FVector ActorLocation = RhythmObj->GetActorLocation();
-		SetAlpha(RhythmTapMatDynamic, FMath::Max(1 - (CurrentTime - GetTime()), 1.f));
+		SetAlpha(RhythmTapMatDynamic, FMath::Min(1 - (CurrentTime - GetTime()), 1.f));
 		RhythmObj->SetActorLocation(FVector((GetTime() - CurrentTime) * 30, ActorLocation.Y, ActorLocation.Z));
 	}
 }
 
-bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
+ERhythmTouchResult URhythmTap::OnTouchBegin_Implementation(float X, float YPercent)
 {
 	bool beenTouched=false;
 	//Check Position First
-	if (Y > LROffset - Width / 2.f && Y < LROffset + Width / 2.f)
+	if (YPercent > LROffset - WidthPercent && YPercent < LROffset + WidthPercent)
 	{
 		//Player Touched it.
 		if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthPerfect)
@@ -151,9 +147,9 @@ bool URhythmTap::OnBeginTouched_Implementation(float X, float Y)
 	{
 		RhythmObj->Destroy();
 		DestroySelf();
-		return true;
+		return ERhythmTouchResult::RTR_Accepted;
 	}
-	return false;
+	return ERhythmTouchResult::RTR_Continue;
 }
 
 float URhythmTap::RequestPlainMaxScore_Implementation()
@@ -165,7 +161,7 @@ FBlueprintJsonObject URhythmTap::GenArgsJsonObject_Implementation()
 {
 	FBlueprintJsonObject SuperJsonObj = Super::GenArgsJsonObject_Implementation();
 	SuperJsonObj.Object->SetNumberField("LROffset", LROffset);
-	SuperJsonObj.Object->SetNumberField("Width", Width);
+	SuperJsonObj.Object->SetNumberField("Width", WidthPercent);
 	SuperJsonObj.Object->SetNumberField("MaxScore", MaxScore);
 	TSharedPtr<FJsonObject> ColorObj = MakeShareable(new FJsonObject());
 	ColorObj->SetNumberField("R", RhythmColor.R);
@@ -183,16 +179,6 @@ void URhythmTap::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<I
 	RhythmCategory.Title = "RhythmTap";
 	RhythmCategory.DisplayTitle = LOCTEXT("RhythmTap", "RhythmTap");
 
-	TSharedPtr<FDetailItemNumber> WidthDetail = MakeShareable(new FDetailItemNumber());
-	WidthDetail->Name = "Width";
-	WidthDetail->DisplayName = LOCTEXT("Width", "Width");
-	WidthDetail->InstructionInstance = this;
-	WidthDetail->NumberValue = Width;
-	WidthDetail->SlideMax = 1.f;
-	WidthDetail->SlideMin = 0.1f;
-	WidthDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
-	RhythmCategory.ItemList.Add(WidthDetail);
-
 	TSharedPtr<FDetailItemNumber> MaxScoreDetail = MakeShareable(new FDetailItemNumber());
 	MaxScoreDetail->Name = "MaxScore";
 	MaxScoreDetail->DisplayName = LOCTEXT("MaxScore", "MaxScore");
@@ -201,14 +187,6 @@ void URhythmTap::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<I
 	MaxScoreDetail->DetailCallbackNumber.BindUFunction(this, "OnNumberPropertyChanged");
 	RhythmCategory.ItemList.Add(MaxScoreDetail);
 	DetailsBuilder->AddCategory(RhythmCategory);
-}
-
-class UInstructionWidgetBase* URhythmTap::GenInstructionWidget_Implementation()
-{
-	UInstructionWidgetBase* CurInstructionWidget = Super::GenInstructionWidget_Implementation();
-	CurInstructionWidget->SetVerticalOffset(LROffset);
-	CurInstructionWidget->RefreshOffset();
-	return CurInstructionWidget;
 }
 
 void URhythmTap::SetAlpha_Implementation(class UMaterialInstanceDynamic* RhythmDMI, float Alpha)

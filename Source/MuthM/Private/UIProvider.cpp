@@ -30,6 +30,8 @@
 #include "MusicImportationUIBase.h" 
 #include "ScoreEditorEntryUIBase.h" 
 #include "InputBoxBase.h" 
+#include "DetailInputBoolBase.h" 
+#include "RhythmWidgetBase.h" 
  
 UUIProvider* UUIProvider::Get(const UObject* WorldContextObj)
 {
@@ -400,6 +402,34 @@ TSubclassOf<UInputBoxBase> UUIProvider::GetInputBox()
 	else
 	{
 		return LoadClass<UInputBoxBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/InputBox.InputBox_C'"));
+	} 
+} 
+ 
+TSubclassOf<UDetailInputBoolBase> UUIProvider::GetDetailInputBool() 
+{ 
+	if(DetailInputBool.IsBound()) 
+	{ 
+		TSubclassOf<UDetailInputBoolBase> _uclass; 
+		DetailInputBool.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UDetailInputBoolBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputBool.DetailInputBool_C'"));
+	} 
+} 
+ 
+TSubclassOf<URhythmWidgetBase> UUIProvider::GetRhythmWidget() 
+{ 
+	if(RhythmWidget.IsBound()) 
+	{ 
+		TSubclassOf<URhythmWidgetBase> _uclass; 
+		RhythmWidget.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<URhythmWidgetBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/Rhythm/RhythmWidget.RhythmWidget_C'"));
 	} 
 } 
  

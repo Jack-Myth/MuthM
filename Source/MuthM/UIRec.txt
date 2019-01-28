@@ -29,3 +29,5 @@ ModManagerUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ModManage
 MusicImportationUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/MusicImportationUI.MusicImportationUI_C'"
 ScoreEditorEntryUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/ScoreEditorEntryUI.ScoreEditorEntryUI_C'"
 InputBox, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/InputBox.InputBox_C'"
+DetailInputBool, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputBool.DetailInputBool_C'"
+RhythmWidget, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/Rhythm/RhythmWidget.RhythmWidget_C'"

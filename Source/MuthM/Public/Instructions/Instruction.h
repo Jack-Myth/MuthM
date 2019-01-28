@@ -45,11 +45,11 @@ class MUTHM_API UInstruction:public UObject,public IHasDetails
 protected:
 	UFUNCTION()
 		void OnTimeChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
-	UPROPERTY(BlueprintReadWrite)
-		class UInstructionWidgetBase* _CachedInstructionWidget=nullptr;
 public:
-
 	float EditorVisualVerticalOffset;
+
+	UFUNCTION(BlueprintNativeEvent,meta=(ToolTip="Return if this instruction have high priority"))
+		bool HasPriority();
 
 	UFUNCTION(BlueprintPure)
 		FName GetRegisterName() const;

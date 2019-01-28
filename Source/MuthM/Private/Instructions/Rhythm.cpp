@@ -2,14 +2,15 @@
 
 #include "Rhythm.h"
 #include "MMScript.h"
-#include "InstructionWidgetBase.h"
 #include "JsonObject.h"
+#include "UIProvider.h"
+#include "RhythmWidgetBase.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
-bool URhythm::OnBeginTouched_Implementation(float X, float Y)
+ERhythmTouchResult URhythm::OnTouchBegin_Implementation(float X, float YPercent)
 {
-	return false;
+	return ERhythmTouchResult::RTR_Continue;
 }
 
 void URhythm::OnRhythmNumberDetailsChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
@@ -17,13 +18,30 @@ void URhythm::OnRhythmNumberDetailsChanged(class UInstruction* InstructionInstan
 	if (PropertyName == "LROffset")
 	{
 		LROffset = NumberValue;
-		if (_CachedInstructionWidget) //Template doesn't have Instruction Widget
+		if (_CachedRhythmWidget) //Template doesn't have Instruction Widget
 		{
-			_CachedInstructionWidget->SetVerticalOffset(LROffset);
-			_CachedInstructionWidget->RefreshOffset();
+			_CachedRhythmWidget->SetVerticalOffset(LROffset);
+			_CachedRhythmWidget->RefreshOffset();
+		}
+	}
+	else if (PropertyName == "Width")
+	{
+		WidthPercent = NumberValue;
+		if (_CachedRhythmWidget)
+		{
+			_CachedRhythmWidget->SetWidthPercent(WidthPercent);
+			_CachedRhythmWidget->RefreshOffset();
 		}
 	}
 }
+
+ERhythmTouchResult URhythm::OnTouchTracking_Implementation(float X, float YPercent)
+{
+	return ERhythmTouchResult::RTR_Accepted;
+}
+
+void URhythm::OnTouchEnd_Implementation(float X, float YPercent)
+{}
 
 void URhythm::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
 {
@@ -39,6 +57,16 @@ void URhythm::OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Arg
 	{
 		LROffset = EditorExtraInfo.VerticalOffset;
 	}
+}
+
+class UInstructionWidgetBase* URhythm::GenInstructionWidget_Implementation()
+{
+	auto RhythmWidgetClass = UUIProvider::Get(this)->GetRhythmWidget();
+	_CachedRhythmWidget = Cast<URhythmWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), RhythmWidgetClass, NAME_None));
+	_CachedRhythmWidget->SetVerticalOffset(LROffset);
+	_CachedRhythmWidget->SetWidthPercent(WidthPercent);
+	_CachedRhythmWidget->RefreshOffset();
+	return _CachedRhythmWidget;
 }
 
 void URhythm::OnPrepare_Implementation()
@@ -62,6 +90,7 @@ void URhythm::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBuilder>
 	Super::OnBuildingDetails_Implementation(DetailsBuilder);
 
 	FDetailCategoryStruct RhythmCategory;
+	RhythmCategory.DisplayTitle = LOCTEXT("Rhythm", "Rhythm");
 	TSharedPtr<FDetailItemNumber> LROffsetDetail = MakeShareable(new FDetailItemNumber());
 	LROffsetDetail->Name = "LROffset";
 	LROffsetDetail->DisplayName = LOCTEXT("PositionOffset", "Position Offset");
@@ -71,6 +100,16 @@ void URhythm::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBuilder>
 	LROffsetDetail->SlideMin = -1.f;
 	LROffsetDetail->DetailCallbackNumber.BindUFunction(this, "OnRhythmNumberDetailsChanged");
 	RhythmCategory.ItemList.Add(LROffsetDetail);
+
+	TSharedPtr<FDetailItemNumber> WidthDetail = MakeShareable(new FDetailItemNumber());
+	WidthDetail->Name = "Width"; //It's actually not the really "width".
+	WidthDetail->DisplayName = LOCTEXT("WidthPercent", "Width Percent");
+	WidthDetail->InstructionInstance = this;
+	WidthDetail->NumberValue = WidthPercent;
+	WidthDetail->SlideMax = 1.f;
+	WidthDetail->SlideMin = 0.1f;
+	WidthDetail->DetailCallbackNumber.BindUFunction(this, "OnRhythmNumberDetailsChanged");
+	RhythmCategory.ItemList.Add(WidthDetail);
 	
 	DetailsBuilder->AddCategory(RhythmCategory);
 }

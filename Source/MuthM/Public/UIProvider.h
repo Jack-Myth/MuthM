@@ -33,6 +33,8 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FModManagerUIDelegate, TSubclassOf<class UModM
 DECLARE_DYNAMIC_DELEGATE_OneParam(FMusicImportationUIDelegate, TSubclassOf<class UMusicImportationUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreEditorEntryUIDelegate, TSubclassOf<class UScoreEditorEntryUIBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FInputBoxDelegate, TSubclassOf<class UInputBoxBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputBoolDelegate, TSubclassOf<class UDetailInputBoolBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FRhythmWidgetDelegate, TSubclassOf<class URhythmWidgetBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
 UCLASS(NotBlueprintable)
@@ -224,5 +226,19 @@ public:
 		void ClearInputBox() { InputBox.Unbind(); }
 	UFUNCTION(BlueprintPure)
 		TSubclassOf<class UInputBoxBase> GetInputBox(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FDetailInputBoolDelegate DetailInputBool;
+	UFUNCTION(BlueprintCallable)
+		void ClearDetailInputBool() { DetailInputBool.Unbind(); }
+	UFUNCTION(BlueprintPure)
+		TSubclassOf<class UDetailInputBoolBase> GetDetailInputBool(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FRhythmWidgetDelegate RhythmWidget;
+	UFUNCTION(BlueprintCallable)
+		void ClearRhythmWidget() { RhythmWidget.Unbind(); }
+	UFUNCTION(BlueprintPure)
+		TSubclassOf<class URhythmWidgetBase> GetRhythmWidget(); 
  
 }; 

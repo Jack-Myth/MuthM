@@ -16,13 +16,16 @@ class MUTHM_API URhythmTap : public URhythm
 	GENERATED_BODY()
 
 protected:
-
-	class AStaticMeshActor* RhythmObj;
-	FLinearColor RhythmColor;
-	UMaterialInstanceDynamic* RhythmTapMatDynamic;
-	float Width=0.2;
-	class UParticleSystem* TapEffect=nullptr;
-	float MaxScore = 100;
+	UPROPERTY(BlueprintReadWrite)
+		class AStaticMeshActor* RhythmObj;
+	UPROPERTY(BlueprintReadWrite)
+		FLinearColor RhythmColor;
+	UPROPERTY(BlueprintReadWrite)
+		UMaterialInstanceDynamic* RhythmTapMatDynamic;
+	UPROPERTY(BlueprintReadWrite)
+		class UParticleSystem* TapEffect=nullptr;
+	UPROPERTY(BlueprintReadWrite)
+		float MaxScore = 100;
 	UFUNCTION()
 		void OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 	UFUNCTION(BlueprintCallable)
@@ -37,9 +40,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 		void SetAlpha(class UMaterialInstanceDynamic* RhythmDMI,float Alpha);
 
-	virtual bool OnBeginTouched_Implementation(float X, float Y) override;
+	virtual ERhythmTouchResult OnTouchBegin_Implementation(float X, float YPercent) override;
 	virtual float RequestPlainMaxScore_Implementation() override;
 	virtual FBlueprintJsonObject GenArgsJsonObject_Implementation() override;
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
-	virtual class UInstructionWidgetBase* GenInstructionWidget_Implementation() override;
 };

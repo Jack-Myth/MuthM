@@ -80,6 +80,7 @@ void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 void AInGameMode::PauseGame()
 {
 	UGameplayStatics::SetGamePaused(this, true);
+	_MainSoundComponent->SetPaused(true);
 	//Prevent to construct duplicated widget.
 	//And ensure the PauseUI has been generated.
 	if (!::IsValid(pPauseUI))
@@ -100,6 +101,7 @@ void AInGameMode::ResumeGame()
 	UGameplayStatics::SetGamePaused(this, false);
 	if (pPauseUI->OnGameResumed())
 		pPauseUI = nullptr;
+	_MainSoundComponent->SetPaused(false);
 }
 
 void AInGameMode::RestartGame()

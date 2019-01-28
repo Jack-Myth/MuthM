@@ -7,14 +7,26 @@
 #include "ScoreInfo.h"
 #include "Rhythm.generated.h"
 
+UENUM(BlueprintType)
+enum class ERhythmTouchResult: uint8
+{
+	RTR_Continue UMETA(DisplayName = "Continue", ToolTip = "This Rhythm doesn't accept,try next one."),
+	RTR_Accepted UMETA(DisplayName = "Accepted", ToolTip = "This Rhythm accepted,no need to check next."),
+	RTR_Tracking UMETA(DisplayName = "Tracking", ToolTip = "This Rhythm need to tracking the finger.")
+};
+
+
 /**
  * 
  */
 UCLASS(Abstract)
-class MUTHM_API URhythm : public UInstruction,public IScoreInfo
+class MUTHM_API URhythm : public UInstruction , public IScoreInfo
 {
 	GENERATED_BODY()
 protected:
+	UPROPERTY(BlueprintReadWrite)
+		class URhythmWidgetBase* _CachedRhythmWidget=nullptr;
+
 	UPROPERTY(BlueprintReadOnly)
 		float DefaultCheckWidthPerfect = 0.2f;
 	UPROPERTY(BlueprintReadOnly)
@@ -34,17 +46,25 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 		float LROffset;
+	UPROPERTY(BlueprintReadWrite)
+		float WidthPercent = 0.2;
 
 	UFUNCTION()
 		void OnRhythmNumberDetailsChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 public:
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
-		bool OnBeginTouched(float X,float Y);
+		ERhythmTouchResult OnTouchBegin(float X,float YPercent);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+		ERhythmTouchResult OnTouchTracking(float X, float YPercent);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+		void OnTouchEnd(float X, float YPercent);
 
 	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
 	virtual void OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args, FEditorExtraInfo EditorExtraInfo) override;
 	
+	virtual class UInstructionWidgetBase* GenInstructionWidget_Implementation() override;
+
 	virtual void OnPrepare_Implementation() override;
 	virtual bool IsInstructionReady_Implementation() const override;
 
