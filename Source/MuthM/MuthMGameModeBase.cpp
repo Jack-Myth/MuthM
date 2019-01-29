@@ -15,4 +15,6 @@ void AMuthMGameModeBase::BeginPlay()
 	Super::BeginPlay();
 	APlayerController* pc = UGameplayStatics::GetPlayerController(this, 0);
 	pc->bShowMouseCursor = true;
+	pc->bEnableTouchOverEvents = true;
+	pc->bEnableMouseOverEvents = true;
 }
