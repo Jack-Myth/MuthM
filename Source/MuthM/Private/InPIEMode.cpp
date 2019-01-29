@@ -16,12 +16,32 @@ void AInPIEMode::NativeOnGameEnded(EGameEndReason GameEndReason)
 	}
 }
 
+#if WITH_EDITOR
+void AInPIEMode::TickPIE(float CurrentTime, float Duration)
+{
+	//Tick() is not a complete implementation, Only for Unreal Editor PIE!
+	if (GIsEditor)
+	{
+		float DeltaTime = CurrentTime - LastTime;
+		LastTime = CurrentTime;
+		DeltaTime = DeltaTime ? DeltaTime : 0.016f;
+		TArray<AActor*> AllActors;
+		UGameplayStatics::GetAllActorsOfClass(this, AActor::StaticClass(), AllActors);
+		for (int i = 0; i < AllActors.Num(); i++)
+			AllActors[i]->Tick(DeltaTime);
+	}
+}
+#endif
+
 void AInPIEMode::BindDelegates()
 {
 	auto* InputHandler = Cast<APlayerInputHandler>(UGameplayStatics::GetPlayerPawn(this, 0));
 	InputHandler->OnBackPressed.AddUObject(this, &AInPIEMode::OnBackPressed);
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->OnExitPIE.AddUObject(this, &AInPIEMode::OnExitPIE);
+#if WITH_EDITOR
+	OnMusicPlaybackTimeUpdate.AddDynamic(this, &AInPIEMode::TickPIE);
+#endif
 }
 
 void AInPIEMode::OnBackPressed()

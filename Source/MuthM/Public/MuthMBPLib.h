@@ -101,5 +101,4 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LoadFileFromMDAT"))
 		static TArray<uint8> K2_LoadFileFromMDAT(const FString& MDATFileName, const FString& FileToLoad);
-	
 };

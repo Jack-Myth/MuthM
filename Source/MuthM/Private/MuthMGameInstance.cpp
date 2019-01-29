@@ -25,6 +25,7 @@
 #include "EngineUtils.h"
 #include "Engine/LevelStreaming.h"
 #include "Async.h"
+#include "RhythmSlide.h"
 
 DEFINE_LOG_CATEGORY(MuthMGameInstance);
 
@@ -123,6 +124,7 @@ void UMuthMGameInstance::Init()
 	//Fill Classes.
 	InstructionClasses.Add("LoadScene") = ULoadScene::StaticClass();
 	InstructionClasses.Add("RhythmTap") = URhythmTap::StaticClass();
+	InstructionClasses.Add("RhythmSlide") = URhythmSlide::StaticClass();
 	CachedInstructionRef.SetNum(InstructionClasses.Num());
 	int InstructionRefIndex = 0;
 	for (auto it=InstructionClasses.CreateIterator();it;++it)

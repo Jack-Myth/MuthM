@@ -192,8 +192,8 @@ void UMMScriptImpl::RemoveInstruction(UInstruction* Instance, EInstructionDestro
 			return;
 		}
 	}
-	if (!GetRemainingInstructionCount())
-		Destroy();
+	//if (!GetRemainingInstructionCount())
+		//Destroy();
 }
 
 void UMMScriptImpl::Tick(float CurrentTime)
@@ -203,6 +203,7 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	//Otherwise if DestroySelf() is called by Tick() of the last Instance,The game will crash.
 	InstructionGroupDuplicated.Append(_InstructionInstances);
 	//Find the Instructions that need to be prepared.
+	TArray<UInstruction*> NeedPrepare;
 	for (auto it = InstructionGroupDuplicated.CreateIterator(); it; ++it)
 	{
 		if ((*it)->IsInstructionReady())
@@ -210,13 +211,19 @@ void UMMScriptImpl::Tick(float CurrentTime)
 			UInstruction* TargetInstruction = *it;
 			it.RemoveCurrent();
 			_InstructionInstances.RemoveAt(it.GetIndex());
-			_PreparedInstructionInstance.Add(TargetInstruction);
-			TargetInstruction->OnPrepare();
+			NeedPrepare.Add(TargetInstruction);
 		}
-		else
-			break;
-		//Because the Array is ordered,if the first no need to be prepared, the second one will also be.
+		//XXX: Performance Warning
 	}
+	if (NeedPrepare.Num())
+	{
+		_PreparedInstructionInstance.Append(NeedPrepare);
+		Algo::Sort(_PreparedInstructionInstance, [](const UInstruction* a, const UInstruction* b) {return a->GetTime() < b->GetTime(); });
+		for (int i=0;i<NeedPrepare.Num();i++)
+			NeedPrepare[i]->OnPrepare();
+	}
+	if (mLastTime > CurrentTime)
+		mLastTime = CurrentTime;
 	InstructionGroupDuplicated.Empty(_PreparedInstructionInstance.Num());
 	InstructionGroupDuplicated.Append(_PreparedInstructionInstance);
 	for (int i = 0; i < InstructionGroupDuplicated.Num(); i++)
@@ -227,6 +234,7 @@ void UMMScriptImpl::Tick(float CurrentTime)
 			InstructionGroupDuplicated[i]->OnTimeArrived();
 		}
 	}
+	mLastTime = CurrentTime;
 }
 
 float UMMScriptImpl::GetRemainingInstructionCount() const

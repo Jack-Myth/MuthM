@@ -212,5 +212,6 @@ void AInGameMode::ReturnToMainMenuHost()
 void AInGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+	BindDelegates();
 	StartGame(_CachedMusicInfo, _pMDAT->GetFileData(_MMSFileName));
 }

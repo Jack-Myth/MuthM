@@ -25,6 +25,7 @@ DEFINE_LOG_CATEGORY(MuthMInEditorMode)
 void AInEditorMode::BeginPlay()
 {
 	AMuthMGameModeBase::BeginPlay();
+	BindDelegates();
 	TArray<uint8> PCMData;
 	_GameMainMusic->GenPCMData(PCMData);
 	_EditorMMSInstance = IInstructionManager::Get(this)->GenMMScript(true);

@@ -85,8 +85,6 @@ UInstruction* UInstructionManagerImpl::GenInstruction(FName InstructionName, flo
 void UInstructionManagerImpl::Tick(float CurrentTime)
 {
 	//TODO:UInstructionManagerImpl.Tick
-	if (LastTickTime > CurrentTime)
-		LastTickTime = 0;
 	for (auto it=_MMScriptInstances.CreateIterator();it;++it)
 	{
 		if (::IsValid((*it)->GetWorld()))

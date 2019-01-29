@@ -17,7 +17,7 @@ struct FRhythmSlideSubNoteInfo
 		float PositionOffset=0.f;
 	UPROPERTY(BlueprintReadWrite)
 		float Score = 50.f;
-	UPROPERTY(BlueprintCallable)
+	UPROPERTY(BlueprintReadWrite)
 		FLinearColor Color = FLinearColor(0.4f, 0.8f, 1.f); //#66CCFF :P
 };
 
@@ -29,6 +29,7 @@ class MUTHM_API URhythmSlide : public URhythm
 {
 	GENERATED_BODY()
 	
+	bool bTracking = false;
 protected:
 	UPROPERTY(BlueprintReadWrite)
 		TArray<FRhythmSlideSubNoteInfo> SubNotes;
@@ -44,13 +45,33 @@ protected:
 		void RhythmSlideNumberCallback(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 	UFUNCTION()
 		void SubNoteNumberCallback(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
+
+	UPROPERTY(BlueprintReadWrite,meta=(ToolTip="Prevent to be clicked double times."))
+		bool bBroken = false;
+	UPROPERTY(BlueprintReadWrite)
+		int CurrentSubNoteIndex = -1;
+	void BreakDown();
+	void InitProperty(FBlueprintJsonObject Args);
+	UPROPERTY(BlueprintReadOnly)
+		float PositionOffset=0.f;
 public:
+	virtual ERhythmTouchResult OnTouchBegin_Implementation(float X, float YPercent) override;
+	virtual ERhythmTouchResult OnTouchTracking_Implementation(float X, float YPercent) override;
+	virtual void OnTouchEnd_Implementation(float X, float YPercent) override;
+
+	virtual float RequestPlainMaxScore_Implementation() override;
+
 	virtual void OnPrepare_Implementation() override;
 
+	virtual void OnTick_Implementation(float CurrentTime) override;
 
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
 
+	virtual FBlueprintJsonObject GenArgsJsonObject_Implementation() override;
 
 	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
+
+
+	virtual void OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args, FEditorExtraInfo EditorExtraInfo) override;
 
 };

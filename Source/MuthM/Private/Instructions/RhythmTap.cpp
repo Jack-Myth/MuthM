@@ -60,12 +60,12 @@ void URhythmTap::OnPrepare_Implementation()
 {
 	Super::OnPrepare_Implementation();
 	UStaticMesh* PlaneMesh = LoadObject<UStaticMesh>(nullptr, TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
-	RhythmObj = GetWorld()->SpawnActor<AStaticMeshActor>(FVector(1000.f, LROffset*SceneHalfWidth, 10.f),FRotator(0,90.f,0));
+	RhythmObj = GetWorld()->SpawnActor<AStaticMeshActor>(FVector(1000.f, LROffset*SceneHalfWidth, 0.f),FRotator(0,90.f,0));
 	RhythmObj->SetMobility(EComponentMobility::Movable);
 	RhythmObj->GetStaticMeshComponent()->SetStaticMesh(PlaneMesh);
 	GetRhythmMaterial(RhythmTapMatDynamic);
 	RhythmObj->GetStaticMeshComponent()->SetMaterial(0, RhythmTapMatDynamic);
-	RhythmObj->SetActorScale3D(FVector(WidthPercent*SceneHalfWidth / 50.f, 0.2f, 1));
+	RhythmObj->SetActorScale3D(FVector(WidthPercent*SceneHalfWidth / 50.f, 0.1f, 1));
 	RhythmObj->SetActorEnableCollision(false);
 }
 
@@ -105,7 +105,6 @@ ERhythmTouchResult URhythmTap::OnTouchBegin_Implementation(float X, float YPerce
 		if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthPerfect)
 		{
 			//Perfect
-			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore);
 			ScoreCore->SubmitCombo();
@@ -115,7 +114,6 @@ ERhythmTouchResult URhythmTap::OnTouchBegin_Implementation(float X, float YPerce
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthGreat)
 		{
 			//Great
-			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore*0.80f);
 			ScoreCore->SubmitCombo();
@@ -125,7 +123,6 @@ ERhythmTouchResult URhythmTap::OnTouchBegin_Implementation(float X, float YPerce
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) < CheckWidthScale*DefaultCheckWidthSafe)
 		{
 			//Safe
-			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore*0.50f);
 			ScoreCore->SubmitCombo();
@@ -135,7 +132,6 @@ ERhythmTouchResult URhythmTap::OnTouchBegin_Implementation(float X, float YPerce
 		else if (FMath::Abs(GetTime() - GetScript()->GetGameTime()) <= CheckWidthScale*DefaultCheckWidthBad)
 		{
 			//Bad
-			auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 			auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 			ScoreCore->SubmitScore(MaxScore*0.30f);
 			ScoreCore->SubmitCombo();

@@ -156,7 +156,7 @@ void FMDATFile::_LazyLoad(FileInfo* pFileInfo) const
 FString FMDATFile::FormatFileName(const FString& FileName)
 {
 	FString TargetFilePath = FileName;
-	/*TargetFilePath.Replace(TEXT("\\"), TEXT("/"));
+	TargetFilePath.Replace(TEXT("\\"), TEXT("/"));
 	//Clear Duplicated '/'
 	for (auto it = TargetFilePath.CreateIterator(); it; ++it)
 	{
@@ -173,8 +173,6 @@ FString FMDATFile::FormatFileName(const FString& FileName)
 	}
 	if (TargetFilePath==""||TargetFilePath[0] != TEXT('/'))
 		TargetFilePath = TEXT("/")+TargetFilePath;
-	return TargetFilePath;*/
-	FPaths::NormalizeFilename(TargetFilePath);
 	return TargetFilePath;
 }
 
