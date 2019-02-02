@@ -13,7 +13,10 @@ AInGameState::AInGameState()
 
 void AInGameState::SubmitScore(float RealScore)
 {
+	//Plain Score
 	_RealScore += RealScore;
+	//Combo Addition
+	_RealScore += _MaxComboScore * FMath::Min((float)_CurrentComboCount / _ComboTop, 1.f);
 	OnScoreUpdate.Broadcast(GetScore(), GetRealScore());
 }
 
@@ -42,16 +45,17 @@ void AInGameState::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoC
 	_CurrentComboCount = 0;
 	_MaxComboRecorded = 0;
 	_ComboTop = int32(ScoreInfoCollection.Num()*0.3);
+	_ComboTop = FMath::Max(_ComboTop, 1);
 	_MaxScore = 0;
 	float ComboScoreRatio=0;
 	for (int i=0;i<_ComboTop;i++)
 	{
 		ComboScoreRatio += ((float)i / _ComboTop);
-		_MaxScore += ScoreInfoCollection[i]->RequestPlainMaxScore();
+		_MaxScore += IScoreInfo::Execute_RequestPlainMaxScore(ScoreInfoCollection[i].GetObject());
 	}
 	ComboScoreRatio += ScoreInfoCollection.Num() - _ComboTop;
 	for (int i= _ComboTop;i<ScoreInfoCollection.Num();i++)
-		_MaxScore+=ScoreInfoCollection[i]->RequestPlainMaxScore();
+		_MaxScore+= IScoreInfo::Execute_RequestPlainMaxScore(ScoreInfoCollection[i].GetObject());
 	_MaxComboScore = _MaxScore * 0.5 / ComboScoreRatio;
 	_MaxScore += _MaxScore * 0.5;
 	OnComboUpdate.Broadcast(0);

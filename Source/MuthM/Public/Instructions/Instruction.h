@@ -65,7 +65,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintNativeEvent)
-		bool IsInstructionReady() const;
+		bool IsInstructionReady(float CurrentTime) const;
 	UFUNCTION(BlueprintGetter)
 		FORCEINLINE float GetTime() const
 	{
@@ -94,10 +94,6 @@ public:
 		void DestroySelf();
 	UFUNCTION(BlueprintNativeEvent)
 		class UInstructionWidgetBase* GenInstructionWidget();
-	UFUNCTION(BlueprintPure)
-		float GetGlobalNumberData(FName Key) const;
-	UFUNCTION(BlueprintCallable)
-		void SetGlobalNumberData(FName Key, float Value);
 	//Override GetWorld() To provide the WorldContext
 	virtual class UWorld* GetWorld() const override final
 	{
@@ -105,4 +101,19 @@ public:
 	}
 
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
+
+protected:
+	//Global Data Operation.
+	UFUNCTION(BlueprintPure)
+		float GetGlobalNumberData(FName Key) const;
+	UFUNCTION(BlueprintCallable)
+		void SetGlobalNumberData(FName Key, float Value);
+	UFUNCTION(BlueprintPure)
+		FString GetGlobalStringData(FName Key) const;
+	UFUNCTION(BlueprintCallable)
+		void SetGlobalStringData(FName Key, FString String);
+	UFUNCTION(BlueprintPure)
+		UObject* GetGlobalObjectData(FName Key) const;
+	UFUNCTION(BlueprintCallable)
+		void SetGlobalObjectData(FName Key, UObject* Object);
 };

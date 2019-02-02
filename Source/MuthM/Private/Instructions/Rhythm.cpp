@@ -79,10 +79,10 @@ void URhythm::OnPrepare_Implementation()
 	CheckWidthScale = CheckWidthScale == 0 ? 1.f : CheckWidthScale; //Reset if Scale not exist.
 }
 
-bool URhythm::IsInstructionReady_Implementation() const
+bool URhythm::IsInstructionReady_Implementation(float CurrentTime) const
 {
 	//TODO: need to find a better solution.
-	return GetTime() < GetScript()->GetGameTime() + 10;
+	return GetTime() < CurrentTime + 10;
 }
 
 void URhythm::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBuilder>& DetailsBuilder)

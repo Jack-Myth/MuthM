@@ -36,6 +36,8 @@ DEFINE_LOG_CATEGORY(MuthMBPLib)
 #endif // _MUTHM_USE_FMOD
 #include "MainSWPlayer.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "Kismet/KismetRenderingLibrary.h"
+#include "ImageUtils.h"
 
 TScriptInterface<IInstructionManager> UMuthMBPLib::GetInstructionManager(const UObject* WorldContextObj)
 {
@@ -74,7 +76,7 @@ class UTexture2D* UMuthMBPLib::LoadTextureInGame(UObject* WorldContextObj, FStri
 	{
 		TSharedPtr<FMDATFile> _MDAT = InGameMode->GetMDAT();
 		auto FileData = _MDAT->GetFileData(FileName);
-		return GetLocalTextureByImageData(FileData);
+		return FImageUtils::ImportBufferAsTexture2D(FileData);
 	}
 	return nullptr; //No able to gen Texture2D
 }
@@ -316,4 +318,47 @@ TArray<uint8> UMuthMBPLib::K2_LoadFileFromMDAT(const FString& MDATFileName, cons
 	if (!tmpMDAT.LoadFromFile(FPaths::Combine(FPaths::ProjectPersistentDownloadDir(), TEXT("/MDATs/"), MDATFileName)))
 		return TArray<uint8>();
 	return tmpMDAT.GetFileData(FileToLoad);
+}
+
+bool UMuthMBPLib::GetColorFromJson(FLinearColor& Color, const TSharedPtr<class FJsonObject>& JsonObj, const FString& ColorObjName)
+{
+	if (!JsonObj.IsValid())
+		return false;
+	const TSharedPtr<FJsonObject>* ColorJson;
+	if (JsonObj->TryGetObjectField(ColorObjName, ColorJson))
+	{
+		Color.R = (*ColorJson)->GetNumberField("R");
+		Color.G = (*ColorJson)->GetNumberField("G");
+		Color.B = (*ColorJson)->GetNumberField("B");
+		double doubleA;
+		if ((*ColorJson)->TryGetNumberField("A", doubleA))
+			Color.A = (float)doubleA;
+		else
+			Color.A = 1.f;
+		return true;
+	}
+	return false;
+}
+
+void UMuthMBPLib::SaveColorToJson(const TSharedPtr<class FJsonObject>& JsonObj, const FString& ColorObjName, FLinearColor Color)
+{
+	if (!JsonObj.IsValid())
+		return; //Invalid Json
+	TSharedPtr<FJsonObject> ColorJsonObj = MakeShareable(new FJsonObject());
+	ColorJsonObj->SetNumberField("R", Color.R);
+	ColorJsonObj->SetNumberField("G", Color.G);
+	ColorJsonObj->SetNumberField("B", Color.B);
+	if (Color.A != 1.f)
+		ColorJsonObj->SetNumberField("A", Color.A);
+	JsonObj->SetObjectField(ColorObjName, ColorJsonObj);
+}
+
+bool UMuthMBPLib::K2_GetColorFromJson(FLinearColor& Color, FBlueprintJsonObject BPJsonObj, const FString& ColorObjName)
+{
+	return GetColorFromJson(Color, BPJsonObj.Object, ColorObjName);
+}
+
+void UMuthMBPLib::K2_SaveColorToJson(FBlueprintJsonObject BPJsonObj, const FString& ColorObjName, FLinearColor Color)
+{
+	SaveColorToJson(BPJsonObj.Object, ColorObjName, Color);
 }

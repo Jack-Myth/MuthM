@@ -35,6 +35,8 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FScoreEditorEntryUIDelegate, TSubclassOf<class
 DECLARE_DYNAMIC_DELEGATE_OneParam(FInputBoxDelegate, TSubclassOf<class UInputBoxBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputBoolDelegate, TSubclassOf<class UDetailInputBoolBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FRhythmWidgetDelegate, TSubclassOf<class URhythmWidgetBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputColorDelegate, TSubclassOf<class UDetailInputColorBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputSelectionDelegate, TSubclassOf<class UDetailInputSelectionBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
 UCLASS(NotBlueprintable)
@@ -240,5 +242,19 @@ public:
 		void ClearRhythmWidget() { RhythmWidget.Unbind(); }
 	UFUNCTION(BlueprintPure)
 		TSubclassOf<class URhythmWidgetBase> GetRhythmWidget(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FDetailInputColorDelegate DetailInputColor;
+	UFUNCTION(BlueprintCallable)
+		void ClearDetailInputColor() { DetailInputColor.Unbind(); }
+	UFUNCTION(BlueprintPure)
+		TSubclassOf<class UDetailInputColorBase> GetDetailInputColor(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FDetailInputSelectionDelegate DetailInputSelection;
+	UFUNCTION(BlueprintCallable)
+		void ClearDetailInputSelection() { DetailInputSelection.Unbind(); }
+	UFUNCTION(BlueprintPure)
+		TSubclassOf<class UDetailInputSelectionBase> GetDetailInputSelection(); 
  
 }; 

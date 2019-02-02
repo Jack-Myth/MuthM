@@ -66,7 +66,7 @@ public:
 	virtual class UInstructionWidgetBase* GenInstructionWidget_Implementation() override;
 
 	virtual void OnPrepare_Implementation() override;
-	virtual bool IsInstructionReady_Implementation() const override;
+	virtual bool IsInstructionReady_Implementation(float CurrentTime) const override;
 
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
 };

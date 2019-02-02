@@ -31,3 +31,5 @@ ScoreEditorEntryUI, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/Sco
 InputBox, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/InputBox.InputBox_C'"
 DetailInputBool, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputBool.DetailInputBool_C'"
 RhythmWidget, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/Rhythm/RhythmWidget.RhythmWidget_C'"
+DetailInputColor, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputColor.DetailInputColor_C'"
+DetailInputSelection, "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputSelection.DetailInputSelection_C'"

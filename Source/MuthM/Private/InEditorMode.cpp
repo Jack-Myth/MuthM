@@ -124,8 +124,9 @@ TArray<class UTexture2D*> AInEditorMode::DrawMainMusicSpectrum(float BeginTime, 
 		UTexture2D* SpectrumTexture = UTexture2D::CreateTransient(PartResTime, ResFrequency, EPixelFormat::PF_A8);
 		uint8* MipmapData = (uint8*)SpectrumTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 #if !defined(PLATFORM_WINDOWS)||!PLATFORM_WINDOWS
-		uint32 alignment= SpectrumTexture->PlatformData->Mips[0].BulkData.GetBulkDataAlignment();
-		uint32 AlignedWidth = PartResTime + (4 - PartResTime % 4) % 4;
+		int32 AlignedWidth = PartResTime;
+		if (ResTime % 4)
+			AlignedWidth += (4 - PartResTime % 4);
 #endif
 		for (uint32 x = 0; x < PartResTime; x++)
 		{

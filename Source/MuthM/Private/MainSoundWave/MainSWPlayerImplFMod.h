@@ -31,6 +31,7 @@ private:
 	uint32 LastTimeMs = 0;
 
 	bool bPlaybackEventInterpolation = true;
+	float Pitch = 1.f;
 public:
 
 	virtual void SetMainSoundWave(TScriptInterface<class IMainSoundWave> MainSoundWave) override;

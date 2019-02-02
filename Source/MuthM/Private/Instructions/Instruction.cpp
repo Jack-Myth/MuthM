@@ -51,7 +51,7 @@ FName UInstruction::GetRegisterName() const
 	return IInstructionManager::Get(this)->GetInstructionName(GetClass());
 }
 
-bool UInstruction::IsInstructionReady_Implementation() const
+bool UInstruction::IsInstructionReady_Implementation(float CurrentTime) const
 {
 	return false;
 }
@@ -82,6 +82,30 @@ void UInstruction::SetGlobalNumberData(FName Key, float Value)
 {
 	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 	InGameMode->GlobalDataNumber.FindOrAdd(Key) = Value;
+}
+
+FString UInstruction::GetGlobalStringData(FName Key) const
+{
+	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+	return InGameMode->GlobalDataString.FindRef(Key);
+}
+
+void UInstruction::SetGlobalStringData(FName Key, FString String)
+{
+	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+	InGameMode->GlobalDataString.FindOrAdd(Key) = String;
+}
+
+UObject* UInstruction::GetGlobalObjectData(FName Key) const
+{
+	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+	return InGameMode->GlobalDataObject.FindRef(Key);
+}
+
+void UInstruction::SetGlobalObjectData(FName Key, UObject* Object)
+{
+	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
+	InGameMode->GlobalDataObject.Add(Key) = Object;
 }
 
 void UInstruction::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder)

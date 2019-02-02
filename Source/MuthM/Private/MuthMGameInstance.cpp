@@ -26,6 +26,7 @@
 #include "Engine/LevelStreaming.h"
 #include "Async.h"
 #include "RhythmSlide.h"
+#include "Background.h"
 
 DEFINE_LOG_CATEGORY(MuthMGameInstance);
 
@@ -125,10 +126,15 @@ void UMuthMGameInstance::Init()
 	InstructionClasses.Add("LoadScene") = ULoadScene::StaticClass();
 	InstructionClasses.Add("RhythmTap") = URhythmTap::StaticClass();
 	InstructionClasses.Add("RhythmSlide") = URhythmSlide::StaticClass();
+	InstructionClasses.Add("Background") = UBackground::StaticClass();
 	CachedInstructionRef.SetNum(InstructionClasses.Num());
 	int InstructionRefIndex = 0;
 	for (auto it=InstructionClasses.CreateIterator();it;++it)
 		InstructionManager->RegisterInstruction(it->Key, it->Value, CachedInstructionRef[InstructionRefIndex++]);
+#if defined(_MUTHM_USE_FMOD)&&_MUTHM_USE_FMOD
+	//Init FModSystem
+	//MuthMNativeLib::GetFModSystem()->setOutput(FMOD_OUTPUTTYPE_AUDIOTRACK);  //Crash on PC
+#endif
 }
 
 void UMuthMGameInstance::EnterPIEMode(struct FWorldContext*& PIEWorldContext)

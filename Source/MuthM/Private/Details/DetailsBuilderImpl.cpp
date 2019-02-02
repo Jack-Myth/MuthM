@@ -73,8 +73,7 @@ UDetailsListBase* UDetailsBuilderImpl::GenDetailsWidget()
 				case EDetailInputType::DIT_Custom:
 					{
 						TSharedPtr<FDetailItemCustom> pDetailItemCustom = StaticCastSharedPtr<FDetailItemCustom>(it->ItemList[i]);
-						auto* DetailInputCustomWidget = Cast<UDetailInputCustomBase>(
-							UUserWidget::CreateWidgetInstance(*GetWorld(), pDetailItemCustom->CustomWidgetClass, NAME_None));
+						auto* DetailInputCustomWidget = pDetailItemCustom->CustomWidget;
 						DetailInputCustomWidget->ValueInit(pDetailItemCustom);
 						CategoryWidget->AddDetailItemWidget(DetailInputCustomWidget);
 					}

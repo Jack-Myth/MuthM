@@ -13,6 +13,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "InGameState.h"
 #include "InstructionWidgetBase.h"
+#include "MuthMBPLib.h"
+#include "UIProvider.h"
+#include "DetailInputColorBase.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -27,11 +30,7 @@ void URhythmTap::OnNumberPropertyChanged(class UInstruction* InstructionInstance
 void URhythmTap::InitProperty(FBlueprintJsonObject& Args)
 {
 	TSharedPtr<FJsonObject> JsonArgs = Args.Object;
-	TSharedPtr<FJsonObject> ColorObj = JsonArgs->GetObjectField("Color");
-	RhythmColor.R = ColorObj->GetNumberField("R");
-	RhythmColor.G = ColorObj->GetNumberField("G");
-	RhythmColor.B = ColorObj->GetNumberField("B");
-	RhythmColor.A = ColorObj->GetNumberField("A");
+	UMuthMBPLib::GetColorFromJson(RhythmColor, JsonArgs, "Color");
 	double tmpWidth;
 	if (JsonArgs->TryGetNumberField("Width", tmpWidth))
 		WidthPercent = tmpWidth;
@@ -42,6 +41,14 @@ void URhythmTap::InitProperty(FBlueprintJsonObject& Args)
 		MaxScore = tmpMaxScore;
 	else
 		MaxScore = 100;
+}
+
+void URhythmTap::OnColorUpdate(class UInstruction* InstructionInstance, FName PropertyName, class UDetailInputCustomBase* CustomWidget)
+{
+	if (PropertyName=="Color")
+	{
+		RhythmColor = Cast<UDetailInputColorBase>(CustomWidget)->GetColor();
+	}
 }
 
 void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
@@ -159,12 +166,7 @@ FBlueprintJsonObject URhythmTap::GenArgsJsonObject_Implementation()
 	SuperJsonObj.Object->SetNumberField("LROffset", LROffset);
 	SuperJsonObj.Object->SetNumberField("Width", WidthPercent);
 	SuperJsonObj.Object->SetNumberField("MaxScore", MaxScore);
-	TSharedPtr<FJsonObject> ColorObj = MakeShareable(new FJsonObject());
-	ColorObj->SetNumberField("R", RhythmColor.R);
-	ColorObj->SetNumberField("G", RhythmColor.G);
-	ColorObj->SetNumberField("B", RhythmColor.B);
-	ColorObj->SetNumberField("A", RhythmColor.A);
-	SuperJsonObj.Object->SetObjectField("Color", ColorObj);
+	UMuthMBPLib::SaveColorToJson(SuperJsonObj.Object, "Color", RhythmColor);
 	return SuperJsonObj;
 }
 
@@ -174,6 +176,17 @@ void URhythmTap::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<I
 	FDetailCategoryStruct RhythmCategory;
 	RhythmCategory.Title = "RhythmTap";
 	RhythmCategory.DisplayTitle = LOCTEXT("RhythmTap", "RhythmTap");
+
+	TSharedPtr<FDetailItemCustom> ColorItem = MakeShareable(new FDetailItemCustom());
+	UDetailInputColorBase* ColorInputWidget = Cast<UDetailInputColorBase>(UUserWidget::CreateWidgetInstance(*GetWorld(),
+		UUIProvider::Get(this)->GetDetailInputColor(), NAME_None));
+	ColorInputWidget->SetColor(RhythmColor);
+	ColorItem->CustomWidget = ColorInputWidget;
+	ColorItem->Name = "Color";
+	ColorItem->DisplayName = LOCTEXT("Color", "Color");
+	ColorItem->InstructionInstance = this;
+	ColorItem->DetailCallbackCustom.BindUFunction(this, "OnColorUpdate");
+	RhythmCategory.ItemList.Add(ColorItem);
 
 	TSharedPtr<FDetailItemNumber> MaxScoreDetail = MakeShareable(new FDetailItemNumber());
 	MaxScoreDetail->Name = "MaxScore";

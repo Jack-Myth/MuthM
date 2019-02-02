@@ -48,6 +48,18 @@ void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MainMMSInstance->SetPlayType(TargetPlayType);
 	_MainMMSInstance->LoadFromData(MMSData);
+	
+	//Init GameStete.
+	auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
+	TArray<TScriptInterface<IScoreInfo>> ScoreInfoCollection;
+	auto InstructionArray = _MainMMSInstance->GetAllInstructions();
+	for (int i=0;i< InstructionArray.Num();i++)
+	{
+		if (InstructionArray[i]->GetClass()->ImplementsInterface(UScoreInfo::StaticClass()))
+			ScoreInfoCollection.Add(InstructionArray[i]);
+	}
+	ScoreCore->InitScoreInfo(ScoreInfoCollection);
+
 	float SuitDelay = _MainMMSInstance->GetSuiltableDelay();
 	if (!::IsValid(_GameMainMusic.GetObject()))
 	{

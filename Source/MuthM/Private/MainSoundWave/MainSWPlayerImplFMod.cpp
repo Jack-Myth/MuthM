@@ -63,6 +63,7 @@ void UMainSWPlayerImplFMod::SetPitch(float newPitch /*= 1.f*/)
 	if (pFModChannel)
 	{
 		pFModChannel->setPitch(newPitch);
+		Pitch = newPitch;
 	}
 }
 
@@ -104,7 +105,7 @@ void UMainSWPlayerImplFMod::Tick(float DeltaTime)
 	{
 		if (Position==LastTimeMs&&IsPlaying())
 		{
-			PositionOffsetMs += DeltaTime * 1000;
+			PositionOffsetMs += DeltaTime * Pitch * 1000;
 			Position += PositionOffsetMs;
 		}
 		else

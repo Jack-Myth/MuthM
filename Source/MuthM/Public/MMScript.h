@@ -55,5 +55,6 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Notify MMS to Reorder Instructions"))
 		virtual void UpdateInstructions() = 0;
 	virtual TArray<UInstruction*> GetAllInstructions() const = 0;
+	virtual void Import(FString FileName, TScriptInterface<class IChartImporter> Importer) = 0;
 };
 

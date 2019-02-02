@@ -72,7 +72,7 @@ struct FDetailItemCustom :public FDetailItem
 public:
 	FDetailItemCustom();
 	UPROPERTY(BlueprintReadWrite)
-		TSubclassOf<UDetailInputCustomBase> CustomWidgetClass;
+		UDetailInputCustomBase* CustomWidget;
 	UPROPERTY(BlueprintReadWrite)
 		FDetailCallbackCustom DetailCallbackCustom;
 };

@@ -71,8 +71,12 @@ public:
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
 	UPROPERTY(BlueprintAssignable)
 		FOnGameEnded OnGameEnded;
-	UPROPERTY(BlueprintReadWrite)
-		TMap<FName, float> GlobalDataNumber; 
+	UPROPERTY()  //Prevent Read By Blueprint(such as UserWidget)
+		TMap<FName, float> GlobalDataNumber;
+	UPROPERTY()
+		TMap<FName, FString> GlobalDataString;
+	UPROPERTY()
+		TMap<FName, UObject*> GlobalDataObject;
 	AInGameMode();
 	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
 	{

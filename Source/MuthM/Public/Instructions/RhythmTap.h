@@ -19,7 +19,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 		class AStaticMeshActor* RhythmObj;
 	UPROPERTY(BlueprintReadWrite)
-		FLinearColor RhythmColor;
+		FLinearColor RhythmColor = FLinearColor(0.4f, 0.8f, 1.f);
 	UPROPERTY(BlueprintReadWrite)
 		UMaterialInstanceDynamic* RhythmTapMatDynamic;
 	UPROPERTY(BlueprintReadWrite)
@@ -30,6 +30,8 @@ protected:
 		void OnNumberPropertyChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 	UFUNCTION(BlueprintCallable)
 		void InitProperty(UPARAM(Ref) FBlueprintJsonObject& Args);
+	UFUNCTION()
+		void OnColorUpdate(class UInstruction* InstructionInstance, FName PropertyName, class UDetailInputCustomBase* CustomWidget);
 public:
 	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
 	virtual void OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args,FEditorExtraInfo EditorExtraInfo) override;

@@ -6,6 +6,7 @@
 #include "InEditorMode.h"
 #include "InGameMode.h"
 #include "MuthMGameInstance.h"
+#include "InPIEMode.h"
 
 //DEFINE_LOG_CATEGORY(GameUIBase)
 
@@ -14,6 +15,7 @@ void UGameUIBase::Init(FMusicInfo MusicInfo)
 	OnFillMusicInfo(MusicInfo);
 	auto* InGameMode = Cast<AInGameMode>(UGameplayStatics::GetGameMode(this));
 	auto* InGameState = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
+	
 	//Register Delegate
 	if (InGameMode)
 	{
@@ -25,6 +27,8 @@ void UGameUIBase::Init(FMusicInfo MusicInfo)
 		}
 		InGameMode->OnMusicPlaybackTimeUpdate.AddDynamic(this, &UGameUIBase::OnGameProgressChanged);
 	}
+
+	InitUI(InGameMode->IsA(AInPIEMode::StaticClass()));
 }
 
 void UGameUIBase::ExitPIE()

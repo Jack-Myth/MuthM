@@ -32,6 +32,8 @@
 #include "InputBoxBase.h" 
 #include "DetailInputBoolBase.h" 
 #include "RhythmWidgetBase.h" 
+#include "DetailInputColorBase.h" 
+#include "DetailInputSelectionBase.h" 
  
 UUIProvider* UUIProvider::Get(const UObject* WorldContextObj)
 {
@@ -430,6 +432,34 @@ TSubclassOf<URhythmWidgetBase> UUIProvider::GetRhythmWidget()
 	else
 	{
 		return LoadClass<URhythmWidgetBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/Rhythm/RhythmWidget.RhythmWidget_C'"));
+	} 
+} 
+ 
+TSubclassOf<UDetailInputColorBase> UUIProvider::GetDetailInputColor() 
+{ 
+	if(DetailInputColor.IsBound()) 
+	{ 
+		TSubclassOf<UDetailInputColorBase> _uclass; 
+		DetailInputColor.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UDetailInputColorBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputColor.DetailInputColor_C'"));
+	} 
+} 
+ 
+TSubclassOf<UDetailInputSelectionBase> UUIProvider::GetDetailInputSelection() 
+{ 
+	if(DetailInputSelection.IsBound()) 
+	{ 
+		TSubclassOf<UDetailInputSelectionBase> _uclass; 
+		DetailInputSelection.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<UDetailInputSelectionBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputSelection.DetailInputSelection_C'"));
 	} 
 } 
  

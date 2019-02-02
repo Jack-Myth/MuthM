@@ -12,6 +12,7 @@
 #include "JsonSerializerMacros.h"
 #include "JsonWriter.h"
 #include "Score/ScoreInfo.h"
+#include "ChartImporter.h"
 
 bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 {
@@ -206,11 +207,11 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	TArray<UInstruction*> NeedPrepare;
 	for (auto it = InstructionGroupDuplicated.CreateIterator(); it; ++it)
 	{
-		if ((*it)->IsInstructionReady())
+		if ((*it)->IsInstructionReady(CurrentTime))
 		{
 			UInstruction* TargetInstruction = *it;
-			it.RemoveCurrent();
 			_InstructionInstances.RemoveAt(it.GetIndex());
+			it.RemoveCurrent();
 			NeedPrepare.Add(TargetInstruction);
 		}
 		//XXX: Performance Warning
@@ -379,6 +380,12 @@ TArray<UInstruction *> UMMScriptImpl::GetAllInstructions() const
 	tmpInstructions.Append(_PreparedInstructionInstance);
 	Algo::Sort(tmpInstructions, [](UInstruction* a, UInstruction* b) {return a->GetTime() < b->GetTime(); });
 	return tmpInstructions;
+}
+
+void UMMScriptImpl::Import(FString FileName, TScriptInterface<class IChartImporter> Importer)
+{
+	TArray<UInstruction*> Result;
+	Importer->ImportFromFile(FileName, Result);
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

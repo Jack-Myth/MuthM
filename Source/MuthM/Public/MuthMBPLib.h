@@ -74,8 +74,15 @@ public:
 	UFUNCTION(BlueprintPure,meta=(WorldContext = "WorldContextObj",ToolTip="Load UTexture2D from the MDAT file that is using in the game."))
 		static class UTexture2D* LoadTextureInGame(UObject* WorldContextObj,FString FileName);
 
+	//Import Texture from local file.
+	//It's a legacy function, for dynamic texture importation.
+	//For better performance, use UKismetRenderingLibrary::ImportFileAsTexture2D() instead.
 	UFUNCTION(BlueprintCallable)
 		static class UTexture2D* GetLocalTexture(const FString &_TexPath);
+
+	//Import Texture from local file.
+	//It's a legacy function, for dynamic texture importation.
+	//For better performance, use UKismetRenderingLibrary::ImportBufferAsTexture2D instead.
 	UFUNCTION(BlueprintCallable)
 		static class UTexture2D* GetLocalTextureByImageData(const TArray<uint8>& ImageData);
 	static TArray<FColor> uint8ToFColor(const TArray<uint8> origin);
@@ -101,4 +108,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LoadFileFromMDAT"))
 		static TArray<uint8> K2_LoadFileFromMDAT(const FString& MDATFileName, const FString& FileToLoad);
+
+	//If can't get color,return false,the Color will not be changed.
+	static bool GetColorFromJson(FLinearColor& Color,const TSharedPtr<class FJsonObject>& JsonObj, const FString& ColorObjName);
+	static void SaveColorToJson(const TSharedPtr<class FJsonObject>& JsonObj, const FString& ColorObjName, FLinearColor Color);
+
+	UFUNCTION(BlueprintCallable,meta=(DisplayName="LoadColorFromJson"))
+		static bool K2_GetColorFromJson(FLinearColor& Color,FBlueprintJsonObject BPJsonObj, const FString& ColorObjName);
+	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LoadColorFromJson"))
+		static void K2_SaveColorToJson(FBlueprintJsonObject BPJsonObj, const FString& ColorObjName, FLinearColor Color);
+
 };

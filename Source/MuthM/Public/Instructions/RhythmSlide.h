@@ -41,10 +41,14 @@ protected:
 		TArray<class AStaticMeshActor*> SubNotesMesh;
 	UPROPERTY(BlueprintReadWrite)
 		TArray<class ASplineMeshActor*> SubNotesLine;
+	UPROPERTY(BlueprintReadWrite)
+		FLinearColor Color = FLinearColor(0.4f, 0.8f, 1.f);
 	UFUNCTION()
 		void RhythmSlideNumberCallback(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 	UFUNCTION()
 		void SubNoteNumberCallback(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
+	UFUNCTION()
+		void OnUpdateColor(class UInstruction* InstructionInstance, FName PropertyName, class UDetailInputCustomBase* CustomWidget);
 
 	UPROPERTY(BlueprintReadWrite,meta=(ToolTip="Prevent to be clicked double times."))
 		bool bBroken = false;
@@ -53,7 +57,21 @@ protected:
 	void BreakDown();
 	void InitProperty(FBlueprintJsonObject Args);
 	UPROPERTY(BlueprintReadOnly)
-		float PositionOffset=0.f;
+		float PositionOffset = 0.f;
+	UPROPERTY(BlueprintReadOnly)
+		class UMaterialInstanceDynamic* RhythmDMI = nullptr;
+	UPROPERTY(BlueprintReadOnly)
+		TArray<class UMaterialInstanceDynamic*> GlowLineDMIs;
+	UPROPERTY(BlueprintReadOnly)
+		TArray<class UMaterialInstanceDynamic*> GlowPointDMIs;
+
+	UFUNCTION(BlueprintNativeEvent)
+		class UMaterialInstanceDynamic* GetRhythmMaterial();
+	UFUNCTION(BlueprintNativeEvent)
+		class UMaterialInterface* GetGlowLineMaterialTemplate();
+	UFUNCTION(BlueprintNativeEvent)
+		class UMaterialInterface* GetGlowPointMaterialTemplate();
+
 public:
 	virtual ERhythmTouchResult OnTouchBegin_Implementation(float X, float YPercent) override;
 	virtual ERhythmTouchResult OnTouchTracking_Implementation(float X, float YPercent) override;

@@ -11,6 +11,10 @@
 #include "InGameMode.h"
 #include "InGameState.h"
 #include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "MuthMBPLib.h"
+#include "DetailInputColorBase.h"
+#include "UIProvider.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -42,12 +46,44 @@ void URhythmSlide::SubNoteNumberCallback(class UInstruction* InstructionInstance
 	else if (PropertyNameStr == "PositionOffset")
 	{
 		SubNotes[SubNoteIndex].PositionOffset = NumberValue;
-		//TODOL Update Widget
+		//TODO: Update Widget
 	}
 	else if (PropertyNameStr == "Score")
 	{
 		SubNotes[SubNoteIndex].Score = NumberValue;
 		//No need to update widget.
+	}
+}
+
+void URhythmSlide::OnUpdateColor(class UInstruction* InstructionInstance, FName PropertyName, class UDetailInputCustomBase* CustomWidget)
+{
+	FString PropertyNameStr = PropertyName.ToString();
+	UDetailInputColorBase* ColorWidget = Cast<UDetailInputColorBase>(CustomWidget);
+	if (!ColorWidget)
+		return;
+	if (PropertyNameStr.StartsWith("SubNote"))
+	{
+		//It's for SubNote
+		FRegexPattern pattern("SubNote(\\d)-(.*)");
+		FRegexMatcher matcher(pattern, PropertyName.ToString());
+		if (!matcher.FindNext())
+			return;
+		FString SubNoteIndexStr = matcher.GetCaptureGroup(1);
+		FString PropertyNameStr = matcher.GetCaptureGroup(2);
+		int SubNoteIndex = FCString::Atoi(*SubNoteIndexStr);
+		if (SubNoteIndex >= SubNotes.Num())
+			return; //Index out of bound.
+		if (PropertyNameStr =="Color")
+		{
+			SubNotes[SubNoteIndex].Color = ColorWidget->GetColor();
+		}
+	}
+	else
+	{
+		if (PropertyName=="Color")
+		{
+			Color = ColorWidget->GetColor();
+		}
 	}
 }
 
@@ -84,6 +120,7 @@ void URhythmSlide::InitProperty(FBlueprintJsonObject Args)
 {
 	TSharedPtr<FJsonObject> Obj = Args.Object;
 	int SubRhythmCount = Obj->GetIntegerField("SubNotesCount");
+	UMuthMBPLib::GetColorFromJson(Color, Obj, "Color");
 	for (int i = 0; i < SubRhythmCount; i++)
 	{
 		TSharedPtr<FJsonObject> SubNoteInfoJson = Obj->GetObjectField(FString::Printf(TEXT("SubNote%d"), i));
@@ -93,17 +130,25 @@ void URhythmSlide::InitProperty(FBlueprintJsonObject Args)
 			tmpNoteInfo.TimeOffset = SubNoteInfoJson->GetNumberField("TimeOffset");
 			tmpNoteInfo.PositionOffset = SubNoteInfoJson->GetNumberField("PositionOffset");
 			tmpNoteInfo.Score = SubNoteInfoJson->GetNumberField("Score");
-			TSharedPtr<FJsonObject> ColorJson = SubNoteInfoJson->GetObjectField("Color");
-			if (ColorJson)
-			{
-				tmpNoteInfo.Color.R = ColorJson->GetNumberField("R");
-				tmpNoteInfo.Color.G = ColorJson->GetNumberField("G");
-				tmpNoteInfo.Color.B = ColorJson->GetNumberField("B");
-				tmpNoteInfo.Color.A = ColorJson->GetNumberField("A");
-			}
+			UMuthMBPLib::GetColorFromJson(tmpNoteInfo.Color, SubNoteInfoJson, "Color");
 			SubNotes.Add(tmpNoteInfo);
 		}
 	}
+}
+
+class UMaterialInterface* URhythmSlide::GetGlowPointMaterialTemplate_Implementation()
+{
+	return LoadObject<UMaterial>(nullptr, TEXT("Material'/Game/MuthM/Materials/Game/Glowpoint.Glowpoint'"));
+}
+
+class UMaterialInterface* URhythmSlide::GetGlowLineMaterialTemplate_Implementation()
+{
+	return LoadObject<UMaterial>(nullptr, TEXT("Material'/Game/MuthM/Materials/Game/Glowline.Glowline'"));
+}
+
+class UMaterialInstanceDynamic* URhythmSlide::GetRhythmMaterial_Implementation()
+{
+	return UMaterialInstanceDynamic::Create(LoadObject<UMaterial>(nullptr, TEXT("Material'/Game/MuthM/Materials/Game/RhythmTapMaterial.RhythmTapMaterial'")),nullptr,NAME_None);
 }
 
 ERhythmTouchResult URhythmSlide::OnTouchBegin_Implementation(float X, float YPercent)
@@ -172,30 +217,41 @@ void URhythmSlide::OnPrepare_Implementation()
 	RhythmMesh = GetWorld()->SpawnActor<AStaticMeshActor>(FVector(1000.f, LROffset*SceneHalfWidth, 0.f), FRotator(0, 90.f, 0));
 	RhythmMesh->SetActorScale3D(FVector(WidthPercent*SceneHalfWidth / 50.f, 0.1f, 1));
 	RhythmMesh->SetMobility(EComponentMobility::Movable);
+	RhythmMesh->SetActorEnableCollision(false);
 	RhythmMesh->GetStaticMeshComponent()->SetStaticMesh(Plane);
+	RhythmDMI = GetRhythmMaterial();
+	RhythmMesh->GetStaticMeshComponent()->SetMaterial(0, RhythmDMI);
 	//Create SubNotes
 	//Create intermediate Actor,Prevent SubNote's scale been effected.
 	IntermediateActor = GetWorld()->SpawnActor<AActor>();
 	IntermediateActor->SetRootComponent(NewObject<USceneComponent>(IntermediateActor));
 	IntermediateActor->SetActorLocationAndRotation(RhythmMesh->GetActorLocation(),FRotator::ZeroRotator);
+	auto* TemplateGlowPointDMI = GetGlowPointMaterialTemplate();
+	auto* TemplateGlowLineDMI = GetGlowLineMaterialTemplate();
 	for (int i=0;i<SubNotes.Num();i++)
 	{
 		//Create StaticMeshActor
 		AStaticMeshActor* tmpSubNoteActor = GetWorld()->SpawnActor<AStaticMeshActor>();
+		UMaterialInstanceDynamic* GlowPointDMI = UMaterialInstanceDynamic::Create(TemplateGlowPointDMI, nullptr, NAME_None);
+		tmpSubNoteActor->SetActorEnableCollision(false);
 		tmpSubNoteActor->SetMobility(EComponentMobility::Movable);
 		tmpSubNoteActor->GetStaticMeshComponent()->SetStaticMesh(SubNoteStaticMesh);
-		//TODO: Set Material
+		tmpSubNoteActor->GetStaticMeshComponent()->SetMaterial(0, GlowPointDMI);
+		GlowPointDMI->SetVectorParameterValue("Color", SubNotes[i].Color);
 		tmpSubNoteActor->AttachToActor(IntermediateActor,FAttachmentTransformRules::KeepRelativeTransform);
 		tmpSubNoteActor->SetActorRelativeScale3D(FVector(0.03f, 0.03f, 1.f));
 		tmpSubNoteActor->SetActorRelativeLocation(FVector(Speed*SubNotes[i].TimeOffset, 2.f * SceneHalfWidth*SubNotes[i].PositionOffset, 0));
-		//TODO:Set Color
 		SubNotesMesh.Add(tmpSubNoteActor);
+		GlowPointDMIs.Add(GlowPointDMI);
 
 		//Create SplineMeshActor
 		ASplineMeshActor* tmpSubNoteLine = GetWorld()->SpawnActor<ASplineMeshActor>();
+		UMaterialInstanceDynamic* GlowLineDMI = UMaterialInstanceDynamic::Create(TemplateGlowLineDMI, nullptr, NAME_None);
 		tmpSubNoteLine->SetMobility(EComponentMobility::Movable);
+		tmpSubNoteLine->SetActorEnableCollision(false);
 		tmpSubNoteLine->GetSplineMeshComponent()->SetStaticMesh(Plane);
-		//TODO: Set Material
+		tmpSubNoteLine->GetSplineMeshComponent()->SetMaterial(0, GlowLineDMI);
+		GlowLineDMI->SetVectorParameterValue("Color", SubNotes[i].Color);
 		tmpSubNoteLine->GetSplineMeshComponent()->SetStartScale(FVector2D(0.02f, 1.f));
 		tmpSubNoteLine->GetSplineMeshComponent()->SetEndScale(FVector2D(0.02f, 1.f));
 		tmpSubNoteLine->GetSplineMeshComponent()->SetStartPosition(i - 1 < 0 ? FVector(0) : FVector(Speed*SubNotes[i-1].TimeOffset, 2.f*SceneHalfWidth*SubNotes[i-1].PositionOffset,0));
@@ -203,6 +259,7 @@ void URhythmSlide::OnPrepare_Implementation()
 		tmpSubNoteLine->AttachToActor(IntermediateActor, FAttachmentTransformRules::KeepRelativeTransform);
 		tmpSubNoteLine->SetActorRelativeLocation(FVector::ZeroVector);
 		SubNotesLine.Add(tmpSubNoteLine);
+		GlowLineDMIs.Add(GlowLineDMI);
 	}
 }
 
@@ -313,7 +370,16 @@ void URhythmSlide::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBui
 		tmpSubNoteScore->DetailCallbackNumber.BindUFunction(this, "SubNoteNumberCallback");
 		tmpSubNoteCategory.ItemList.Add(tmpSubNoteScore);
 
-		//TODO: Color
+		TSharedPtr<FDetailItemCustom> ColorItem = MakeShareable(new FDetailItemCustom());
+		UDetailInputColorBase* ColorInputWidget = Cast<UDetailInputColorBase>(UUserWidget::CreateWidgetInstance(*GetWorld(),
+			UUIProvider::Get(this)->GetDetailInputColor(), NAME_None));
+		ColorInputWidget->SetColor(SubNotes[i].Color);
+		ColorItem->CustomWidget = ColorInputWidget;
+		ColorItem->Name = *FString::Printf(TEXT("SubNote%d-Color"), i);
+		ColorItem->DisplayName = LOCTEXT("Color", "Color");
+		ColorItem->InstructionInstance = this;
+		ColorItem->DetailCallbackCustom.BindUFunction(this, "OnUpdateColor");
+		tmpSubNoteCategory.ItemList.Add(ColorItem);
 
 		DetailsBuilder->AddCategory(tmpSubNoteCategory);
 	}
@@ -323,6 +389,7 @@ FBlueprintJsonObject URhythmSlide::GenArgsJsonObject_Implementation()
 {
 	FBlueprintJsonObject BPJsonObj = Super::GenArgsJsonObject_Implementation();
 	TSharedPtr<FJsonObject> JsonObj = BPJsonObj.Object;
+	UMuthMBPLib::SaveColorToJson(JsonObj, "Color", Color);
 	JsonObj->SetNumberField("SubNotesCount", SubNotes.Num());
 	for (int i=0;i<SubNotes.Num();i++)
 	{
@@ -330,8 +397,9 @@ FBlueprintJsonObject URhythmSlide::GenArgsJsonObject_Implementation()
 		tmpSubNote->SetNumberField("TimeOffset", SubNotes[i].TimeOffset);
 		tmpSubNote->SetNumberField("PositionOffset", SubNotes[i].PositionOffset);
 		tmpSubNote->SetNumberField("Score", SubNotes[i].Score);
+		if (SubNotes[i].Color != FLinearColor(0.4f, 0.8f, 1.f))
+			UMuthMBPLib::SaveColorToJson(tmpSubNote, "Color", SubNotes[i].Color);
 		JsonObj->SetObjectField(FString::Printf(TEXT("SubNote%d"), i), tmpSubNote);
-		//TODO: Add Color
 	}
 	return BPJsonObj;
 }
