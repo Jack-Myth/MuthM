@@ -269,4 +269,5 @@ void UEditorPanelBase::SetInstructionTemplateByName(FName TemplateInstructionNam
 		PupopTemplateDetails();
 	}
 }
+
 #undef LOCTEXT_NAMESPACE

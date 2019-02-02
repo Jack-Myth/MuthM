@@ -386,6 +386,7 @@ void UMMScriptImpl::Import(FString FileName, TScriptInterface<class IChartImport
 {
 	TArray<UInstruction*> Result;
 	Importer->ImportFromFile(FileName, Result);
+
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)
