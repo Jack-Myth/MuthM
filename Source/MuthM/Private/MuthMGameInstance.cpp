@@ -27,6 +27,7 @@
 #include "Async.h"
 #include "RhythmSlide.h"
 #include "Background.h"
+#include "GlobalVariable.h"
 
 DEFINE_LOG_CATEGORY(MuthMGameInstance);
 
@@ -127,6 +128,7 @@ void UMuthMGameInstance::Init()
 	InstructionClasses.Add("RhythmTap") = URhythmTap::StaticClass();
 	InstructionClasses.Add("RhythmSlide") = URhythmSlide::StaticClass();
 	InstructionClasses.Add("Background") = UBackground::StaticClass();
+	InstructionClasses.Add("GlobalVariable") = UGlobalVariable::StaticClass();
 	CachedInstructionRef.SetNum(InstructionClasses.Num());
 	int InstructionRefIndex = 0;
 	for (auto it=InstructionClasses.CreateIterator();it;++it)

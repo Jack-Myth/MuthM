@@ -41,11 +41,6 @@ void UInstruction::OnTimeChanged(class UInstruction* InstructionInstance, FName 
 	GetScript()->UpdateInstructions();
 }
 
-bool UInstruction::HasPriority_Implementation()
-{
-	return false;
-}
-
 FName UInstruction::GetRegisterName() const
 {
 	return IInstructionManager::Get(this)->GetInstructionName(GetClass());

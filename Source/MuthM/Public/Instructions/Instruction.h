@@ -51,7 +51,7 @@ public:
 
 	float EditorVisualVerticalOffset;
 
-	UFUNCTION(BlueprintNativeEvent,meta=(ToolTip="Return if this instruction have high priority"))
+	UFUNCTION(BlueprintPure,meta=(ToolTip="Return if this instruction have high priority"))
 		FORCEINLINE bool HasPriority() const
 	{
 		return bHasPriority;

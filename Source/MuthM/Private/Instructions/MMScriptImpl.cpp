@@ -80,8 +80,15 @@ bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 			InstructionInstance->OnInstructionLoaded(tmpBPJsonArg);
 		if (tmpICollection[i].EditorArgs.IsValid())
 			ApplyEditorArgs(tmpICollection[i].EditorArgs, InstructionInstance);
+		if (InstructionInstance->HasPriority())
+			_PriorityInstructions.Add(InstructionInstance);
 	}
 	mLastTime = -GetSuiltableDelay();
+
+	//inverse Priority Instructions.
+	//In order to use as Stack.
+	Algo::Reverse(_PriorityInstructions);
+
 	return true;
 }
 
@@ -105,6 +112,7 @@ void UMMScriptImpl::_Internal_CleanInstructions()
 		tmppInstruction->MarkPendingKill();
 		return;
 	}
+	_PriorityInstructions.Empty();
 }
 
 TSharedPtr<FJsonObject> UMMScriptImpl::CollectEditorArgs(class UInstruction* Instruction)
@@ -222,8 +230,19 @@ void UMMScriptImpl::Tick(float CurrentTime)
 	{
 		_PreparedInstructionInstance.Append(NeedPrepare);
 		Algo::Sort(_PreparedInstructionInstance, [](const UInstruction* a, const UInstruction* b) {return a->GetTime() < b->GetTime(); });
-		for (int i=0;i<NeedPrepare.Num();i++)
+		for (int i = 0; i < NeedPrepare.Num(); i++)
+		{
+			//Check Priority Instructions
+			while (_PriorityInstructions.Num())
+			{
+				//Make sure priority Instruction prepare first.
+				if (_PriorityInstructions.Top()->GetTime()<NeedPrepare[i]->GetTime())
+					_PriorityInstructions.Pop()->OnPrepare();
+				else
+					break;
+			}
 			NeedPrepare[i]->OnPrepare();
+		}
 	}
 	if (mLastTime > CurrentTime)
 		mLastTime = CurrentTime;
@@ -297,7 +316,9 @@ float UMMScriptImpl::GetSuiltableDelay()
 {
 	//TODO: Caculate suit able Delay When Script Start;
 	//It should not less than 0;
-	return 0;
+
+	//3s before the first instruction.
+	return FMath::Min(_InstructionInstances[0]->GetTime() - 3.f, 0.f);
 }
 
 TArray<TScriptInterface<class IScoreInfo>> UMMScriptImpl::CollectScoreInfoArray()

@@ -18,6 +18,7 @@ class MUTHM_API UMMScriptImpl : public UObject, public IMMScript
 		TArray<UInstruction*> _InstructionInstances;
 	UPROPERTY()
 		TArray<UInstruction*> _PreparedInstructionInstance;
+	TArray<UInstruction*> _PriorityInstructions;
 	bool bIsAutoDestroy = true;
 	EPlayType _PlayType;
 	void _Internal_CleanInstructions();
