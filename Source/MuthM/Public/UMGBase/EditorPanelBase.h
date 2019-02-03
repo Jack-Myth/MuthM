@@ -128,4 +128,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent,BlueprintPure)
 		float GetPanelHalfHeight() const;
 
+	UFUNCTION(BlueprintCallable)
+		bool ImportChart(const FString& FileName, TScriptInterface<class IChartImporter> Importer);
+
 };

@@ -13,7 +13,7 @@ enum EChartImporterType
 	CIT_Cytus UMETA(DisplayName="Cytus")
 };
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI,meta=(CannotImplementInterfaceInBlueprint))
 class UChartImporter : public UInterface
 {
 	GENERATED_BODY()
@@ -28,7 +28,6 @@ class MUTHM_API IChartImporter
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable)
-		TScriptInterface<IChartImporter> GetChartImporter(EChartImporterType ImporterType);
+	static TScriptInterface<IChartImporter> Get(UObject* WorldContextObj,EChartImporterType ImporterType);
 	virtual bool ImportFromFile(FString FilePath, TArray<class UInstruction*>& ImportResult) = 0;
 };

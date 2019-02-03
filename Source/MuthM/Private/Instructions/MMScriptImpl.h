@@ -45,6 +45,6 @@ public:
 	virtual float GetGameTime() const override;
 	virtual void UpdateInstructions() override;
 	virtual TArray<UInstruction *> GetAllInstructions() const override;
-	virtual void Import(FString FileName, TScriptInterface<class IChartImporter> Importer) override;
+	virtual bool Import(FString FileName, TScriptInterface<class IChartImporter> Importer) override;
 
 };

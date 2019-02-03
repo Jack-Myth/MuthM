@@ -362,3 +362,8 @@ void UMuthMBPLib::K2_SaveColorToJson(FBlueprintJsonObject BPJsonObj, const FStri
 {
 	SaveColorToJson(BPJsonObj.Object, ColorObjName, Color);
 }
+
+TScriptInterface<IChartImporter> UMuthMBPLib::GetChartImporter(UObject* WorldContextObj, EChartImporterType Type)
+{
+	return IChartImporter::Get(WorldContextObj,Type);
+}

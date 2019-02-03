@@ -5,14 +5,15 @@
 
 // Add default functionality here for any IChartImporter functions that are not pure virtual.
 
-TScriptInterface<IChartImporter> IChartImporter::GetChartImporter(EChartImporterType ImporterType)
+TScriptInterface<IChartImporter> IChartImporter::Get(UObject* WorldContextObj,EChartImporterType ImporterType)
 {
 	switch (ImporterType)
 	{
 		case CIT_Cytus:
-			return NewObject<UChartImporterCytus>();
+			return NewObject<UChartImporterCytus>(WorldContextObj->GetWorld());
 			break;
 		default:
 			break;
 	}
+	return nullptr;
 }

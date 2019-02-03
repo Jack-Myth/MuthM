@@ -7,6 +7,7 @@
 #include "DetailStructures.h"
 #include "BlueprintJsonLibrary.h"
 #include "MainSWPlayer.h"
+#include "ChartImporter.h"
 #include "MuthMBPLib.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(MuthMBPLib, Log, All);
@@ -117,5 +118,6 @@ public:
 		static bool K2_GetColorFromJson(FLinearColor& Color,FBlueprintJsonObject BPJsonObj, const FString& ColorObjName);
 	UFUNCTION(BlueprintCallable, meta = (DisplayName = "LoadColorFromJson"))
 		static void K2_SaveColorToJson(FBlueprintJsonObject BPJsonObj, const FString& ColorObjName, FLinearColor Color);
-
+	UFUNCTION(BlueprintPure, meta = (WorldContext = "WorldContextObj"))
+		static TScriptInterface<IChartImporter> GetChartImporter(UObject* WorldContextObj, EChartImporterType Type);
 };

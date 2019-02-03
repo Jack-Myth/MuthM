@@ -13,6 +13,8 @@
 #include "JsonWriter.h"
 #include "Score/ScoreInfo.h"
 #include "ChartImporter.h"
+#include "EditorMainUIBase.h"
+#include "EditorPanelBase.h"
 
 bool UMMScriptImpl::_DeserializeInternal(const uint8* _MMSStr)
 {
@@ -382,11 +384,18 @@ TArray<UInstruction *> UMMScriptImpl::GetAllInstructions() const
 	return tmpInstructions;
 }
 
-void UMMScriptImpl::Import(FString FileName, TScriptInterface<class IChartImporter> Importer)
+bool UMMScriptImpl::Import(FString FileName, TScriptInterface<class IChartImporter> Importer)
 {
+	if (_PlayType != EPlayType::PT_Editor)
+		return false;
 	TArray<UInstruction*> Result;
-	Importer->ImportFromFile(FileName, Result);
-
+	if (!Importer->ImportFromFile(FileName, Result))
+		return false;
+	for (int i=0;i<Result.Num();i++)
+	{
+		AddInstruction(Result[i]);
+	}
+	return true;
 }
 
 void UMMScriptImpl::SetAutoDestroy(bool NewAutoDestroy)

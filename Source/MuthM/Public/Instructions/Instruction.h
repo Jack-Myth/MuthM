@@ -41,15 +41,21 @@ class MUTHM_API UInstruction:public UObject,public IHasDetails
 
 	UPROPERTY(BlueprintGetter="GetScript")
 		TScriptInterface<class IMMScript> AttachedScript = nullptr;
-	bool bIsFinished = false;
+	//bool bIsFinished = false;
 protected:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+		bool bHasPriority = false;
 	UFUNCTION()
 		void OnTimeChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
 public:
+
 	float EditorVisualVerticalOffset;
 
 	UFUNCTION(BlueprintNativeEvent,meta=(ToolTip="Return if this instruction have high priority"))
-		bool HasPriority();
+		FORCEINLINE bool HasPriority() const
+	{
+		return bHasPriority;
+	}
 
 	UFUNCTION(BlueprintPure)
 		FName GetRegisterName() const;

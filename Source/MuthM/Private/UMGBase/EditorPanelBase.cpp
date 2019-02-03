@@ -270,4 +270,37 @@ void UEditorPanelBase::SetInstructionTemplateByName(FName TemplateInstructionNam
 	}
 }
 
+bool UEditorPanelBase::ImportChart(const FString& FileName,TScriptInterface<class IChartImporter> Importer)
+{
+	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
+	if (!InEditorMode->GetEditorMMS()->Import(FileName, Importer))
+		return false;
+	TArray<UInstruction*> Instructions;
+	Instructions= InEditorMode->GetEditorMMS()->GetAllInstructions();
+	TArray<UInstructionWidgetBase*> InstructionWidgets = GetInstructionWidgets();
+	for (int i=0;i<InstructionWidgets.Num();i++)
+	{
+		int Index = Instructions.Find(InstructionWidgets[i]->GetInstructionInstance());
+		if (Index!=INDEX_NONE)
+		{
+			//Ignore the instruction which already have a widget.
+			Instructions[Index] = nullptr;
+		}
+	}
+
+	//Gen Instruction Widget
+	for (int i=0;i<Instructions.Num();i++)
+	{
+		if (!Instructions[i])
+			continue;
+		auto* InstructionWidget = Instructions[i]->GenInstructionWidget();
+		InstructionWidget->Init(Instructions[i]);
+		InstructionWidgets.Add(InstructionWidget);
+		OnInstructionWidgetAdded(InstructionWidget);
+		InstructionWidget->InvalidateLayoutAndVolatility();
+	}
+
+	return true;
+}
+
 #undef LOCTEXT_NAMESPACE
