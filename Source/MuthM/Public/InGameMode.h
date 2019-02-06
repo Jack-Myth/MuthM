@@ -71,11 +71,11 @@ public:
 		FOnMusicPlaybackTimeUpdate OnMusicPlaybackTimeUpdate;
 	UPROPERTY(BlueprintAssignable)
 		FOnGameEnded OnGameEnded;
-	UPROPERTY()  //Prevent Read By Blueprint(such as UserWidget)
+	UPROPERTY(BlueprintReadWrite)
 		TMap<FName, float> GlobalDataNumber;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		TMap<FName, FString> GlobalDataString;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		TMap<FName, UObject*> GlobalDataObject;
 	AInGameMode();
 	FORCEINLINE TSharedPtr<class FMDATFile> GetMDAT()
@@ -98,6 +98,12 @@ public:
 		FORCEINLINE TScriptInterface<class IMainSoundWave> GetGameMainMusic()
 	{
 		return _GameMainMusic;
+	}
+
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE TScriptInterface<class IMainSWPlayer> GetGameMainMusicPlayer()
+	{
+		return _MainSoundComponent;
 	}
 
 	UFUNCTION(BlueprintPure)

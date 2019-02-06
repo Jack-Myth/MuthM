@@ -172,11 +172,14 @@ void UBackground::OnTimeArrived_Implementation()
 		UMaterial* MaterialTemplate = LoadObject<UMaterial>(this, TEXT("Material'/Game/MuthM/Materials/Game/Background/Fade.Fade'"));
 		auto* InstanceDynamic = UMaterialInstanceDynamic::Create(MaterialTemplate, nullptr, NAME_None);
 		//Swap BG1 to next material's BG0
-		UTexture* BG0;
-		BGActor->GetStaticMeshComponent()->GetMaterial(0)->GetTextureParameterValue(FMaterialParameterInfo("BG0"),BG0);
+		if (Cast<UMaterialInstanceDynamic>(BGActor->GetStaticMeshComponent()->GetMaterial(0)))
+		{
+			UTexture* BG0;
+			BGActor->GetStaticMeshComponent()->GetMaterial(0)->GetTextureParameterValue(FMaterialParameterInfo("BG1"), BG0);
+			if (BG0->IsValidLowLevel())
+				InstanceDynamic->SetTextureParameterValue("BG0", BG0);
+		}
 		BGActor->GetStaticMeshComponent()->SetMaterial(0, InstanceDynamic);
-		if (BG0->IsValidLowLevel())
-			InstanceDynamic->SetTextureParameterValue("BG0", BG0);
 		InstanceDynamic->SetTextureParameterValue("BG1", BackgroundImage);
 		InstanceDynamic->SetScalarParameterValue("AnimationAlpha", 0.f);
 		CachedDMI = InstanceDynamic;

@@ -76,3 +76,9 @@ bool UMainSWPlayerImpl::GetPlaybackEventInterpolation() const
 {
 	return true;
 }
+
+void UMainSWPlayerImpl::GetSepctrum(bool bSplitChannel, int32 Width, TArray<float>& SpectrumL, TArray<float>& SpectrumR) const
+{
+	//no implementation.
+	return;
+}

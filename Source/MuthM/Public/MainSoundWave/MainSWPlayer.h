@@ -56,4 +56,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		virtual bool GetPlaybackEventInterpolation() const = 0;
 
+	//if bSplitChannel is false, only L will filled, contain the mixture spectrum
+	//Width can be set to 0(or less than 0),means No Scale to the original FFT Data
+	UFUNCTION(BlueprintCallable)
+		virtual void GetSepctrum(bool bSplitChannel,int32 Width, TArray<float>& SpectrumL, TArray<float>& SpectrumR) const = 0;
+
 };

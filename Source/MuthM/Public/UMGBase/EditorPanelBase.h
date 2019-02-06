@@ -52,7 +52,8 @@ protected:
 		void OnVerticalOffsetUpdate(class UInstructionWidgetBase* TargetWidget,float Value);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnFillBPMInfo(float BPM);
-
+	UPROPERTY(BlueprintReadOnly)
+		bool bIsInstructionInteractable = true;
 public:
 
 	void Init();
@@ -131,4 +132,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool ImportChart(const FString& FileName, TScriptInterface<class IChartImporter> Importer);
 
+	UFUNCTION(BlueprintCallable)
+		void SetEnableInstructionInteraction(bool bEnable);
+
+	UFUNCTION(BlueprintCallable)
+		TArray<class UInstructionWidgetBase*> CopyInstruction(TArray<class UInstructionWidgetBase*> InstructionsToCopy);
+
+	UFUNCTION(BlueprintCallable)
+		void SetInstructionTime(class UInstructionWidgetBase* InstructionWidget, float newTime);
 };

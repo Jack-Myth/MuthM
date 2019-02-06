@@ -67,14 +67,17 @@ void UEditorPanelBase::ClickWidget(class UInstructionWidgetBase* newClickedWidge
 			GetSelectedWidget()->OnWidgetDeselected();
 		if (ActivedDetailsWidget)
 			ActivedDetailsWidget->CloseDetails();
-		_SelectedWidget = newClickedWidget;
-		GetSelectedWidget()->OnWidgetSelected();
+		if (bIsInstructionInteractable)
+		{
+			_SelectedWidget = newClickedWidget;
+			GetSelectedWidget()->OnWidgetSelected();
+		}
 	}
 }
 
 void UEditorPanelBase::OnClickHandler(float Time,float VerticalOffset)
 {
-	if (bFastAddMode)
+	if (bFastAddMode&&bIsInstructionInteractable)
 	{
 		AddInstructionAtTime(TimeAxis,bIgnoreVerticalPosition?0.f:VerticalOffset);
 	}
@@ -94,7 +97,10 @@ void UEditorPanelBase::OnClickHandler(float Time,float VerticalOffset)
 		if (_NextToAdd)
 		{
 			_NextToAdd = false;
-			AddInstructionAtTime(Time, bIgnoreVerticalPosition?0.f:VerticalOffset);
+			if (bIsInstructionInteractable)
+			{
+				AddInstructionAtTime(Time, bIgnoreVerticalPosition ? 0.f : VerticalOffset);
+			}
 		}
 	}
 }
@@ -118,9 +124,7 @@ void UEditorPanelBase::OnEditorPropertyInput(class UInstruction* InstructionInst
 	check(TargetInstructionWidget);
 	if (PropertyName == "Time")
 	{
-		float LastTime = InstructionInstance->GetTime();
-		InstructionInstance->SetTime(NumberValue);
-		OnInstructionWidgetTimeChanged(TargetInstructionWidget, LastTime, NumberValue);
+		SetInstructionTime(TargetInstructionWidget, NumberValue);
 	}
 	else if (PropertyName == "__VisualVerticalOffset")
 	{
@@ -301,6 +305,39 @@ bool UEditorPanelBase::ImportChart(const FString& FileName,TScriptInterface<clas
 	}
 
 	return true;
+}
+
+void UEditorPanelBase::SetEnableInstructionInteraction(bool bEnable)
+{
+	bIsInstructionInteractable = bEnable;
+	_SelectedWidget = nullptr;
+	if (ActivedDetailsWidget)
+		ActivedDetailsWidget->CloseDetails();
+}
+
+TArray<class UInstructionWidgetBase*> UEditorPanelBase::CopyInstruction(TArray<class UInstructionWidgetBase*> InstructionsToCopy)
+{
+	TArray<UInstructionWidgetBase*> CopiedInstructions;
+	for (int i=0;i<InstructionsToCopy.Num();i++)
+	{
+		UInstruction* TargetInstruction = InstructionsToCopy[i]->GetInstructionInstance();
+		FBlueprintJsonObject BPJson = TargetInstruction->GenArgsJsonObject();
+		auto InstructionMgr = IInstructionManager::Get(this);
+		UInstruction* CopiedInstruction = InstructionMgr->GenInstruction(InstructionMgr->GetInstructionName(TargetInstruction->GetClass()), TargetInstruction->GetTime());
+		CopiedInstruction->OnInstructionLoaded_Editor(BPJson, FEditorExtraInfo());
+		auto* InstructionWidget = CopiedInstruction->GenInstructionWidget();
+		InstructionWidget->Init(CopiedInstruction);
+		OnInstructionWidgetAdded(InstructionWidget);
+		CopiedInstructions.Add(InstructionWidget);
+	}
+	return CopiedInstructions;
+}
+
+void UEditorPanelBase::SetInstructionTime(class UInstructionWidgetBase* InstructionWidget,float newTime)
+{
+	float LastTime = InstructionWidget->GetInstructionInstance()->GetTime();
+	InstructionWidget->GetInstructionInstance()->SetTime(newTime);
+	OnInstructionWidgetTimeChanged(InstructionWidget, LastTime, newTime);
 }
 
 #undef LOCTEXT_NAMESPACE

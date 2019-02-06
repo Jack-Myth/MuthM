@@ -117,7 +117,6 @@ float MuthMNativeLib::NativeDetectBPMFromPCM(const TArray<uint8>& PCMInput,int32
 {
 	//Because <³õÒô¥ß¥¯¤ÎÏûÊ§> is far beyond 200BPM,so set a higher value
 	//Maybe is not necessary.
-	//UNDONE: BeatDetektor Now have a big issue,so return 100 directly.
 	BeatDetektor m_BeatDetektor(50.f,300.f);
 	m_BeatDetektor.reset();
 	float MusicLength = int(PCMInput.Num() / sizeof(int16) / Channels / SampleRate);

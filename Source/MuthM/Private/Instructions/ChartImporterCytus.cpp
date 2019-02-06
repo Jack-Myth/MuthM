@@ -57,7 +57,7 @@ bool UChartImporterCytus::ImportFromFile(FString FilePath, TArray<class UInstruc
 		TArray<FString> RecordParts;
 		static const TCHAR* Spliter[] = { TEXT("\t"),TEXT(" ") };
 		FileContents[CurrentLine].ParseIntoArray(RecordParts, Spliter, 2);
-		if (RecordParts.Num() == 0 || FileContents[CurrentLine] != "LINK")
+		if (RecordParts.Num() == 0 || RecordParts[0] != "LINK")
 			break;
 		TArray<int32> curLinkedNote;
 		for (int i=1;i<RecordParts.Num();i++)
@@ -113,7 +113,7 @@ bool UChartImporterCytus::ImportFromFile(FString FilePath, TArray<class UInstruc
 	}
 	for (int i=0;i<LinkedNotes.Num();i++)
 	{
-		LinkedNotes[i].Sort([&](int32 a, int32 b) {return Notes[LinkedNotes[i][a]].Time < Notes[LinkedNotes[i][b]].Time; });
+		LinkedNotes[i].Sort([&](int32 a, int32 b) {return Notes[a].Time < Notes[b].Time; });
 		UInstruction* CurNote = InstructionManager->GenInstruction("RhythmSlide", Notes[LinkedNotes[i][0]].Time);
 		FBlueprintJsonObject Args;
 		Args.Object = MakeShareable(new FJsonObject());

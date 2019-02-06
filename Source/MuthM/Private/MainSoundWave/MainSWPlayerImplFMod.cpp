@@ -18,7 +18,16 @@ void UMainSWPlayerImplFMod::SetMainSoundWave(TScriptInterface<class IMainSoundWa
 		return;
 	if (MuthMNativeLib::GetFModSystem()->playSound(pMainSoundWave->GetFModSound(), nullptr, true, &pTmpFModChannel) == FMOD_OK)
 	{
+		if (!pSpectrumDSP)
+		{
+			MuthMNativeLib::GetFModSystem()->createDSPByType(FMOD_DSP_TYPE_FFT, &pSpectrumDSP);
+		}
+		else if (pFModChannel)
+		{
+			pFModChannel->removeDSP(pSpectrumDSP);
+		}
 		pFModChannel = pTmpFModChannel;
+		pFModChannel->addDSP(0, pSpectrumDSP);
 	}
 }
 
@@ -76,6 +85,8 @@ UMainSWPlayerImplFMod::~UMainSWPlayerImplFMod()
 {
 	if (IsPlaying())
 		Stop();
+	if (pSpectrumDSP)
+		pSpectrumDSP->release();
 }
 
 float UMainSWPlayerImplFMod::GetPlaybackPosition() const
@@ -138,6 +149,56 @@ void UMainSWPlayerImplFMod::SetPlaybackEventInterpolation(bool ShouldEnable)
 bool UMainSWPlayerImplFMod::GetPlaybackEventInterpolation() const
 {
 	return bPlaybackEventInterpolation;
+}
+
+void UMainSWPlayerImplFMod::GetSepctrum(bool bSplitChannel, int32 Width, TArray<float>& SpectrumL, TArray<float>& SpectrumR) const
+{
+	if (!pSpectrumDSP)
+		return;
+	FMOD_DSP_PARAMETER_FFT* pData;
+	unsigned int length;
+	pSpectrumDSP->getParameterData(FMOD_DSP_FFT_SPECTRUMDATA, (void**)&pData, &length, nullptr, 0);
+	if (!pData)
+		return;
+	int32 FFTDataLength = pData->length / 2.f;
+	//LChannel
+	for (int i = 0; i < FFTDataLength; i++)
+		SpectrumL.Add(pData->spectrum[0][i]);
+	//RChannel
+	if (pData->numchannels>=2) //Check if have 2 channels
+		for (int i = 0; i < FFTDataLength; i++)
+			SpectrumR.Add(pData->spectrum[1][i]);
+	if (!bSplitChannel)
+	{
+		for (int i = 0; i < FFTDataLength; i++)
+			SpectrumL[i] = (SpectrumL[i] + SpectrumR[i]) / 2.f;
+		SpectrumR.Empty();
+	}
+	//Scale Width and convert to DB
+	if (Width>0&&Width<FFTDataLength)
+	{
+		int CurIndex = 0;
+		int ScaledIndex = 0;
+		int SplitBlock = FFTDataLength / Width;
+		int ModRes = FFTDataLength % Width;
+		for (CurIndex=0;CurIndex<FFTDataLength;CurIndex+=SplitBlock+((ModRes--)>0),ScaledIndex++)
+		{
+			float tmpSpectrumSum=0;
+			for (int i=CurIndex;i< CurIndex+SplitBlock +(ModRes>0);i++)
+				tmpSpectrumSum += SpectrumL[i];
+			SpectrumL[ScaledIndex] = tmpSpectrumSum / (SplitBlock + (ModRes > 0));
+			if (bSplitChannel)
+			{
+				tmpSpectrumSum = 0;
+				for (int i = CurIndex; i < CurIndex + SplitBlock + (ModRes > 0); i++)
+					tmpSpectrumSum += SpectrumL[i];
+				SpectrumR[ScaledIndex] = tmpSpectrumSum / (SplitBlock + (ModRes > 0));
+			}
+		}
+		SpectrumL.SetNum(Width);
+		if (bSplitChannel)
+			SpectrumR.SetNum(Width);
+	}
 }
 
 #endif

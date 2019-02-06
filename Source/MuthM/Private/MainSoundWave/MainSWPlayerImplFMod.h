@@ -10,6 +10,7 @@
 namespace FMOD
 {
 	class Channel;
+	class DSP;
 }
 
 /**
@@ -32,6 +33,8 @@ private:
 
 	bool bPlaybackEventInterpolation = true;
 	float Pitch = 1.f;
+	bool bGenSpectrum = true;
+	class FMOD::DSP* pSpectrumDSP = nullptr;
 public:
 
 	virtual void SetMainSoundWave(TScriptInterface<class IMainSoundWave> MainSoundWave) override;
@@ -74,5 +77,8 @@ public:
 
 
 	virtual bool GetPlaybackEventInterpolation() const override;
+
+
+	virtual void GetSepctrum(bool bSplitChannel, int32 Width, TArray<float>& SpectrumL, TArray<float>& SpectrumR) const override;
 
 };

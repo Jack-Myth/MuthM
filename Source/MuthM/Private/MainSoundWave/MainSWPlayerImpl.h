@@ -58,4 +58,8 @@ public:
 
 	virtual bool GetPlaybackEventInterpolation() const override;
 
+
+
+	virtual void GetSepctrum(bool bSplitChannel, int32 Width, TArray<float>& SpectrumL, TArray<float>& SpectrumR) const override;
+
 };

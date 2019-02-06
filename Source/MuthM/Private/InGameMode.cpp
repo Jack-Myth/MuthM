@@ -48,7 +48,7 @@ void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
 	_MainMMSInstance = IInstructionManager::Get(this)->GenMMScript(false);
 	_MainMMSInstance->SetPlayType(TargetPlayType);
 	_MainMMSInstance->LoadFromData(MMSData);
-	
+
 	//Init GameStete.
 	auto* ScoreCore = Cast<AInGameState>(UGameplayStatics::GetGameState(this));
 	TArray<TScriptInterface<IScoreInfo>> ScoreInfoCollection;
