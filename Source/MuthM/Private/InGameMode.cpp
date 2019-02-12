@@ -24,6 +24,8 @@
 #include "InEditorMode.h"
 #include "fmod.hpp"
 #include "PlayerInputHandler.h"
+#include "MuthMTypeHelper.h"
+#include "ImageUtils.h"
 
 DEFINE_LOG_CATEGORY(MuthMInGameMode)
 
@@ -40,6 +42,10 @@ void AInGameMode::OnMusicPositionCallback(TScriptInterface<IMainSoundWave> MainS
 	IInstructionManager::Get(this)->Tick(PlaybackPercent*MusicLength);
 	_GameTime = MusicLength * PlaybackPercent;
 	OnMusicPlaybackTimeUpdate.Broadcast(_GameTime, MusicLength);
+	if (PlaybackPercent >= 1.f)
+	{
+		NativeOnGameEnded(EGameEndReason::GER_GameFinished);
+	}
 }
 
 void AInGameMode::StartGame(FMusicInfo MusicInfo, const TArray<uint8>& MMSData)
@@ -185,6 +191,13 @@ void AInGameMode::ReturnToMainMenu()
 	UGameplayStatics::OpenLevel(this, "MainMenu");
 }
 
+class UTexture2D* AInGameMode::GetScoreCover()
+{
+	FMDATMainInfo MainInfo;
+	MuthMTypeHelper::TryGetMDATMainInfo(_pMDAT.Get(), MainInfo);
+	return FImageUtils::ImportBufferAsTexture2D(_pMDAT->GetFileData(MainInfo.ScoreInfoCollection[_ScoreIndex].Img));
+}
+
 void AInGameMode::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (_MainMMSInstance)
@@ -204,6 +217,7 @@ void AInGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 		//Game will freeze,Then Developer will looking for Logs.
 		return;
 	}
+	_ScoreIndex = ExchangedGameArgs.ScoreIndex;
 	_CachedMusicInfo = MusicInfo;
 	_GameMainMusic = IMusicManager::Get(this)->LoadMainSoundByID(MusicInfo.ID);
 	_MainSoundComponent = UMuthMBPLib::GenMainSWPlayer(this);

@@ -125,8 +125,8 @@ TArray<class UTexture2D*> AInEditorMode::DrawMainMusicSpectrum(float BeginTime, 
 		uint8* MipmapData = (uint8*)SpectrumTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 #if !defined(PLATFORM_WINDOWS)||!PLATFORM_WINDOWS
 		int32 AlignedWidth = PartResTime;
-		if (ResTime % 4)
-			AlignedWidth += (4 - PartResTime % 4);
+		//if (ResTime % Alignment)
+			//AlignedWidth += (4 - PartResTime % 4);
 #endif
 		for (uint32 x = 0; x < PartResTime; x++)
 		{

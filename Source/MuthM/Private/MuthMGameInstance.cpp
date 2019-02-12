@@ -180,6 +180,9 @@ void UMuthMGameInstance::ExitPIEMode()
 	//Clean Widgets
 	//CleanupGameViewport();
 
+	UE_LOG(MuthMGameInstance, Log, TEXT("GameViewport:%s,Value:%x"), PIESession->PIEWorldContext->GameViewport ? TEXT("Not nullptr") : TEXT("Is nullptr!"), (uint64)PIESession->PIEWorldContext->GameViewport);
+
+
 	for (TObjectIterator<UWorld> WorldIt; WorldIt; ++WorldIt)
 	{
 		//Clean all Game World Actors except "Main GameWorld"
@@ -220,24 +223,34 @@ void UMuthMGameInstance::ExitPIEMode()
 			WorldIt->DestroyWorld(true);
 		}
 	}
-	//It only have one Context need to destroy although there may have multiple worlds.
-	GEngine->DestroyWorldContext(PIEWorld);
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIE Exited!,Pin 1"));
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIE Exited!,Pin 2"));
 	//Restore GameViewportClient
 	//Since I can't set the WakePtr to nullptr, Construct an empty SOverlay to replace it.
-	PIESession->PIEWorldContext->GameViewport->SetViewportOverlayWidget(nullptr, SNew(SOverlay)); 
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIESession:%s"), PIESession ? TEXT("Not nullptr") : TEXT("Is nullptr!"));
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIEWorldContext:%s"), PIESession->PIEWorldContext ? TEXT("Not nullptr") : TEXT("Is nullptr!"));
+	UE_LOG(MuthMGameInstance, Log, TEXT("GameViewport:%s,Value:%x"), PIESession->PIEWorldContext->GameViewport ? TEXT("Not nullptr") : TEXT("Is nullptr!"),(uint64)PIESession->PIEWorldContext->GameViewport);
+	PIESession->PIEWorldContext->GameViewport->SetViewportOverlayWidget(nullptr, SNew(SOverlay));
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIE Exited!,Pin 3"));
 	//Prevent AudioDevice to be shutdown when PIEViewport Destroyed.
 	//Need to hack Engine code.
 	if (!GIsEditor)
 		PIESession->PIEWorldContext->GameViewport->SetAudioDeviceHandle(-1);
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIE Exited!,Pin 4"));
 	PIESession->GameViewport->SetViewportClient(PIESession->GameWorldContext->GameViewport);
 	//Restore WorldContext
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIE Exited!,Pin 5"));
 	WorldContext = PIESession->GameWorldContext;
+	//It only have one Context need to destroy although there may have multiple worlds.
+	GEngine->DestroyWorldContext(PIEWorld);
 	//Release PIESession
 	PIESession.Reset();
 	//Force GC
 	CollectGarbage(GARBAGE_COLLECTION_KEEPFLAGS);
 	//Call Delegate
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIE Exited!,Pin 6"));
 	OnExitPIE.Broadcast();
+	UE_LOG(MuthMGameInstance, Log, TEXT("PIE Exited!"));
 }
 
 void UMuthMGameInstance::Shutdown()

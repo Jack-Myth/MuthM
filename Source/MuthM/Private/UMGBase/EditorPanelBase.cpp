@@ -318,15 +318,18 @@ void UEditorPanelBase::SetEnableInstructionInteraction(bool bEnable)
 TArray<class UInstructionWidgetBase*> UEditorPanelBase::CopyInstruction(TArray<class UInstructionWidgetBase*> InstructionsToCopy)
 {
 	TArray<UInstructionWidgetBase*> CopiedInstructions;
+	auto* InEditorMode = Cast<AInEditorMode>(UGameplayStatics::GetGameMode(this));
 	for (int i=0;i<InstructionsToCopy.Num();i++)
 	{
 		UInstruction* TargetInstruction = InstructionsToCopy[i]->GetInstructionInstance();
 		FBlueprintJsonObject BPJson = TargetInstruction->GenArgsJsonObject();
 		auto InstructionMgr = IInstructionManager::Get(this);
 		UInstruction* CopiedInstruction = InstructionMgr->GenInstruction(InstructionMgr->GetInstructionName(TargetInstruction->GetClass()), TargetInstruction->GetTime());
+		InEditorMode->GetEditorMMS()->AddInstruction(CopiedInstruction);
 		CopiedInstruction->OnInstructionLoaded_Editor(BPJson, FEditorExtraInfo());
 		auto* InstructionWidget = CopiedInstruction->GenInstructionWidget();
 		InstructionWidget->Init(CopiedInstruction);
+		InstructionWidgets.Add(InstructionWidget);
 		OnInstructionWidgetAdded(InstructionWidget);
 		CopiedInstructions.Add(InstructionWidget);
 	}

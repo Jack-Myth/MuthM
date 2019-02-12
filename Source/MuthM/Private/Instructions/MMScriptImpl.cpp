@@ -318,7 +318,7 @@ float UMMScriptImpl::GetSuiltableDelay()
 	//It should not less than 0;
 
 	//3s before the first instruction.
-	return _InstructionInstances.Num() ? FMath::Min(_InstructionInstances[0]->GetTime() - 3.f, 0.f) : 0;
+	return _InstructionInstances.Num() ? FMath::Max(-(_InstructionInstances[0]->GetTime() - 3.f), 0.f) : 0;
 }
 
 TArray<TScriptInterface<class IScoreInfo>> UMMScriptImpl::CollectScoreInfoArray()

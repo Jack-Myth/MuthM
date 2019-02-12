@@ -47,6 +47,7 @@ protected:
 		class UGameUIBase* _MainGameUI;
 	float _GameTime = 0;
 	FString _MMSFileName;
+	int _ScoreIndex = 0;
 	//The two cached variable is prepared for RestartGame.
 	FMusicInfo _CachedMusicInfo;
 	TArray<uint8> _CachedMMSData;
@@ -82,7 +83,9 @@ public:
 	{
 		return _pMDAT;
 	}
-	FORCEINLINE FMusicInfo GetMusicInfo()
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE FMusicInfo GetMusicInfo() const
 	{
 		return _CachedMusicInfo;
 	}
@@ -118,6 +121,9 @@ public:
 		return _GameTime;
 	}
 
+
+	UFUNCTION(BlueprintPure)
+		class UTexture2D* GetScoreCover();
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
