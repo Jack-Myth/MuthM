@@ -48,6 +48,8 @@ void AInGameState::InitScoreInfo(TArray<TScriptInterface<IScoreInfo>> ScoreInfoC
 	_ComboTop = FMath::Max(_ComboTop, 1);
 	_MaxScore = 0;
 	float ComboScoreRatio=0;
+	if (!ScoreInfoCollection.Num())
+		return;
 	for (int i=0;i<_ComboTop;i++)
 	{
 		ComboScoreRatio += ((float)i / _ComboTop);

@@ -108,7 +108,7 @@ void UEditorPanelBase::OnClickHandler(float Time,float VerticalOffset)
 void UEditorPanelBase::OnEditorPropertyInput(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue)
 {
 	UInstructionWidgetBase* TargetInstructionWidget=nullptr;
-	if (_SelectedWidget->GetInstructionInstance() == InstructionInstance)
+	if (_SelectedWidget&&_SelectedWidget->GetInstructionInstance() == InstructionInstance)
 		TargetInstructionWidget = _SelectedWidget;
 	else
 	{
@@ -219,6 +219,8 @@ void UEditorPanelBase::PupopDetails(class UInstructionWidgetBase* InstructionWid
 	//Handle Time Input
 	auto* TimeDetailItem = pInstructionCategory->ItemList.FindByPredicate([=](const TSharedPtr<FDetailItem>& a) {return a->Name == "Time"; });
 	((FDetailItemNumber*)TimeDetailItem->Get())->DetailCallbackNumber.BindUFunction(this, "OnEditorPropertyInput");
+	((FDetailItemNumber*)TimeDetailItem->Get())->SlideMin = InstructionWidgetBase->GetInstructionTime() - 1.f;
+	((FDetailItemNumber*)TimeDetailItem->Get())->SlideMax = InstructionWidgetBase->GetInstructionTime() + 1.f;
 	if (bShouldAlignBPM)
 	{
 		((FDetailItemNumber*)TimeDetailItem->Get())->SlideUnit = 60.f / _BPM / _BeatDenominator;
