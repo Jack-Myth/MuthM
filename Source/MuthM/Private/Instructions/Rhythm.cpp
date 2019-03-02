@@ -35,6 +35,11 @@ void URhythm::OnRhythmNumberDetailsChanged(class UInstruction* InstructionInstan
 	}
 }
 
+TSubclassOf<URhythmWidgetBase> URhythm::GetRhythmWidgetClass_Implementation()
+{
+	return UUIProvider::Get(this)->GetRhythmWidget();
+}
+
 ERhythmTouchResult URhythm::OnTouchTracking_Implementation(float X, float YPercent)
 {
 	return ERhythmTouchResult::RTR_Accepted;
@@ -61,7 +66,7 @@ void URhythm::OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Arg
 
 class UInstructionWidgetBase* URhythm::GenInstructionWidget_Implementation()
 {
-	auto RhythmWidgetClass = UUIProvider::Get(this)->GetRhythmWidget();
+	auto RhythmWidgetClass = GetRhythmWidgetClass();
 	_CachedRhythmWidget = Cast<URhythmWidgetBase>(UUserWidget::CreateWidgetInstance(*GetWorld(), RhythmWidgetClass, NAME_None));
 	_CachedRhythmWidget->SetVerticalOffset(LROffset);
 	_CachedRhythmWidget->SetWidthPercent(WidthPercent);
@@ -112,6 +117,14 @@ void URhythm::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBuilder>
 	RhythmCategory.ItemList.Add(WidthDetail);
 	
 	DetailsBuilder->AddCategory(RhythmCategory);
+}
+
+FBlueprintJsonObject URhythm::GenArgsJsonObject_Implementation()
+{
+	auto SuperJsonObj = Super::GenArgsJsonObject_Implementation();
+	SuperJsonObj.Object->SetNumberField("LROffset", LROffset);
+	SuperJsonObj.Object->SetNumberField("Width", WidthPercent);
+	return SuperJsonObj;
 }
 
 #undef LOCTEXT_NAMESPACE

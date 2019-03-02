@@ -37,6 +37,7 @@ DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputBoolDelegate, TSubclassOf<class UD
 DECLARE_DYNAMIC_DELEGATE_OneParam(FRhythmWidgetDelegate, TSubclassOf<class URhythmWidgetBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputColorDelegate, TSubclassOf<class UDetailInputColorBase>&, _returnV);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FDetailInputSelectionDelegate, TSubclassOf<class UDetailInputSelectionBase>&, _returnV);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FRhythmSlideWidgetDelegate, TSubclassOf<class URhythmSlideWidgetBase>&, _returnV);
  
 /**Provide UI for modding,should get all UI from this class.**/  
 UCLASS(NotBlueprintable)
@@ -256,5 +257,12 @@ public:
 		void ClearDetailInputSelection() { DetailInputSelection.Unbind(); }
 	UFUNCTION(BlueprintPure)
 		TSubclassOf<class UDetailInputSelectionBase> GetDetailInputSelection(); 
+ 
+	UPROPERTY(BlueprintReadWrite)
+		FRhythmSlideWidgetDelegate RhythmSlideWidget;
+	UFUNCTION(BlueprintCallable)
+		void ClearRhythmSlideWidget() { RhythmSlideWidget.Unbind(); }
+	UFUNCTION(BlueprintPure)
+		TSubclassOf<class URhythmSlideWidgetBase> GetRhythmSlideWidget(); 
  
 }; 

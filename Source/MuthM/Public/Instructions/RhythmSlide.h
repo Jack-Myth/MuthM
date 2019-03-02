@@ -30,6 +30,7 @@ class MUTHM_API URhythmSlide : public URhythm
 	GENERATED_BODY()
 	
 	bool bTracking = false;
+
 protected:
 	UPROPERTY(BlueprintReadWrite)
 		TArray<FRhythmSlideSubNoteInfo> SubNotes;
@@ -72,6 +73,7 @@ protected:
 	UFUNCTION(BlueprintNativeEvent)
 		class UMaterialInterface* GetGlowPointMaterialTemplate();
 
+	virtual TSubclassOf<URhythmWidgetBase> GetRhythmWidgetClass_Implementation() override;
 public:
 	virtual ERhythmTouchResult OnTouchBegin_Implementation(float X, float YPercent) override;
 	virtual ERhythmTouchResult OnTouchTracking_Implementation(float X, float YPercent) override;

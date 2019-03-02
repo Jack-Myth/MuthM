@@ -23,6 +23,7 @@ UCLASS(Abstract)
 class MUTHM_API URhythm : public UInstruction , public IScoreInfo
 {
 	GENERATED_BODY()
+
 protected:
 	UPROPERTY(BlueprintReadWrite)
 		class URhythmWidgetBase* _CachedRhythmWidget=nullptr;
@@ -51,6 +52,8 @@ protected:
 
 	UFUNCTION()
 		void OnRhythmNumberDetailsChanged(class UInstruction* InstructionInstance, FName PropertyName, float NumberValue);
+	UFUNCTION(BlueprintNativeEvent)
+		TSubclassOf<URhythmWidgetBase> GetRhythmWidgetClass();
 public:
 
 	UFUNCTION(BlueprintNativeEvent,BlueprintCallable)
@@ -69,4 +72,6 @@ public:
 	virtual bool IsInstructionReady_Implementation(float CurrentTime) const override;
 
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
+
+	virtual FBlueprintJsonObject GenArgsJsonObject_Implementation() override;
 };

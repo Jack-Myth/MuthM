@@ -52,6 +52,7 @@ void UEditorPanelBase::SetTimeAxis(float NewTime)
 	if (NewTime == TimeAxis)
 		return;
 	TimeAxis = NewTime;
+	LastTime = NewTime;
 	OnTimeAxisChanged(NewTime);
 	if (bFastAddMode)
 		OnCenterTimeAxis();
@@ -263,6 +264,23 @@ void UEditorPanelBase::PupopTemplateDetails()
 void UEditorPanelBase::OnMusicProcessCallback(float Current, float Duration)
 {
 	SetTimeAxis(Current);
+	//Check if Widget should be twinkle.
+	//TODO: Performance
+	auto OrderedWidgets = GetOrderedInstructionWidgets();
+	for (int i=0;i<OrderedWidgets.Num();i++)
+	{
+		if (OrderedWidgets[i]->GetInstructionTime() > LastTime)
+		{
+			if (OrderedWidgets[i]->GetInstructionTime() <= Current)
+			{
+				OrderedWidgets[i]->OnTwikleWidget();
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
 }
 
 void UEditorPanelBase::SetInstructionTemplateByName(FName TemplateInstructionName)

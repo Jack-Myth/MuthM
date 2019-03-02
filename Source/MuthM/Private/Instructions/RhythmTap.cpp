@@ -163,8 +163,6 @@ float URhythmTap::RequestPlainMaxScore_Implementation()
 FBlueprintJsonObject URhythmTap::GenArgsJsonObject_Implementation()
 {
 	FBlueprintJsonObject SuperJsonObj = Super::GenArgsJsonObject_Implementation();
-	SuperJsonObj.Object->SetNumberField("LROffset", LROffset);
-	SuperJsonObj.Object->SetNumberField("Width", WidthPercent);
 	SuperJsonObj.Object->SetNumberField("MaxScore", MaxScore);
 	UMuthMBPLib::SaveColorToJson(SuperJsonObj.Object, "Color", RhythmColor);
 	return SuperJsonObj;

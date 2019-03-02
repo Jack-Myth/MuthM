@@ -152,6 +152,12 @@ void UMuthMGameInstance::EnterPIEMode(struct FWorldContext*& PIEWorldContext)
 	//Create new WorldContext
 	FWorldContext& newWorldContext = GEngine->CreateNewWorldContext(EWorldType::Game);
 	PIEWorldContext = &newWorldContext;
+#if WITH_EDITOR
+	if (GIsEditor)
+	{
+		PIEWorldContext->PIEInstance = -1;
+	}
+#endif
 	PIESession->PIEWorldContext = &newWorldContext;
 	PIESession->PIEWorldContext->OwningGameInstance = this;
 	//Create PIE GameViewportClient

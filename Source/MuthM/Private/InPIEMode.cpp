@@ -16,7 +16,7 @@ void AInPIEMode::NativeOnGameEnded(EGameEndReason GameEndReason)
 	}
 }
 
-#if WITH_EDITOR
+#if 0
 void AInPIEMode::TickPIE(float CurrentTime, float Duration)
 {
 	//Tick() is not a complete implementation, Only for Unreal Editor PIE!
@@ -39,7 +39,7 @@ void AInPIEMode::BindDelegates()
 	InputHandler->OnBackPressed.AddUObject(this, &AInPIEMode::OnBackPressed);
 	auto* GameInstance = Cast<UMuthMGameInstance>(UGameplayStatics::GetGameInstance(this));
 	GameInstance->OnExitPIE.AddUObject(this, &AInPIEMode::OnExitPIE);
-#if WITH_EDITOR
+#if 0
 	OnMusicPlaybackTimeUpdate.AddDynamic(this, &AInPIEMode::TickPIE);
 #endif
 }

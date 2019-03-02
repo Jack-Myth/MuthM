@@ -34,6 +34,7 @@
 #include "RhythmWidgetBase.h" 
 #include "DetailInputColorBase.h" 
 #include "DetailInputSelectionBase.h" 
+#include "RhythmSlideWidgetBase.h" 
  
 UUIProvider* UUIProvider::Get(const UObject* WorldContextObj)
 {
@@ -460,6 +461,20 @@ TSubclassOf<UDetailInputSelectionBase> UUIProvider::GetDetailInputSelection()
 	else
 	{
 		return LoadClass<UDetailInputSelectionBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/GameFramework/DetailInputSelection.DetailInputSelection_C'"));
+	} 
+} 
+ 
+TSubclassOf<URhythmSlideWidgetBase> UUIProvider::GetRhythmSlideWidget() 
+{ 
+	if(RhythmSlideWidget.IsBound()) 
+	{ 
+		TSubclassOf<URhythmSlideWidgetBase> _uclass; 
+		RhythmSlideWidget.Execute(_uclass);
+		return _uclass;
+	} 
+	else
+	{
+		return LoadClass<URhythmSlideWidgetBase>(NULL,TEXT( "WidgetBlueprint'/Game/MuthM/Blueprints/UI/Rhythm/RhythmSlideWidget.RhythmSlideWidget_C'"));
 	} 
 } 
  

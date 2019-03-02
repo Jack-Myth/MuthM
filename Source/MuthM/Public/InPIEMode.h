@@ -20,7 +20,7 @@ public:
 	virtual void NativeOnGameEnded(EGameEndReason GameEndReason) override;
 	
 protected:
-#if WITH_EDITOR
+#if 0
 	UFUNCTION()
 		void TickPIE(float CurrentTime, float Duration);
 #endif

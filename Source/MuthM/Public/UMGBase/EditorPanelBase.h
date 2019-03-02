@@ -24,6 +24,7 @@ class MUTHM_API UEditorPanelBase : public UUserWidget
 	UPROPERTY()
 		class UDetailsListBase* ActivedDetailsWidget=nullptr;
 	bool _NextToAdd;
+	float LastTime = 0;
 protected:
 	//default widget(R-L)=30 seconds
 	UPROPERTY(BlueprintReadWrite)

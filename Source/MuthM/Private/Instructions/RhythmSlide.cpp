@@ -15,6 +15,7 @@
 #include "MuthMBPLib.h"
 #include "DetailInputColorBase.h"
 #include "UIProvider.h"
+#include "RhythmSlideWidgetBase.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -23,7 +24,8 @@ void URhythmSlide::RhythmSlideNumberCallback(class UInstruction* InstructionInst
 	if (PropertyName=="SubNotesCount")
 	{
 		SubNotes.SetNum(FMath::Max((int)NumberValue, 0));
-		//TODO: Update Widget.
+		if (_CachedRhythmWidget)
+			Cast<URhythmSlideWidgetBase>(_CachedRhythmWidget)->OnSubnoteInfo(SubNotes);
 	}
 }
 
@@ -41,12 +43,14 @@ void URhythmSlide::SubNoteNumberCallback(class UInstruction* InstructionInstance
 	if (PropertyNameStr == "TimeOffset")
 	{
 		SubNotes[SubNoteIndex].TimeOffset = NumberValue;
-		//TODO: Update Widget
+		if (_CachedRhythmWidget)
+			Cast<URhythmSlideWidgetBase>(_CachedRhythmWidget)->OnSubnoteInfo(SubNotes);
 	}
 	else if (PropertyNameStr == "PositionOffset")
 	{
 		SubNotes[SubNoteIndex].PositionOffset = NumberValue;
-		//TODO: Update Widget
+		if (_CachedRhythmWidget)
+			Cast<URhythmSlideWidgetBase>(_CachedRhythmWidget)->OnSubnoteInfo(SubNotes);
 	}
 	else if (PropertyNameStr == "Score")
 	{
@@ -134,6 +138,11 @@ void URhythmSlide::InitProperty(FBlueprintJsonObject Args)
 			SubNotes.Add(tmpNoteInfo);
 		}
 	}
+}
+
+TSubclassOf<URhythmWidgetBase> URhythmSlide::GetRhythmWidgetClass_Implementation()
+{
+	return UUIProvider::Get(this)->GetRhythmSlideWidget();
 }
 
 class UMaterialInterface* URhythmSlide::GetGlowPointMaterialTemplate_Implementation()
@@ -356,8 +365,8 @@ void URhythmSlide::OnBuildingDetails_Implementation(TScriptInterface<IDetailsBui
 		tmpSubNotePositionOffset->Name = *FString::Printf(TEXT("SubNote%d-PositionOffset"), i);
 		tmpSubNotePositionOffset->DisplayName = LOCTEXT("PositionOffset", "PositionOffset");
 		tmpSubNotePositionOffset->NumberValue = SubNotes[i].PositionOffset;
-		tmpSubNotePositionOffset->SlideMin = 0.f;
-		tmpSubNotePositionOffset->SlideMax = 10.f;
+		tmpSubNotePositionOffset->SlideMin = -1.f;
+		tmpSubNotePositionOffset->SlideMax = 1.f;
 		tmpSubNotePositionOffset->DetailCallbackNumber.BindUFunction(this, "SubNoteNumberCallback");
 		tmpSubNoteCategory.ItemList.Add(tmpSubNotePositionOffset);
 		//Score
