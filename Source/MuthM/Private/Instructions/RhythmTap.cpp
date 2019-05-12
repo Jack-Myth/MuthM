@@ -16,6 +16,7 @@
 #include "MuthMBPLib.h"
 #include "UIProvider.h"
 #include "DetailInputColorBase.h"
+#include "Particles/ParticleSystem.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -49,6 +50,13 @@ void URhythmTap::OnColorUpdate(class UInstruction* InstructionInstance, FName Pr
 	{
 		RhythmColor = Cast<UDetailInputColorBase>(CustomWidget)->GetColor();
 	}
+}
+
+void URhythmTap::OnTapEffect_Implementation()
+{
+	FVector TargetLocation = RhythmObj->GetActorLocation();
+	auto* Effect = LoadObject<UParticleSystem>(nullptr,TEXT("ParticleSystem'/Game/HDParticlePack/Particles/P_ClusterMini.P_ClusterMini'"));
+	UGameplayStatics::SpawnEmitterAtLocation(this, Effect, TargetLocation, FRotator(0, FMath::FRandRange(0, 360), 0));
 }
 
 void URhythmTap::OnInstructionLoaded_Implementation(FBlueprintJsonObject Args)
@@ -148,6 +156,8 @@ ERhythmTouchResult URhythmTap::OnTouchBegin_Implementation(float X, float YPerce
 	}
 	if (beenTouched)
 	{
+		//Spawn Effect.
+		OnTapEffect();
 		RhythmObj->Destroy();
 		DestroySelf();
 		return ERhythmTouchResult::RTR_Accepted;

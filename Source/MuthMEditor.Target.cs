@@ -8,7 +8,7 @@ public class MuthMEditorTarget : TargetRules
 	public MuthMEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-
-		ExtraModuleNames.AddRange( new string[] { "MuthM","GameHAL" } );
+        BuildEnvironment = TargetBuildEnvironment.Shared;
+        ExtraModuleNames.AddRange( new string[] { "MuthM","GameHAL" } );
 	}
 }

@@ -16,6 +16,8 @@
 #include "DetailInputColorBase.h"
 #include "UIProvider.h"
 #include "RhythmSlideWidgetBase.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Particles/ParticleSystem.h"
 
 #define LOCTEXT_NAMESPACE "MuthM"
 
@@ -117,6 +119,7 @@ void URhythmSlide::BreakDown()
 	RhythmMesh->AttachToActor(IntermediateActor, FAttachmentTransformRules::KeepWorldTransform);
 	bBroken = true;
 	bTracking = false;
+	OnEffect_Released();
 	//TODO: Set Material.
 }
 
@@ -145,6 +148,40 @@ TSubclassOf<URhythmWidgetBase> URhythmSlide::GetRhythmWidgetClass_Implementation
 	return UUIProvider::Get(this)->GetRhythmSlideWidget();
 }
 
+void URhythmSlide::OnEffect_Tracking_Implementation(float YPercent)
+{
+	if (!PressingEffect)
+		return;
+	FVector TargetLocation = RhythmMesh->GetActorLocation();
+	TargetLocation.Y = YPercent * SceneHalfWidth;
+	PressingEffect->SetWorldLocation(TargetLocation);
+}
+
+void URhythmSlide::OnEffect_Finished_Implementation()
+{
+	FVector TargetLocation = RhythmMesh->GetActorLocation();
+	auto* Effect = LoadObject<UParticleSystem>(nullptr, TEXT("ParticleSystem'/Game/HDParticlePack/Particles/P_ClusterMini.P_ClusterMini'"));
+	UGameplayStatics::SpawnEmitterAtLocation(this, Effect, TargetLocation, FRotator(0, FMath::FRandRange(0, 360), 0));
+}
+
+void URhythmSlide::OnEffect_Released_Implementation()
+{
+	if (PressingEffect)
+	{
+		PressingEffect->DestroyComponent();
+		PressingEffect = nullptr;
+	}
+}
+
+void URhythmSlide::OnEffect_Pressing_Implementation()
+{
+	if (PressingEffect)
+		return;
+	FVector TargetLocation = RhythmMesh->GetActorLocation();
+	auto* Effect = LoadObject<UParticleSystem>(nullptr, TEXT("ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Monsters/FX_Monster_Elemental/ICE/P_Beam_Impact_Ice.P_Beam_Impact_Ice'"));
+	PressingEffect = UGameplayStatics::SpawnEmitterAtLocation(this, Effect, TargetLocation, FRotator(0, FMath::FRandRange(0, 360), 0));
+}
+
 class UMaterialInterface* URhythmSlide::GetGlowPointMaterialTemplate_Implementation()
 {
 	return LoadObject<UMaterial>(nullptr, TEXT("Material'/Game/MuthM/Materials/Game/Glowpoint.Glowpoint'"));
@@ -171,6 +208,7 @@ ERhythmTouchResult URhythmSlide::OnTouchBegin_Implementation(float X, float YPer
 		{
 			//Pressed
 			bTracking = true;
+			OnEffect_Pressing();
 			return ERhythmTouchResult::RTR_Tracking;
 		}
 	}
@@ -190,10 +228,13 @@ ERhythmTouchResult URhythmSlide::OnTouchTracking_Implementation(float X, float Y
 		bBroken = true;
 		bTracking = false;
 		RhythmMesh->AttachToActor(IntermediateActor, FAttachmentTransformRules::KeepWorldTransform);
+		OnEffect_Released();
+		OnEffect_Finished();
 		return ERhythmTouchResult::RTR_Accepted;
 	}
 	if (YPercent > PositionOffset - WidthPercent && YPercent < PositionOffset + WidthPercent)
 	{
+		OnEffect_Tracking(YPercent);
 		return ERhythmTouchResult::RTR_Tracking;
 	}
 	else

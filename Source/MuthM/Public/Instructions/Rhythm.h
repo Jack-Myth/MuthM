@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Instructions/Instruction.h"
 #include "ScoreInfo.h"
+#include "SubclassOf.h"
 #include "Rhythm.generated.h"
 
 UENUM(BlueprintType)

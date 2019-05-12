@@ -40,4 +40,6 @@ public:
 		TArray<FMusicInfo> MusicInfoCollection;
 	UPROPERTY()
 		TArray<FDownloadInfo> DownloadInfoCollection;
+	UPROPERTY()
+		TArray<int32> EnabledModID;
 };

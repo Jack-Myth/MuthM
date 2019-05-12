@@ -6,6 +6,7 @@
 #include "MuthMNativeLib.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "Engine/Engine.h"
 
 #ifdef _MUTHM_USE_FMOD
 
@@ -112,17 +113,29 @@ void UMainSWPlayerImplFMod::Tick(float DeltaTime)
 		return;
 	uint32 Position, Duration;
 	pFModChannel->getPosition(&Position, FMOD_TIMEUNIT_MS);
+	PositionOffsetMs += DeltaTime * Pitch * 1000;
 	if (bPlaybackEventInterpolation)
 	{
-		if (Position==LastTimeMs&&IsPlaying())
+		if (Position!=LastTimeMs)
 		{
-			PositionOffsetMs += DeltaTime * Pitch * 1000;
-			Position += PositionOffsetMs;
+			if (LastTimeMs + PositionOffsetMs<Position||
+				(int)(LastTimeMs + PositionOffsetMs) - (int)Position > Pitch * 1000)
+			{
+				//Fix wrong offset(larger than 1 second)
+				PositionOffsetMs = 0;
+				LastTimeMs = Position;
+			}
+			else
+			{
+				//No more than a tick.
+				PositionOffsetMs = LastTimeMs + PositionOffsetMs - Position;
+				LastTimeMs = Position;
+				Position = LastTimeMs + PositionOffsetMs;
+			}
 		}
 		else
 		{
-			PositionOffsetMs = 0;
-			LastTimeMs = Position;
+			Position += PositionOffsetMs;
 		}
 	}
 	pMainSoundWave->GetFModSound()->getLength(&Duration, FMOD_TIMEUNIT_MS);

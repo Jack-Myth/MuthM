@@ -5,6 +5,7 @@
 #include "CoreMinimal.h" 
 #include "UObject/NoExportTypes.h" 
 #include "Object.h"
+#include "SubclassOf.h"
 #include "UIProvider.generated.h" 
  
 DECLARE_DYNAMIC_DELEGATE_OneParam(FPauseUIDelegate, TSubclassOf<class UPauseUIBase>&, _returnV);

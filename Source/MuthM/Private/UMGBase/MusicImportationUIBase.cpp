@@ -4,6 +4,7 @@
 #include "MusicManager.h"
 #include "FileHelper.h"
 #include "MuthMBPLib.h"
+#include "Engine/Engine.h"
 
 void UMusicImportationUIBase::BeginImportMusic(const FString& Title, const FString& Musician)
 {

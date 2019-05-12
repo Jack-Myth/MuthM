@@ -32,6 +32,8 @@ protected:
 		void InitProperty(UPARAM(Ref) FBlueprintJsonObject& Args);
 	UFUNCTION()
 		void OnColorUpdate(class UInstruction* InstructionInstance, FName PropertyName, class UDetailInputCustomBase* CustomWidget);
+	UFUNCTION(BlueprintNativeEvent)
+		void OnTapEffect();
 public:
 	virtual void OnInstructionLoaded_Implementation(FBlueprintJsonObject Args) override;
 	virtual void OnInstructionLoaded_Editor_Implementation(FBlueprintJsonObject Args,FEditorExtraInfo EditorExtraInfo) override;

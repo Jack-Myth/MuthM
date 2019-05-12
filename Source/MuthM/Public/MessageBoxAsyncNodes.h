@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintAsyncActionBase.h"
+#include "TextProperty.h"
 #include "MessageBoxAsyncNodes.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMsgBoxReplied);

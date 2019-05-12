@@ -4,6 +4,8 @@
 #include "MMScriptImpl.h"
 #include "InEditorMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "UObjectGlobals.h"
+#include "Engine/World.h"
 
 bool UInstructionManagerImpl::RegisterInstruction(const FName& InstructionName, const TSubclassOf<UInstruction>& InstructionClass, FInstructionRef& InstructionRef)
 {

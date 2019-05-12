@@ -8,7 +8,7 @@ public class MuthMTarget : TargetRules
 	public MuthMTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-
-		ExtraModuleNames.AddRange( new string[] { "MuthM" ,"GameHAL" } );
+        BuildEnvironment = TargetBuildEnvironment.Shared;
+        ExtraModuleNames.AddRange( new string[] { "MuthM" ,"GameHAL" } );
 	}
 }

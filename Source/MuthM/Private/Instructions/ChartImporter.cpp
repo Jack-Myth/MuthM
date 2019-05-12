@@ -2,6 +2,8 @@
 
 #include "ChartImporter.h"
 #include "ChartImporterCytus.h"
+#include "NoExportTypes.h"
+#include "Engine/World.h"
 
 // Add default functionality here for any IChartImporter functions that are not pure virtual.
 

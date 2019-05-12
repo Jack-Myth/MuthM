@@ -3,11 +3,12 @@
 #include "WelcomeUIBase.h"
 #include "UIProvider.h"
 #include "MainMenuUIBase.h"
+#include "ModManager.h"
 
 bool UWelcomeUIBase::FindAndLoadMods()
 {
-	//UNDONE: Find And Load Mods
-	return false;
+	IModManager::Get(this)->InitLoadMods();
+	return true;
 }
 
 void UWelcomeUIBase::LoadMainMenuUI()

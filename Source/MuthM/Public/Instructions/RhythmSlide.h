@@ -51,6 +51,9 @@ protected:
 	UFUNCTION()
 		void OnUpdateColor(class UInstruction* InstructionInstance, FName PropertyName, class UDetailInputCustomBase* CustomWidget);
 
+	UPROPERTY(BlueprintReadWrite)
+		class UParticleSystemComponent* PressingEffect=nullptr;
+
 	UPROPERTY(BlueprintReadWrite,meta=(ToolTip="Prevent to be clicked double times."))
 		bool bBroken = false;
 	UPROPERTY(BlueprintReadWrite)
@@ -74,6 +77,14 @@ protected:
 		class UMaterialInterface* GetGlowPointMaterialTemplate();
 
 	virtual TSubclassOf<URhythmWidgetBase> GetRhythmWidgetClass_Implementation() override;
+	UFUNCTION(BlueprintNativeEvent)
+		void OnEffect_Pressing();
+	UFUNCTION(BlueprintNativeEvent)
+		void OnEffect_Tracking(float YPercent);
+	UFUNCTION(BlueprintNativeEvent)
+		void OnEffect_Released();
+	UFUNCTION(BlueprintNativeEvent)
+		void OnEffect_Finished();
 public:
 	virtual ERhythmTouchResult OnTouchBegin_Implementation(float X, float YPercent) override;
 	virtual ERhythmTouchResult OnTouchTracking_Implementation(float X, float YPercent) override;

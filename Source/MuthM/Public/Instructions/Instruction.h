@@ -101,10 +101,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 		class UInstructionWidgetBase* GenInstructionWidget();
 	//Override GetWorld() To provide the WorldContext
-	virtual class UWorld* GetWorld() const override final
-	{
-		return GetOuter()->GetWorld();
-	}
+	virtual class UWorld* GetWorld() const override;
 
 	virtual void OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder) override;
 

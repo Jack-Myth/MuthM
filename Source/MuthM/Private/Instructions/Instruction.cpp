@@ -103,6 +103,18 @@ void UInstruction::SetGlobalObjectData(FName Key, UObject* Object)
 	InGameMode->GlobalDataObject.Add(Key) = Object;
 }
 
+class UWorld* UInstruction::GetWorld() const
+{
+	if (!HasAnyFlags(RF_ClassDefaultObject))
+	{
+		UObject* Outer = GetOuter();
+		while (Outer && !Outer->GetWorld())
+			Outer = Outer->GetOuter();
+		return Outer ? Outer->GetWorld() : nullptr;
+	}
+	return nullptr;
+}
+
 void UInstruction::OnBuildingDetails_Implementation(UPARAM(Ref) TScriptInterface<IDetailsBuilder>& DetailsBuilder)
 {
 	//Super::OnBuildingDetails_Implementation(DetailsBuilder);
